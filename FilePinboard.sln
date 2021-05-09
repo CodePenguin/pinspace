@@ -5,12 +5,12 @@ VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilePinboard", "FilePinboard\FilePinboard.csproj", "{D50FC23E-F6DE-40BE-AD58-E3C96466EB5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shell", "..\gong-shell\Shell\Shell.csproj", "{711CCF1F-6B8F-4E97-8D84-0EE679C83B41}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B3115136-2D6B-41D4-9440-765ADFC8BEAC}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shell", "submodules\gong-shell\Shell\Shell.csproj", "{711CCF1F-6B8F-4E97-8D84-0EE679C83B41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
