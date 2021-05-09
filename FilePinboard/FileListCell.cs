@@ -107,19 +107,8 @@ namespace FilePinboard
             {
                 return;
             }
-            try
-            {
-                var contextMenu = new ShellContextMenu(selectedItems);
-                contextMenu.ShowContextMenu(listView, e.Location);
-            }
-            catch (COMException ex)
-            {
-                var hresult = (HResult)ex.HResult;
-                if (hresult != HResult.E_ABORT && hresult != HResult.E_USER_CANCELLED)
-                {
-                    throw;
-                }
-            }
+            var contextMenu = new ShellContextMenu(selectedItems);
+            contextMenu.ShowContextMenu(listView, e.Location);
         }
 
         private ShellItem[] SelectedItems()
