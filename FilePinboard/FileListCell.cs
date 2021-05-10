@@ -2,8 +2,8 @@ using GongSolutions.Shell;
 using GongSolutions.Shell.Interop;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace FilePinboard
@@ -12,6 +12,7 @@ namespace FilePinboard
     {
         private readonly ListView listView;
         private readonly List<ShellItem> files = new List<ShellItem>();
+        private bool isDragging = false;
 
         public FileListCell() : base()
         {
@@ -37,14 +38,14 @@ namespace FilePinboard
             listView.Columns.Add("Size", 100);
         }
 
-        private void AddFile(string fileName)
+        private void AddFile(string fileName, int index)
         {
             var shellItem = new ShellItem(fileName);
             files.Add(shellItem);
 
             var item = new ListViewItem { Tag = files.Count - 1 };
             UpdateListViewItem(item);
-            listView.Items.Add(item);
+            listView.Items.Insert(index, item);
         }
 
         private void ListView_DragEnter(object sender, DragEventArgs e)
@@ -60,10 +61,30 @@ namespace FilePinboard
             listView.BeginUpdate();
             try
             {
+                var dropPoint = listView.PointToClient(new Point(e.X, e.Y));
+                var targetItem = listView.GetItemAt(dropPoint.X, dropPoint.Y);
+                int insertIndex;
+
+                // Move the selected items to the new position
+                if (isDragging)
+                {
+                    foreach (ListViewItem item in listView.SelectedItems)
+                    {
+                        item.Remove();
+                        insertIndex = targetItem != null ? targetItem.Index : listView.Items.Count;
+                        listView.Items.Insert(insertIndex, item);
+                        targetItem = item;
+                        insertIndex = item.Index;
+                    }
+                    return;
+                }
+
+                // Add new items to the view
+                insertIndex = targetItem != null ? targetItem.Index : listView.Items.Count;
                 var droppedFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
                 foreach (var fileName in droppedFiles)
                 {
-                    AddFile(fileName);
+                    AddFile(fileName, insertIndex);
                 }
             } 
             finally
@@ -74,26 +95,34 @@ namespace FilePinboard
 
         private void ListView_ItemDrag(object sender, ItemDragEventArgs e)
         {
-            var selectedItems = SelectedItems();
+            var selectedItems = SelectedShellItems();
             if (selectedItems.Length == 0)
             {
                 return;
             }
-            if (selectedItems.Length == 1)
+            try
             {
-                Ole32.DoDragDrop(selectedItems[0].GetIDataObject(), this, DragDropEffects.All, out _);
-                return;
-            }
+                isDragging = true;
+                if (selectedItems.Length == 1)
+                {
+                    Ole32.DoDragDrop(selectedItems[0].GetIDataObject(), this, DragDropEffects.All, out _);
+                    return;
+                }
 
-            // Convert selected files to a DataObject of file names
-            var dataObject = new DataObject();
-            var fileNames = new StringCollection();
-            foreach (var file in selectedItems)
-            {
-                fileNames.Add(file.FileSystemPath);
+                // Convert selected files to a DataObject of file names
+                var dataObject = new DataObject();
+                var fileNames = new StringCollection();
+                foreach (var file in selectedItems)
+                {
+                    fileNames.Add(file.FileSystemPath);
+                }
+                dataObject.SetFileDropList(fileNames);
+                Ole32.DoDragDrop(dataObject, this, DragDropEffects.All, out _);
             }
-            dataObject.SetFileDropList(fileNames);
-            Ole32.DoDragDrop(dataObject, this, DragDropEffects.All, out _);
+            finally
+            {
+                isDragging = false;
+            }
         }
 
         private void ListView_MouseClick(object sender, MouseEventArgs e)
@@ -102,7 +131,7 @@ namespace FilePinboard
             {
                 return;
             }
-            var selectedItems = SelectedItems();
+            var selectedItems = SelectedShellItems();
             if (selectedItems.Length == 0)
             {
                 return;
@@ -111,7 +140,7 @@ namespace FilePinboard
             contextMenu.ShowContextMenu(listView, e.Location);
         }
 
-        private ShellItem[] SelectedItems()
+        private ShellItem[] SelectedShellItems()
         {
             var items = new List<ShellItem>();
             foreach (ListViewItem item in listView.SelectedItems)
