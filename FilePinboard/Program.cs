@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using System;
 using System.Windows.Forms;
 
@@ -9,6 +9,8 @@ namespace FilePinboard
         private static IContainer BuildContainer()
         {
             var builder = new ContainerBuilder();
+            builder.RegisterType<ApplicationContainer>();
+            builder.RegisterType<ApplicationContext>();
             builder.RegisterType<PinboardForm>();
             return builder.Build();
         }
@@ -19,8 +21,8 @@ namespace FilePinboard
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var mainForm = BuildContainer().Resolve<PinboardForm>();
-            Application.Run(mainForm);
+            var context = BuildContainer().Resolve<ApplicationContext>();
+            Application.Run(context);
         }
     }
 }

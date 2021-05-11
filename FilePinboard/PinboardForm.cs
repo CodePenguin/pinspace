@@ -1,10 +1,13 @@
-﻿using System;
+using EasyTabs;
+using System;
 using System.Windows.Forms;
 
 namespace FilePinboard
 {
     public partial class PinboardForm : Form
     {
+        protected TitleBarTabs ParentTabs => (ParentForm as TitleBarTabs);
+
         public PinboardForm()
         {
             InitializeComponent();
