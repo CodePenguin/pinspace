@@ -2,9 +2,9 @@ using EasyTabs;
 
 namespace FilePinboard
 {
-    internal class ApplicationContext : TitleBarTabsApplicationContext
+    internal class FilePinboardApplicationContext : TitleBarTabsApplicationContext
     {
-        public ApplicationContext(ApplicationContainer container)
+        public FilePinboardApplicationContext(FilePinboardWindowContainer container)
         {
             container.Tabs.Add(container.CreateTab());
             container.SelectedTabIndex = 0;

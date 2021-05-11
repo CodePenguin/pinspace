@@ -1,7 +1,7 @@
-﻿
+
 namespace FilePinboard
 {
-    partial class ApplicationContainer
+    partial class FilePinboardWindowContainer
     {
         /// <summary>
         /// Required designer variable.

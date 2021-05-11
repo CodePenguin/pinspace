@@ -100,13 +100,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationContainer.cs">
+    <Compile Include="FilePinboardWindowContainer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ApplicationContainer.Designer.cs">
-      <DependentUpon>ApplicationContainer.cs</DependentUpon>
+    <Compile Include="FilePinboardWindowContainer.Designer.cs">
+      <DependentUpon>FilePinboardWindowContainer.cs</DependentUpon>
     </Compile>
-    <Compile Include="ApplicationContext.cs" />
+    <Compile Include="FilePinboardApplicationContext.cs" />
+    <Compile Include="FormFactory.cs" />
     <Compile Include="PinboardCell.cs">
       <SubType>Component</SubType>
     </Compile>
