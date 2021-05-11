@@ -9,7 +9,7 @@ namespace FilePinboard
         private static IContainer BuildContainer()
         {
             var builder = new ContainerBuilder();
-            builder.RegisterType<ApplicationContainer>();
+            builder.Register(c => new ApplicationContainer { PinboardFormFactory = c.Resolve<Func<PinboardForm>>() });
             builder.RegisterType<ApplicationContext>();
             builder.RegisterType<PinboardForm>();
             return builder.Build();

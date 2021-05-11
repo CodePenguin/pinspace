@@ -5,10 +5,9 @@ namespace FilePinboard
 {
     public partial class ApplicationContainer : TitleBarTabs
     {
-        private readonly Func<PinboardForm> pinboardFormFactory;
-        public ApplicationContainer(Func<PinboardForm> pinboardFormFactory)
+        public Func<PinboardForm> PinboardFormFactory { get; set; }
+        public ApplicationContainer()
         {
-            this.pinboardFormFactory = pinboardFormFactory;
             InitializeComponent();
 
             AeroPeekEnabled = true;
@@ -17,7 +16,7 @@ namespace FilePinboard
 
         public override TitleBarTab CreateTab()
         {
-            var pinboardForm = pinboardFormFactory();
+            var pinboardForm = PinboardFormFactory();
             pinboardForm.Text = "New Pinboard";
             return new TitleBarTab(this)
             {
