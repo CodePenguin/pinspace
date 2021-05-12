@@ -17,7 +17,7 @@ namespace FilePinboard
 
         private readonly SplitDirection splitDirection;
         private readonly Splitter splitter;
-        
+
         public SplitView(SplitDirection splitDirection, Control mainControl, Control splitControl)
         {
             this.splitDirection = splitDirection;
@@ -28,7 +28,7 @@ namespace FilePinboard
             Controls.Add(MainControl);
             MainControl.Dock = DockStyle.Fill;
 
-            splitter = new Splitter { Dock = DockStyle.Bottom };
+            splitter = new Splitter { Dock = splitDirection == SplitDirection.Horizontal ? DockStyle.Bottom : DockStyle.Right };
             splitter.SplitterMoved += OnSplitterMoved;
             Controls.Add(splitter);
 
