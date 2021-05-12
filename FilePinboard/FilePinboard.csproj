@@ -99,6 +99,9 @@
     </Compile>
     <Compile Include="FilePinboardApplicationContext.cs" />
     <Compile Include="FormFactory.cs" />
+    <Compile Include="SplitView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="PinboardCell.cs">
       <SubType>Component</SubType>
     </Compile>

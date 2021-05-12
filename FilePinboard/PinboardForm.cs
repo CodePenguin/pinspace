@@ -17,7 +17,7 @@ namespace FilePinboard
 
         private void AddCellToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            tableLayoutPanel.Controls.Add(new FileListCell { Dock = DockStyle.Fill });
+            Controls.Add(new SplitView(SplitDirection.Vertical, new FileListCell { Dock = DockStyle.Fill }, new FileListCell { Dock = DockStyle.Fill }));
         }
 
         private void ExitMenuItem_Click(object sender, EventArgs e)
