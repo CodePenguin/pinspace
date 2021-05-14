@@ -9,12 +9,7 @@ namespace FilePinboard
         private static IContainer BuildContainer()
         {
             var builder = new ContainerBuilder();
-            builder.Register(c =>
-            {
-                FilePinboardWindowContainer.LifetimeScopeFactory = c.Resolve<Func<ILifetimeScope>>();
-                return new FilePinboardWindowContainer();
-            });
-            builder.RegisterType<FilePinboardApplicationContext>();
+            builder.RegisterType<WindowApplicationContext>().SingleInstance();
             builder.RegisterType<FormFactory>();
             builder.RegisterType<PinboardForm>();
             return builder.Build();
@@ -26,7 +21,7 @@ namespace FilePinboard
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var context = BuildContainer().Resolve<FilePinboardApplicationContext>();
+            var context = BuildContainer().Resolve<WindowApplicationContext>();
             Application.Run(context);
         }
     }

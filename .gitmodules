@@ -1,6 +1,3 @@
 [submodule "submodules/gong-shell"]
 	path = submodules/gong-shell
 	url = https://github.com/CodePenguin/gong-shell
-[submodule "submodules/EasyTabs"]
-	path = submodules/EasyTabs
-	url = https://github.com/CodePenguin/EasyTabs.git
