@@ -73,11 +73,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WindowApplicationContext.cs" />
-    <Compile Include="FormFactory.cs" />
-    <Compile Include="SplitView.cs">
+    <Compile Include="DraggablePanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WindowApplicationContext.cs" />
+    <Compile Include="FormFactory.cs" />
     <Compile Include="PinboardCell.cs">
       <SubType>Component</SubType>
     </Compile>

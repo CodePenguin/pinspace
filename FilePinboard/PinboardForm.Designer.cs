@@ -1,4 +1,4 @@
-﻿
+
 namespace FilePinboard
 {
     partial class PinboardForm
@@ -33,7 +33,6 @@ namespace FilePinboard
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.addCellToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -65,18 +64,9 @@ namespace FilePinboard
             // 
             // viewMenuItem
             // 
-            this.viewMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addCellToolStripMenuItem});
             this.viewMenuItem.Name = "viewMenuItem";
             this.viewMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewMenuItem.Text = "&View";
-            // 
-            // addCellToolStripMenuItem
-            // 
-            this.addCellToolStripMenuItem.Name = "addCellToolStripMenuItem";
-            this.addCellToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
-            this.addCellToolStripMenuItem.Text = "AddCell";
-            this.addCellToolStripMenuItem.Click += new System.EventHandler(this.AddCellToolStripMenuItem_Click);
             // 
             // PinboardForm
             // 
@@ -98,7 +88,6 @@ namespace FilePinboard
         private System.Windows.Forms.ToolStripMenuItem fileMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem addCellToolStripMenuItem;
     }
 }
 

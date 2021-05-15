@@ -9,12 +9,15 @@ namespace FilePinboard
         {
             InitializeComponent();
 
-            addCellToolStripMenuItem.PerformClick();
-        }
+            Controls.Add(new DraggablePanel
+            {
+                BackColor = System.Drawing.Color.Blue
+            });
 
-        private void AddCellToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Controls.Add(new SplitView(SplitDirection.Vertical, new FileListCell { Dock = DockStyle.Fill }, new FileListCell { Dock = DockStyle.Fill }));
+            Controls.Add(new DraggablePanel
+            {
+                BackColor = System.Drawing.Color.Green
+            });
         }
 
         private void ExitMenuItem_Click(object sender, EventArgs e)
