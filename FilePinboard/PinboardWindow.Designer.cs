@@ -35,7 +35,8 @@ namespace FilePinboard
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.NewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newCellMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeCellMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuStrip.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -75,16 +76,24 @@ namespace FilePinboard
             // contextMenuStrip
             // 
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.NewMenuItem});
+            this.newCellMenuItem,
+            this.removeCellMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(181, 48);
+            this.contextMenuStrip.Size = new System.Drawing.Size(181, 70);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_Opening);
             // 
-            // NewMenuItem
+            // newCellMenuItem
             // 
-            this.NewMenuItem.Name = "NewMenuItem";
-            this.NewMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.NewMenuItem.Text = "New";
+            this.newCellMenuItem.Name = "newCellMenuItem";
+            this.newCellMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newCellMenuItem.Text = "New";
+            // 
+            // removeCellMenuItem
+            // 
+            this.removeCellMenuItem.Name = "removeCellMenuItem";
+            this.removeCellMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeCellMenuItem.Text = "Remove";
+            this.removeCellMenuItem.Click += new System.EventHandler(this.RemoveCellMenuItem_Click);
             // 
             // PinboardWindow
             // 
@@ -109,7 +118,8 @@ namespace FilePinboard
         private System.Windows.Forms.ToolStripMenuItem exitMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewMenuItem;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem NewMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newCellMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem removeCellMenuItem;
     }
 }
 

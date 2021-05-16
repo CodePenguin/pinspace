@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -11,6 +12,7 @@ namespace FilePinboard
         public PinboardCell()
         {
             InitializeControl();
+            ContextMenuStripChanged += PinboardCell_ContextMenuStripChanged;
         }
 
         public Color PanelColor
@@ -54,6 +56,12 @@ namespace FilePinboard
 
             PanelColor = Color.FromArgb(51, 122, 183);
             Controls.Add(titlePanel);
+        }
+
+        private void PinboardCell_ContextMenuStripChanged(object sender, EventArgs e)
+        {
+            titleLabel.ContextMenuStrip = ContextMenuStrip;
+            titlePanel.ContextMenuStrip = ContextMenuStrip;
         }
     }
 }
