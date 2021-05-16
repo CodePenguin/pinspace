@@ -76,27 +76,28 @@
     <Compile Include="DraggablePanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Extensions\ColorExtensions.cs" />
+    <Compile Include="TextBoxCell.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="WindowApplicationContext.cs" />
     <Compile Include="FormFactory.cs" />
     <Compile Include="PinboardCell.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="PinboardCell.Designer.cs">
-      <DependentUpon>PinboardCell.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PinboardForm.cs">
+    <Compile Include="PinboardWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PinboardForm.Designer.cs">
-      <DependentUpon>PinboardForm.cs</DependentUpon>
+    <Compile Include="PinboardWindow.Designer.cs">
+      <DependentUpon>PinboardWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FileListCell.cs">
       <SubType>Component</SubType>
     </Compile>
-    <EmbeddedResource Include="PinboardForm.resx">
-      <DependentUpon>PinboardForm.cs</DependentUpon>
+    <EmbeddedResource Include="PinboardWindow.resx">
+      <DependentUpon>PinboardWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

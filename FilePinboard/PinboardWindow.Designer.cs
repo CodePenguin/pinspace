@@ -1,7 +1,7 @@
 
 namespace FilePinboard
 {
-    partial class PinboardForm
+    partial class PinboardWindow
     {
         /// <summary>
         /// Required designer variable.

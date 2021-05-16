@@ -7,8 +7,8 @@ namespace FilePinboard
 {
     internal class WindowApplicationContext : ApplicationContext
     {
-        private readonly List<Form> windowForms = new List<Form>();
         private readonly ILifetimeScope lifetimeScope;
+        private readonly List<Form> windowForms = new List<Form>();
         private readonly Dictionary<Form, ILifetimeScope> windowScopes = new Dictionary<Form, ILifetimeScope>();
 
         public WindowApplicationContext(ILifetimeScope lifetimeScope)
@@ -20,7 +20,7 @@ namespace FilePinboard
         public void NewWindow()
         {
             var windowScope = lifetimeScope.BeginLifetimeScope();
-            var window = lifetimeScope.Resolve<PinboardForm>();
+            var window = lifetimeScope.Resolve<PinboardWindow>();
             windowForms.Add(window);
             windowScopes.Add(window, windowScope);
             window.Disposed += Window_Disposed;

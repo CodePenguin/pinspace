@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace FilePinboard
 {
-    public enum WindowEdge
+    public enum PanelEdge
     {
         None,
         Top,
@@ -21,31 +21,40 @@ namespace FilePinboard
         private bool isDragging;
         private bool isResizing;
         private Cursor mouseCursor;
-        private WindowEdge mouseDownEdge;
+        private PanelEdge mouseDownEdge;
         private Size startingOffset;
         private Size startingSize;
 
         public DraggablePanel()
         {
             mouseCursor = Cursors.Default;
+            MouseDown += MouseDownHandler;
+            MouseMove += MouseMoveHandler;
+            MouseUp += MouseUpHandler;
         }
 
-        protected override void OnMouseDown(MouseEventArgs e)
+        protected void HandleDraggablePanelEvents(Control control)
         {
-            base.OnMouseDown(e);
-            startingOffset = new Size(e.Location);
+            control.MouseDown += MouseDownHandler;
+            control.MouseMove += MouseMoveHandler;
+            control.MouseUp += MouseUpHandler;
+        }
+
+        protected void MouseDownHandler(object sender, MouseEventArgs e)
+        {
+            var mousePos = ControlPointToClientPoint(sender, e.Location);
+            startingOffset = new Size(mousePos);
             startingSize = Size;
-            mouseDownEdge = WindowEdgeAtPosition(e.Location);
-            isDragging = mouseDownEdge == WindowEdge.None;
-            isResizing = mouseDownEdge != WindowEdge.None;
+            mouseDownEdge = PanelEdgeAtPosition(mousePos);
+            isDragging = mouseDownEdge == PanelEdge.None;
+            isResizing = mouseDownEdge != PanelEdge.None;
             Cursor.Current = mouseCursor;
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+        protected void MouseMoveHandler(object sender, MouseEventArgs e)
         {
-            base.OnMouseMove(e);
-
-            var offset = e.Location - startingOffset;
+            var mousePos = ControlPointToClientPoint(sender, e.Location);
+            var offset = mousePos - startingOffset;
             if (isDragging)
             {
                 // Change position while dragging
@@ -57,43 +66,43 @@ namespace FilePinboard
                 // Manipulate position and size while dragging
                 switch (mouseDownEdge)
                 {
-                    case WindowEdge.Bottom:
+                    case PanelEdge.Bottom:
                         Height = offset.Y + startingSize.Height;
                         break;
 
-                    case WindowEdge.BottomLeft:
+                    case PanelEdge.BottomLeft:
                         Width -= offset.X;
                         Left += offset.X;
                         Height = offset.Y + startingSize.Height;
                         break;
 
-                    case WindowEdge.BottomRight:
+                    case PanelEdge.BottomRight:
                         Width = offset.X + startingSize.Width;
                         Height = offset.Y + startingSize.Height;
                         break;
 
-                    case WindowEdge.Left:
+                    case PanelEdge.Left:
                         Width -= offset.X;
                         Left += offset.X;
                         break;
 
-                    case WindowEdge.Right:
+                    case PanelEdge.Right:
                         Width = offset.X + startingSize.Width;
                         break;
 
-                    case WindowEdge.Top:
+                    case PanelEdge.Top:
                         Height -= offset.Y;
                         Top += offset.Y;
                         break;
 
-                    case WindowEdge.TopLeft:
+                    case PanelEdge.TopLeft:
                         Width -= offset.X;
                         Left += offset.X;
                         Height -= offset.Y;
                         Top += offset.Y;
                         break;
 
-                    case WindowEdge.TopRight:
+                    case PanelEdge.TopRight:
                         Width = offset.X + startingSize.Width;
                         Height -= offset.Y;
                         Top += offset.Y;
@@ -103,26 +112,26 @@ namespace FilePinboard
             else
             {
                 // Change mouse cursor based on edges
-                var mouseMoveEdge = WindowEdgeAtPosition(e.Location);
+                var mouseMoveEdge = PanelEdgeAtPosition(mousePos);
                 switch (mouseMoveEdge)
                 {
-                    case WindowEdge.Top:
-                    case WindowEdge.Bottom:
+                    case PanelEdge.Top:
+                    case PanelEdge.Bottom:
                         mouseCursor = Cursors.SizeNS;
                         break;
 
-                    case WindowEdge.Left:
-                    case WindowEdge.Right:
+                    case PanelEdge.Left:
+                    case PanelEdge.Right:
                         mouseCursor = Cursors.SizeWE;
                         break;
 
-                    case WindowEdge.TopLeft:
-                    case WindowEdge.BottomRight:
+                    case PanelEdge.TopLeft:
+                    case PanelEdge.BottomRight:
                         mouseCursor = Cursors.SizeNWSE;
                         break;
 
-                    case WindowEdge.TopRight:
-                    case WindowEdge.BottomLeft:
+                    case PanelEdge.TopRight:
+                    case PanelEdge.BottomLeft:
                         mouseCursor = Cursors.SizeNESW;
                         break;
 
@@ -134,17 +143,25 @@ namespace FilePinboard
             Cursor.Current = mouseCursor;
         }
 
-        protected override void OnMouseUp(MouseEventArgs e)
+        protected void MouseUpHandler(object sender, MouseEventArgs e)
         {
-            base.OnMouseUp(e);
             isDragging = false;
             isResizing = false;
-            mouseDownEdge = WindowEdge.None;
+            mouseDownEdge = PanelEdge.None;
         }
 
-        private WindowEdge WindowEdgeAtPosition(Point p)
+        private Point ControlPointToClientPoint(object sender, Point controlPoint)
         {
-            const int edgeThreshold = 10;
+            if (sender == this)
+            {
+                return controlPoint;
+            }
+            return PointToClient((sender as Control).PointToScreen(controlPoint));
+        }
+
+        private PanelEdge PanelEdgeAtPosition(Point p)
+        {
+            const int edgeThreshold = 6;
             var rightEdge = p.X >= Width - edgeThreshold && p.X <= Width;
             var leftEdge = p.X >= 0 && p.X <= edgeThreshold;
             var topEdge = p.Y >= 0 && p.Y <= edgeThreshold;
@@ -152,37 +169,37 @@ namespace FilePinboard
 
             if (topEdge && rightEdge)
             {
-                return WindowEdge.TopRight;
+                return PanelEdge.TopRight;
             }
             else if (topEdge && leftEdge)
             {
-                return WindowEdge.TopLeft;
+                return PanelEdge.TopLeft;
             }
             else if (bottomEdge && rightEdge)
             {
-                return WindowEdge.BottomRight;
+                return PanelEdge.BottomRight;
             }
             else if (bottomEdge && leftEdge)
             {
-                return WindowEdge.BottomLeft;
+                return PanelEdge.BottomLeft;
             }
             else if (leftEdge)
             {
-                return WindowEdge.Left;
+                return PanelEdge.Left;
             }
             else if (rightEdge)
             {
-                return WindowEdge.Right;
+                return PanelEdge.Right;
             }
             else if (topEdge)
             {
-                return WindowEdge.Top;
+                return PanelEdge.Top;
             }
             else if (bottomEdge)
             {
-                return WindowEdge.Bottom;
+                return PanelEdge.Bottom;
             }
-            return WindowEdge.None;
+            return PanelEdge.None;
         }
     }
 }

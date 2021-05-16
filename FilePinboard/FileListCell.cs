@@ -10,11 +10,36 @@ namespace FilePinboard
 {
     public class FileListCell : PinboardCell, IDropSource
     {
-        private readonly ListView listView;
         private readonly List<ShellItem> files = new List<ShellItem>();
         private bool isDragging = false;
+        private ListView listView;
 
         public FileListCell() : base()
+        {
+        }
+
+        HResult IDropSource.GiveFeedback(int dwEffect)
+        {
+            return HResult.DRAGDROP_S_USEDEFAULTCURSORS;
+        }
+
+        HResult IDropSource.QueryContinueDrag(bool fEscapePressed, int grfKeyState)
+        {
+            if (fEscapePressed)
+            {
+                return HResult.DRAGDROP_S_CANCEL;
+            }
+            else if ((grfKeyState & (int)(MK.MK_LBUTTON | MK.MK_RBUTTON)) == 0)
+            {
+                return HResult.DRAGDROP_S_DROP;
+            }
+            else
+            {
+                return HResult.S_OK;
+            }
+        }
+
+        protected override void InitializeControl()
         {
             listView = new ListView
             {
@@ -36,6 +61,8 @@ namespace FilePinboard
             listView.Columns.Add("Date modified", 140);
             listView.Columns.Add("Type", 200);
             listView.Columns.Add("Size", 100);
+
+            base.InitializeControl();
         }
 
         private void AddFile(string fileName, int index)
@@ -46,14 +73,6 @@ namespace FilePinboard
             var item = new ListViewItem { Tag = files.Count - 1 };
             UpdateListViewItem(item);
             listView.Items.Insert(index, item);
-        }
-
-        private void ListView_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effect = DragDropEffects.Copy;
-            }
         }
 
         private void ListView_DragDrop(object sender, DragEventArgs e)
@@ -86,10 +105,18 @@ namespace FilePinboard
                 {
                     AddFile(fileName, insertIndex);
                 }
-            } 
+            }
             finally
             {
                 listView.EndUpdate();
+            }
+        }
+
+        private void ListView_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
             }
         }
 
@@ -165,27 +192,6 @@ namespace FilePinboard
                 var size = System.Math.Ceiling(fileInfo.Length / 1024d);
                 item.SubItems.Add($"{size:n0} KB");
             }
-        }
-
-        HResult IDropSource.QueryContinueDrag(bool fEscapePressed, int grfKeyState)
-        {
-            if (fEscapePressed)
-            {
-                return HResult.DRAGDROP_S_CANCEL;
-            }
-            else if ((grfKeyState & (int)(MK.MK_LBUTTON | MK.MK_RBUTTON)) == 0)
-            {
-                return HResult.DRAGDROP_S_DROP;
-            }
-            else
-            {
-                return HResult.S_OK;
-            }
-        }
-
-        HResult IDropSource.GiveFeedback(int dwEffect)
-        {
-            return HResult.DRAGDROP_S_USEDEFAULTCURSORS;
         }
     }
 }

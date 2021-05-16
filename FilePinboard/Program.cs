@@ -11,7 +11,7 @@ namespace FilePinboard
             var builder = new ContainerBuilder();
             builder.RegisterType<WindowApplicationContext>().SingleInstance();
             builder.RegisterType<FormFactory>();
-            builder.RegisterType<PinboardForm>();
+            builder.RegisterType<PinboardWindow>();
             return builder.Build();
         }
 
