@@ -1,7 +1,9 @@
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace FilePinboard
 {
+    [DisplayName("Text Box")]
     internal class TextBoxCell : PinboardCell
     {
         private TextBox textBox;
@@ -14,6 +16,7 @@ namespace FilePinboard
         {
             textBox = new TextBox
             {
+                BorderStyle = BorderStyle.None,
                 Dock = DockStyle.Fill,
                 Multiline = true,
                 ScrollBars = ScrollBars.Both,

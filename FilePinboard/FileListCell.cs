@@ -2,12 +2,14 @@ using GongSolutions.Shell;
 using GongSolutions.Shell.Interop;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
 namespace FilePinboard
 {
+    [DisplayName("File List")]
     public class FileListCell : PinboardCell, IDropSource
     {
         private readonly List<ShellItem> files = new List<ShellItem>();
@@ -44,9 +46,10 @@ namespace FilePinboard
             listView = new ListView
             {
                 AllowDrop = true,
+                BorderStyle = BorderStyle.None,
                 Dock = DockStyle.Fill,
-                MultiSelect = true,
                 FullRowSelect = true,
+                MultiSelect = true,
                 View = View.Details,
             };
             Controls.Add(listView);

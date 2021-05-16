@@ -29,11 +29,15 @@ namespace FilePinboard
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.NewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuStrip.SuspendLayout();
+            this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainMenuStrip
@@ -68,16 +72,32 @@ namespace FilePinboard
             this.viewMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewMenuItem.Text = "&View";
             // 
-            // PinboardForm
+            // contextMenuStrip
+            // 
+            this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.NewMenuItem});
+            this.contextMenuStrip.Name = "contextMenuStrip";
+            this.contextMenuStrip.Size = new System.Drawing.Size(181, 48);
+            this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_Opening);
+            // 
+            // NewMenuItem
+            // 
+            this.NewMenuItem.Name = "NewMenuItem";
+            this.NewMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.NewMenuItem.Text = "New";
+            // 
+            // PinboardWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ContextMenuStrip = this.contextMenuStrip;
             this.Controls.Add(this.mainMenuStrip);
-            this.Name = "PinboardForm";
+            this.Name = "PinboardWindow";
             this.Text = "File Pinboard";
             this.mainMenuStrip.ResumeLayout(false);
             this.mainMenuStrip.PerformLayout();
+            this.contextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -88,6 +108,8 @@ namespace FilePinboard
         private System.Windows.Forms.ToolStripMenuItem fileMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewMenuItem;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem NewMenuItem;
     }
 }
 
