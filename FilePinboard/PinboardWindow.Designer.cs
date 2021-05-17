@@ -37,6 +37,7 @@ namespace FilePinboard
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newCellMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeCellMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.renameCellMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuStrip.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -77,9 +78,10 @@ namespace FilePinboard
             // 
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newCellMenuItem,
+            this.renameCellMenuItem,
             this.removeCellMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(181, 70);
+            this.contextMenuStrip.Size = new System.Drawing.Size(181, 92);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_Opening);
             // 
             // newCellMenuItem
@@ -94,6 +96,13 @@ namespace FilePinboard
             this.removeCellMenuItem.Size = new System.Drawing.Size(180, 22);
             this.removeCellMenuItem.Text = "Remove";
             this.removeCellMenuItem.Click += new System.EventHandler(this.RemoveCellMenuItem_Click);
+            // 
+            // renameCellMenuItem
+            // 
+            this.renameCellMenuItem.Name = "renameCellMenuItem";
+            this.renameCellMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.renameCellMenuItem.Text = "Rename";
+            this.renameCellMenuItem.Click += new System.EventHandler(this.RenameCellMenuItem_Click);
             // 
             // PinboardWindow
             // 
@@ -120,6 +129,7 @@ namespace FilePinboard
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem newCellMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeCellMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem renameCellMenuItem;
     }
 }
 

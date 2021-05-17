@@ -5,12 +5,14 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using FilePinboard.Extensions;
 
 namespace FilePinboard
 {
     public partial class PinboardWindow : Form
     {
-        private List<Type> cellTypes = new List<Type>();
+        private readonly List<Type> cellTypes = new List<Type>();
+        private Control contextControl;
         private Point targetPoint;
 
         public PinboardWindow()
@@ -38,10 +40,14 @@ namespace FilePinboard
         private void ContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             targetPoint = PointToClient(contextMenuStrip.Bounds.Location);
-            var control = FindContextParent(contextMenuStrip.SourceControl);
+            contextControl = FindContextParent(contextMenuStrip.SourceControl);
 
-            newCellMenuItem.Visible = control is PinboardWindow;
-            removeCellMenuItem.Visible = control is PinboardCell;
+            // Pinboard Window
+            newCellMenuItem.Visible = contextControl is PinboardWindow;
+
+            // Pinboard Cell
+            renameCellMenuItem.Visible = contextControl is PinboardCell;
+            removeCellMenuItem.Visible = contextControl is PinboardCell;
         }
 
         private PinboardCell CreateNewCell(Type cellType)
@@ -100,9 +106,18 @@ namespace FilePinboard
 
         private void RemoveCellMenuItem_Click(object sender, EventArgs e)
         {
-            var cell = FindContextParent(contextMenuStrip.SourceControl) as PinboardCell;
-            Controls.Remove(cell);
-            cell.Dispose();
+            Controls.Remove(contextControl);
+            contextControl.Dispose();
+        }
+
+        private void RenameCellMenuItem_Click(object sender, EventArgs e)
+        {
+            var cell = contextControl as PinboardCell;
+            var title = cell.Title;
+            if (this.ShowInputDialog("Rename", ref title) == DialogResult.OK)
+            {
+                cell.Title = title;
+            }
         }
     }
 }
