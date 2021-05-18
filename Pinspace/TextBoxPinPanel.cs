@@ -4,11 +4,11 @@ using System.Windows.Forms;
 namespace Pinspace
 {
     [DisplayName("Text Box")]
-    internal class TextBoxCell : PinboardCell
+    internal class TextBoxPinPanel : PinboardPanel
     {
         private TextBox textBox;
 
-        public TextBoxCell() : base()
+        public TextBoxPinPanel() : base()
         {
         }
 

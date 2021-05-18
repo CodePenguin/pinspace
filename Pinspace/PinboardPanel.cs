@@ -5,12 +5,12 @@ using System.Windows.Forms;
 
 namespace Pinspace
 {
-    public class PinboardCell : DraggablePanel
+    public class PinboardPanel : DraggablePanel
     {
         private Label titleLabel;
         private Panel titlePanel;
 
-        public PinboardCell()
+        public PinboardPanel()
         {
             InitializeControl();
             ContextMenuStripChanged += PinboardCell_ContextMenuStripChanged;

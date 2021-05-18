@@ -10,27 +10,14 @@ using System.Windows.Forms;
 namespace Pinspace
 {
     [DisplayName("File List")]
-    public class FileListCell : PinboardCell, IDropSource
+    public class FileListPinPanel : PinboardPanel, IDropSource
     {
         private readonly List<ShellItem> files = new List<ShellItem>();
         private bool isDragging = false;
         private ListView listView;
 
-        public FileListCell() : base()
+        public FileListPinPanel() : base()
         {
-            // FIX!!! REMOVE ME!!!
-            // FIX!!! REMOVE ME!!!
-            // FIX!!! REMOVE ME!!!
-            // FIX!!! REMOVE ME!!!
-            // FIX!!! REMOVE ME!!!
-            AddFile("d:\\temp\\temp.txt", listView.Items.Count);
-            AddFile("d:\\temp\\temp_before.txt", listView.Items.Count);
-            AddFile("d:\\temp\\temp_after.txt", listView.Items.Count);
-            // FIX!!! REMOVE ME!!!
-            // FIX!!! REMOVE ME!!!
-            // FIX!!! REMOVE ME!!!
-            // FIX!!! REMOVE ME!!!
-            // FIX!!! REMOVE ME!!!
         }
 
         HResult IDropSource.GiveFeedback(int dwEffect)
