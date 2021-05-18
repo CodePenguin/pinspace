@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace FilePinboard
+namespace Pinspace
 {
     public enum PanelEdge
     {

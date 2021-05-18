@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 
-namespace FilePinboard.Extensions
+namespace Pinspace.Extensions
 {
     public static class ColorExtensions
     {

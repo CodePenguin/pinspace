@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilePinboard", "FilePinboard\FilePinboard.csproj", "{D50FC23E-F6DE-40BE-AD58-E3C96466EB5E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pinspace", "Pinspace\Pinspace.csproj", "{D50FC23E-F6DE-40BE-AD58-E3C96466EB5E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B3115136-2D6B-41D4-9440-765ADFC8BEAC}"
 	ProjectSection(SolutionItems) = preProject

@@ -7,7 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace FilePinboard
+namespace Pinspace
 {
     [DisplayName("File List")]
     public class FileListCell : PinboardCell, IDropSource
@@ -18,6 +18,19 @@ namespace FilePinboard
 
         public FileListCell() : base()
         {
+            // FIX!!! REMOVE ME!!!
+            // FIX!!! REMOVE ME!!!
+            // FIX!!! REMOVE ME!!!
+            // FIX!!! REMOVE ME!!!
+            // FIX!!! REMOVE ME!!!
+            AddFile("d:\\temp\\temp.txt", listView.Items.Count);
+            AddFile("d:\\temp\\temp_before.txt", listView.Items.Count);
+            AddFile("d:\\temp\\temp_after.txt", listView.Items.Count);
+            // FIX!!! REMOVE ME!!!
+            // FIX!!! REMOVE ME!!!
+            // FIX!!! REMOVE ME!!!
+            // FIX!!! REMOVE ME!!!
+            // FIX!!! REMOVE ME!!!
         }
 
         HResult IDropSource.GiveFeedback(int dwEffect)

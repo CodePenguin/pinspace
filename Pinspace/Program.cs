@@ -2,7 +2,7 @@ using Autofac;
 using System;
 using System.Windows.Forms;
 
-namespace FilePinboard
+namespace Pinspace
 {
     static class Program
     {

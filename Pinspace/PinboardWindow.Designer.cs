@@ -1,5 +1,5 @@
 
-namespace FilePinboard
+namespace Pinspace
 {
     partial class PinboardWindow
     {

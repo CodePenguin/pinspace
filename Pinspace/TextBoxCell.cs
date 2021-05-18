@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace FilePinboard
+namespace Pinspace
 {
     [DisplayName("Text Box")]
     internal class TextBoxCell : PinboardCell

@@ -5,9 +5,9 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using FilePinboard.Extensions;
+using Pinspace.Extensions;
 
-namespace FilePinboard
+namespace Pinspace
 {
     public partial class PinboardWindow : Form
     {

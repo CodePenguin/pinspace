@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace FilePinboard
+namespace Pinspace
 {
     internal class WindowApplicationContext : ApplicationContext
     {

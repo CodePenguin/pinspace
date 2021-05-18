@@ -1,9 +1,9 @@
-using FilePinboard.Extensions;
+using Pinspace.Extensions;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace FilePinboard
+namespace Pinspace
 {
     public class PinboardCell : DraggablePanel
     {

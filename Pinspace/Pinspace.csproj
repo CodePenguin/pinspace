@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D50FC23E-F6DE-40BE-AD58-E3C96466EB5E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>FilePinboard</RootNamespace>
-    <AssemblyName>FilePinboard</AssemblyName>
+    <RootNamespace>Pinspace</RootNamespace>
+    <AssemblyName>Pinspace</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
