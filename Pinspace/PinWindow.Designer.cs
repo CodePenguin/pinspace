@@ -1,7 +1,7 @@
 
 namespace Pinspace
 {
-    partial class PinboardWindow
+    partial class PinWindow
     {
         /// <summary>
         /// Required designer variable.
@@ -36,8 +36,9 @@ namespace Pinspace
             this.viewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newCellMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeCellMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameCellMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeCellMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuStrip.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -56,7 +57,8 @@ namespace Pinspace
             // fileMenuItem
             // 
             this.fileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exitMenuItem});
+            this.exitMenuItem,
+            this.saveMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
             this.fileMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileMenuItem.Text = "&File";
@@ -64,7 +66,7 @@ namespace Pinspace
             // exitMenuItem
             // 
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.Size = new System.Drawing.Size(93, 22);
+            this.exitMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitMenuItem.Text = "E&xit";
             this.exitMenuItem.Click += new System.EventHandler(this.ExitMenuItem_Click);
             // 
@@ -81,37 +83,44 @@ namespace Pinspace
             this.renameCellMenuItem,
             this.removeCellMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(181, 92);
+            this.contextMenuStrip.Size = new System.Drawing.Size(118, 70);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_Opening);
             // 
             // newCellMenuItem
             // 
             this.newCellMenuItem.Name = "newCellMenuItem";
-            this.newCellMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newCellMenuItem.Size = new System.Drawing.Size(117, 22);
             this.newCellMenuItem.Text = "New";
-            // 
-            // removeCellMenuItem
-            // 
-            this.removeCellMenuItem.Name = "removeCellMenuItem";
-            this.removeCellMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.removeCellMenuItem.Text = "Remove";
-            this.removeCellMenuItem.Click += new System.EventHandler(this.RemoveCellMenuItem_Click);
             // 
             // renameCellMenuItem
             // 
             this.renameCellMenuItem.Name = "renameCellMenuItem";
-            this.renameCellMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.renameCellMenuItem.Size = new System.Drawing.Size(117, 22);
             this.renameCellMenuItem.Text = "Rename";
             this.renameCellMenuItem.Click += new System.EventHandler(this.RenameCellMenuItem_Click);
             // 
-            // PinboardWindow
+            // removeCellMenuItem
+            // 
+            this.removeCellMenuItem.Name = "removeCellMenuItem";
+            this.removeCellMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.removeCellMenuItem.Text = "Remove";
+            this.removeCellMenuItem.Click += new System.EventHandler(this.RemoveCellMenuItem_Click);
+            // 
+            // saveMenuItem
+            // 
+            this.saveMenuItem.Name = "saveMenuItem";
+            this.saveMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveMenuItem.Text = "Save";
+            this.saveMenuItem.Click += new System.EventHandler(this.SaveMenuItem_Click);
+            // 
+            // PinWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.ContextMenuStrip = this.contextMenuStrip;
             this.Controls.Add(this.mainMenuStrip);
-            this.Name = "PinboardWindow";
+            this.Name = "PinWindow";
             this.Text = "File Pinboard";
             this.mainMenuStrip.ResumeLayout(false);
             this.mainMenuStrip.PerformLayout();
@@ -130,6 +139,7 @@ namespace Pinspace
         private System.Windows.Forms.ToolStripMenuItem newCellMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeCellMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renameCellMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveMenuItem;
     }
 }
 

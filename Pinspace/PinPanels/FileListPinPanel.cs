@@ -1,5 +1,7 @@
 using GongSolutions.Shell;
 using GongSolutions.Shell.Interop;
+using Pinspace.Config;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -7,17 +9,33 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Pinspace
+namespace Pinspace.PinPanels
 {
     [DisplayName("File List")]
-    public class FileListPinPanel : PinboardPanel, IDropSource
+    public class FileListPinPanel : PinPanel, IDropSource
     {
         private readonly List<ShellItem> files = new List<ShellItem>();
         private bool isDragging = false;
         private ListView listView;
 
-        public FileListPinPanel() : base()
+        public override PinPanelConfig Config()
         {
+            var config = base.Config() as FileListPinPanelConfig;
+            foreach (var file in files)
+            {
+                config.Files.Add(file.FileSystemPath);
+            }
+            return config;
+        }
+
+        public override void LoadConfig(PinPanelConfig config)
+        {
+            base.LoadConfig(config);
+            var typedConfig = config as FileListPinPanelConfig;
+            foreach (var file in typedConfig.Files)
+            {
+                AddFile(file, files.Count);
+            }
         }
 
         HResult IDropSource.GiveFeedback(int dwEffect)
@@ -39,6 +57,11 @@ namespace Pinspace
             {
                 return HResult.S_OK;
             }
+        }
+
+        protected override Type ConfigType()
+        {
+            return typeof(FileListPinPanelConfig);
         }
 
         protected override void InitializeControl()

@@ -5,36 +5,50 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using Pinspace.Config;
 using Pinspace.Extensions;
+using Pinspace.PinPanels;
 
 namespace Pinspace
 {
-    public partial class PinboardWindow : Form
+    public partial class PinWindow : Form
     {
         private readonly List<Type> cellTypes = new List<Type>();
         private Control contextControl;
         private Point targetPoint;
 
-        public PinboardWindow()
+        public PinWindow()
         {
             InitializeComponent();
 
-            var cell = CreateNewCell(typeof(TextBoxPinPanel));
-            cell.Left = 10;
-            cell.Top = 50;
-            cell.PanelColor = Color.FromArgb(217, 237, 247);
-            cell.Title = "Basic Panel";
-            Controls.Add(cell);
-
-            cell = CreateNewCell(typeof(FileListPinPanel));
-            cell.Left = 300;
-            cell.Top = 50;
-            cell.Width = 400;
-            cell.Height = 200;
-            cell.Title = "File List Panel";
-            Controls.Add(cell);
-
             GenerateNewCellControlsMenu();
+        }
+
+        public WindowApplicationContext WindowApplicationContext { get; set; }
+
+        public PinWindowConfig Config()
+        {
+            var config = new PinWindowConfig();
+            foreach (var control in Controls)
+            {
+                if (!(control is PinPanel pinPanel))
+                {
+                    continue;
+                }
+                config.Panels.Add(pinPanel.Config());
+            }
+            return config;
+        }
+
+        public void LoadConfig(PinWindowConfig config)
+        {
+            foreach (var panelConfig in config.Panels)
+            {
+                var typeName = "Pinspace.PinPanels." + panelConfig.GetType().Name.Replace("Config", "");
+                var type = Type.GetType(typeName);
+                var panel = CreateNewPinPanel(type);
+                panel.LoadConfig(panelConfig);
+            }
         }
 
         private void ContextMenuStrip_Opening(object sender, CancelEventArgs e)
@@ -43,19 +57,20 @@ namespace Pinspace
             contextControl = FindContextParent(contextMenuStrip.SourceControl);
 
             // Pinboard Window
-            newCellMenuItem.Visible = contextControl is PinboardWindow;
+            newCellMenuItem.Visible = contextControl is PinWindow;
 
             // Pinboard Cell
-            renameCellMenuItem.Visible = contextControl is PinboardPanel;
-            removeCellMenuItem.Visible = contextControl is PinboardPanel;
+            renameCellMenuItem.Visible = contextControl is PinPanel;
+            removeCellMenuItem.Visible = contextControl is PinPanel;
         }
 
-        private PinboardPanel CreateNewCell(Type cellType)
+        private PinPanel CreateNewPinPanel(Type pinPanelType)
         {
-            var cell = Activator.CreateInstance(cellType, null) as PinboardPanel;
-            cell.Title = "New " + GetCellDisplayName(cellType);
-            cell.ContextMenuStrip = contextMenuStrip;
-            return cell;
+            var panel = Activator.CreateInstance(pinPanelType, null) as PinPanel;
+            panel.Title = "New " + GetCellDisplayName(pinPanelType);
+            panel.ContextMenuStrip = contextMenuStrip;
+            Controls.Add(panel);
+            return panel;
         }
 
         private void ExitMenuItem_Click(object sender, EventArgs e)
@@ -65,7 +80,7 @@ namespace Pinspace
 
         private Control FindContextParent(Control control)
         {
-            while (control != null && !(control is PinboardPanel) && !(control is PinboardWindow))
+            while (control != null && !(control is PinPanel) && !(control is PinWindow))
             {
                 control = control.Parent;
             }
@@ -74,8 +89,8 @@ namespace Pinspace
 
         private void GenerateNewCellControlsMenu()
         {
-            var types = Assembly.GetAssembly(typeof(PinboardPanel)).GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(PinboardPanel)));
+            var types = Assembly.GetAssembly(typeof(PinPanel)).GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(PinPanel)));
             foreach (var type in types)
             {
                 var newMenuItem = new ToolStripMenuItem
@@ -98,7 +113,7 @@ namespace Pinspace
         {
             var menuItem = sender as ToolStripMenuItem;
             var cellType = cellTypes[(int)menuItem.Tag];
-            var cell = CreateNewCell(cellType);
+            var cell = CreateNewPinPanel(cellType);
             cell.Left = targetPoint.X;
             cell.Top = targetPoint.Y;
             Controls.Add(cell);
@@ -112,12 +127,17 @@ namespace Pinspace
 
         private void RenameCellMenuItem_Click(object sender, EventArgs e)
         {
-            var cell = contextControl as PinboardPanel;
+            var cell = contextControl as PinPanel;
             var title = cell.Title;
             if (this.ShowInputDialog("Rename", ref title) == DialogResult.OK)
             {
                 cell.Title = title;
             }
+        }
+
+        private void SaveMenuItem_Click(object sender, EventArgs e)
+        {
+            WindowApplicationContext.SaveConfig();
         }
     }
 }

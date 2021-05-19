@@ -4,17 +4,8 @@ using System.Windows.Forms;
 
 namespace Pinspace
 {
-    static class Program
+    public static class Program
     {
-        private static IContainer BuildContainer()
-        {
-            var builder = new ContainerBuilder();
-            builder.RegisterType<WindowApplicationContext>().SingleInstance();
-            builder.RegisterType<FormFactory>();
-            builder.RegisterType<PinboardWindow>();
-            return builder.Build();
-        }
-
         [STAThread]
         internal static void Main()
         {
@@ -23,6 +14,15 @@ namespace Pinspace
 
             var context = BuildContainer().Resolve<WindowApplicationContext>();
             Application.Run(context);
+        }
+
+        private static IContainer BuildContainer()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterType<WindowApplicationContext>().SingleInstance();
+            builder.RegisterType<FormFactory>();
+            builder.RegisterType<PinWindow>();
+            return builder.Build();
         }
     }
 }
