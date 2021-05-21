@@ -1,4 +1,4 @@
-using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows.Forms;
 
@@ -12,17 +12,17 @@ namespace Pinspace
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var context = BuildContainer().Resolve<WindowApplicationContext>();
+            var context = BuildContainer().GetService<WindowApplicationContext>();
             Application.Run(context);
         }
 
-        private static IContainer BuildContainer()
+        private static IServiceProvider BuildContainer()
         {
-            var builder = new ContainerBuilder();
-            builder.RegisterType<WindowApplicationContext>().SingleInstance();
-            builder.RegisterType<FormFactory>();
-            builder.RegisterType<PinWindow>();
-            return builder.Build();
+            var services = new ServiceCollection()
+                .AddSingleton<WindowApplicationContext>()
+                .AddTransient<FormFactory>()
+                .AddTransient<PinWindow>();
+            return services.BuildServiceProvider();
         }
     }
 }

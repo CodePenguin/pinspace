@@ -1,4 +1,4 @@
-using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 using Pinspace.Config;
 using System;
 using System.Collections.Generic;
@@ -11,13 +11,13 @@ namespace Pinspace
 {
     public class WindowApplicationContext : ApplicationContext
     {
-        private readonly ILifetimeScope lifetimeScope;
+        private readonly IServiceScopeFactory scopeFactory;
         private readonly List<PinWindow> windows = new List<PinWindow>();
-        private readonly Dictionary<Form, ILifetimeScope> windowScopes = new Dictionary<Form, ILifetimeScope>();
+        private readonly Dictionary<Form, IServiceScope> windowScopes = new Dictionary<Form, IServiceScope>();
 
-        public WindowApplicationContext(ILifetimeScope lifetimeScope)
+        public WindowApplicationContext(IServiceScopeFactory scopeFactory)
         {
-            this.lifetimeScope = lifetimeScope;
+            this.scopeFactory = scopeFactory;
             LoadConfig();
             if (windows.Count == 0)
             {
@@ -44,8 +44,8 @@ namespace Pinspace
 
         public void NewWindow(PinWindowConfig config)
         {
-            var windowScope = lifetimeScope.BeginLifetimeScope();
-            var window = lifetimeScope.Resolve<PinWindow>();
+            var windowScope = scopeFactory.CreateScope();
+            var window = windowScope.ServiceProvider.GetService<PinWindow>();
             windows.Add(window);
             windowScopes.Add(window, windowScope);
             window.Disposed += Window_Disposed;

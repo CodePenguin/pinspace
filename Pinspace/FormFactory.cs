@@ -1,21 +1,21 @@
-using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows.Forms;
 
 namespace Pinspace
 {
     public class FormFactory
     {
-        private readonly ILifetimeScope scope;
+        private readonly IServiceScopeFactory scopeFactory;
 
-        public FormFactory(ILifetimeScope scope)
+        public FormFactory(IServiceScopeFactory scopeFactory)
         {
-            this.scope = scope;
+            this.scopeFactory = scopeFactory;
         }
 
         public TForm CreateForm<TForm>() where TForm : Form
         {
-            var formScope = scope.BeginLifetimeScope();
-            var form = formScope.Resolve<TForm>();
+            var formScope = scopeFactory.CreateScope();
+            var form = formScope.ServiceProvider.GetService<TForm>();
 
             form.Disposed += (s, e) =>
             {
