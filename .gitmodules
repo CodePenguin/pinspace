@@ -1,3 +1,4 @@
 [submodule "submodules/gong-shell"]
 	path = submodules/gong-shell
 	url = https://github.com/CodePenguin/gong-shell
+	branch = net5
