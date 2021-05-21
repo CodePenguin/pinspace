@@ -13,7 +13,7 @@ namespace Pinspace
 {
     public partial class PinWindow : Form
     {
-        private readonly List<Type> cellTypes = new List<Type>();
+        private readonly List<Type> pinTypes = new List<Type>();
         private Control contextControl;
         private Point targetPoint;
 
@@ -21,7 +21,7 @@ namespace Pinspace
         {
             InitializeComponent();
 
-            GenerateNewCellControlsMenu();
+            GenerateNewPinControlsMenu();
         }
 
         public WindowApplicationContext WindowApplicationContext { get; set; }
@@ -29,9 +29,13 @@ namespace Pinspace
         public PinWindowConfig Config()
         {
             var config = new PinWindowConfig();
+            // Pin Window Settings
+            config.Color = (BackColor == SystemColors.Control) ? "" : BackColor.ToHtmlString();
+
+            // Pin Panels
             foreach (var control in Controls)
             {
-                if (!(control is PinPanel pinPanel))
+                if (control is not PinPanel pinPanel)
                 {
                     continue;
                 }
@@ -42,6 +46,10 @@ namespace Pinspace
 
         public void LoadConfig(PinWindowConfig config)
         {
+            // Pin Window Settings
+            BackColor = ColorExtensions.FromHtmlString(config.Color, SystemColors.Control);
+
+            // Pin Panels
             foreach (var panelConfig in config.Panels)
             {
                 var typeName = "Pinspace.PinPanels." + panelConfig.GetType().Name.Replace("Config", "");
@@ -51,23 +59,40 @@ namespace Pinspace
             }
         }
 
+        private void ChangeColorMenuItem_Click(object sender, EventArgs e)
+        {
+            using var colorDialog = new ColorDialog();
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (contextControl is PinWindow pinWindow)
+                {
+                    pinWindow.BackColor = colorDialog.Color;
+                }
+                if (contextControl is PinPanel pinPanel)
+                {
+                    pinPanel.PinColor = colorDialog.Color;
+                }
+            }
+        }
+
         private void ContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             targetPoint = PointToClient(contextMenuStrip.Bounds.Location);
             contextControl = FindContextParent(contextMenuStrip.SourceControl);
 
             // Pinboard Window
-            newCellMenuItem.Visible = contextControl is PinWindow;
+            newPinMenuItem.Visible = contextControl is PinWindow;
+            changeColorMenuItem.Visible = (contextControl is PinWindow) || (contextControl is PinPanel);
 
-            // Pinboard Cell
-            renameCellMenuItem.Visible = contextControl is PinPanel;
-            removeCellMenuItem.Visible = contextControl is PinPanel;
+            // Pinboard Pin
+            renamePinMenuItem.Visible = contextControl is PinPanel;
+            removePinMenuItem.Visible = contextControl is PinPanel;
         }
 
         private PinPanel CreateNewPinPanel(Type pinPanelType)
         {
             var panel = Activator.CreateInstance(pinPanelType, null) as PinPanel;
-            panel.Title = "New " + GetCellDisplayName(pinPanelType);
+            panel.Title = "New " + GetPinDisplayName(pinPanelType);
             panel.ContextMenuStrip = contextMenuStrip;
             Controls.Add(panel);
             return panel;
@@ -87,7 +112,7 @@ namespace Pinspace
             return control;
         }
 
-        private void GenerateNewCellControlsMenu()
+        private void GenerateNewPinControlsMenu()
         {
             var types = Assembly.GetAssembly(typeof(PinPanel)).GetTypes()
                 .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(PinPanel)));
@@ -95,43 +120,43 @@ namespace Pinspace
             {
                 var newMenuItem = new ToolStripMenuItem
                 {
-                    Text = GetCellDisplayName(type)
+                    Text = GetPinDisplayName(type)
                 };
-                newMenuItem.Click += NewCellMenuItem_Click;
-                newMenuItem.Tag = cellTypes.Count;
-                newCellMenuItem.DropDownItems.Add(newMenuItem);
-                cellTypes.Add(type);
+                newMenuItem.Click += NewPinMenuItem_Click;
+                newMenuItem.Tag = pinTypes.Count;
+                newPinMenuItem.DropDownItems.Add(newMenuItem);
+                pinTypes.Add(type);
             }
         }
 
-        private string GetCellDisplayName(Type type)
+        private string GetPinDisplayName(Type type)
         {
             return type.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? type.Name;
         }
 
-        private void NewCellMenuItem_Click(object sender, EventArgs e)
+        private void NewPinMenuItem_Click(object sender, EventArgs e)
         {
             var menuItem = sender as ToolStripMenuItem;
-            var cellType = cellTypes[(int)menuItem.Tag];
-            var cell = CreateNewPinPanel(cellType);
-            cell.Left = targetPoint.X;
-            cell.Top = targetPoint.Y;
-            Controls.Add(cell);
+            var pinType = pinTypes[(int)menuItem.Tag];
+            var pinPanel = CreateNewPinPanel(pinType);
+            pinPanel.Left = targetPoint.X;
+            pinPanel.Top = targetPoint.Y;
+            Controls.Add(pinPanel);
         }
 
-        private void RemoveCellMenuItem_Click(object sender, EventArgs e)
+        private void RemovePinMenuItem_Click(object sender, EventArgs e)
         {
             Controls.Remove(contextControl);
             contextControl.Dispose();
         }
 
-        private void RenameCellMenuItem_Click(object sender, EventArgs e)
+        private void RenamePinMenuItem_Click(object sender, EventArgs e)
         {
-            var cell = contextControl as PinPanel;
-            var title = cell.Title;
+            var pinPanel = contextControl as PinPanel;
+            var title = pinPanel.Title;
             if (this.ShowInputDialog("Rename", ref title) == DialogResult.OK)
             {
-                cell.Title = title;
+                pinPanel.Title = title;
             }
         }
 

@@ -8,16 +8,17 @@ namespace Pinspace.PinPanels
 {
     public class PinPanel : DraggablePanel
     {
+        private readonly Color defaultPinColor = Color.FromArgb(51, 122, 183);
         private Label titleLabel;
         private Panel titlePanel;
 
         public PinPanel()
         {
             InitializeControl();
-            ContextMenuStripChanged += PinboardCell_ContextMenuStripChanged;
+            ContextMenuStripChanged += PinboardPanel_ContextMenuStripChanged;
         }
 
-        public Color PanelColor
+        public Color PinColor
         {
             get => BackColor;
             set
@@ -37,6 +38,7 @@ namespace Pinspace.PinPanels
         public virtual PinPanelConfig Config()
         {
             var config = Activator.CreateInstance(ConfigType(), null) as PinPanelConfig;
+            config.Color = PinColor.ToHtmlString();
             config.Height = Height;
             config.Left = Left;
             config.Title = Title;
@@ -48,6 +50,7 @@ namespace Pinspace.PinPanels
         public virtual void LoadConfig(PinPanelConfig config)
         {
             Height = config.Height;
+            PinColor = ColorExtensions.FromHtmlString(config.Color, defaultPinColor);
             Left = config.Left;
             Title = config.Title;
             Top = config.Top;
@@ -81,11 +84,11 @@ namespace Pinspace.PinPanels
             HandleDraggablePanelEvents(titleLabel);
             HandleDraggablePanelEvents(titlePanel);
 
-            PanelColor = Color.FromArgb(51, 122, 183);
+            PinColor = Color.FromArgb(51, 122, 183);
             Controls.Add(titlePanel);
         }
 
-        private void PinboardCell_ContextMenuStripChanged(object sender, EventArgs e)
+        private void PinboardPanel_ContextMenuStripChanged(object sender, EventArgs e)
         {
             titleLabel.ContextMenuStrip = ContextMenuStrip;
             titlePanel.ContextMenuStrip = ContextMenuStrip;
