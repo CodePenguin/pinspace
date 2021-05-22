@@ -1,36 +1,26 @@
-using Pinspace.Config;
+using Pinspace.Data;
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace Pinspace.PinPanels
+namespace Pinspace.Pins
 {
     [DisplayName("Text Box")]
     internal class TextBoxPinPanel : PinPanel
     {
         private TextBox textBox;
 
-        public TextBoxPinPanel() : base()
+        private TextBoxPin Pin => pin as TextBoxPin;
+
+        public override void Load(Pin pin)
         {
+            base.Load(pin);
+            textBox.Text = Pin.Text;
         }
 
-        public override PinPanelConfig Config()
+        public override Type PinType()
         {
-            var config = base.Config() as TextBoxPinPanelConfig;
-            config.Text = textBox.Text;
-            return config;
-        }
-
-        public override void LoadConfig(PinPanelConfig config)
-        {
-            base.LoadConfig(config);
-            var typedConfig = config as TextBoxPinPanelConfig;
-            textBox.Text = typedConfig.Text;
-        }
-
-        protected override Type ConfigType()
-        {
-            return typeof(TextBoxPinPanelConfig);
+            return typeof(TextBoxPin);
         }
 
         protected override void InitializeControl()
@@ -43,9 +33,15 @@ namespace Pinspace.PinPanels
                 ScrollBars = ScrollBars.Both,
                 WordWrap = false
             };
+            textBox.TextChanged += TextBox_OnTextChanged;
             Controls.Add(textBox);
 
             base.InitializeControl();
+        }
+
+        private void TextBox_OnTextChanged(object sender, EventArgs e)
+        {
+            Pin.Text = textBox.Text;
         }
     }
 }

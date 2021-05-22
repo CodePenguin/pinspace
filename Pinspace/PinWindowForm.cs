@@ -5,20 +5,26 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using Pinspace.Config;
+using Pinspace.Data;
 using Pinspace.Extensions;
-using Pinspace.PinPanels;
+using Pinspace.Interfaces;
+using Pinspace.Pins;
 
 namespace Pinspace
 {
-    public partial class PinWindow : Form
+    public partial class PinWindowForm : Form
     {
-        private readonly List<Type> pinTypes = new List<Type>();
+        private readonly IDataContext dataContext;
+        private readonly List<Type> pinTypes = new();
         private Control contextControl;
+        private Data.Pinspace pinspace;
+        private PinWindow pinWindow;
         private Point targetPoint;
 
-        public PinWindow()
+        public PinWindowForm(IDataContext dataContext)
         {
+            this.dataContext = dataContext;
+
             InitializeComponent();
 
             GenerateNewPinControlsMenu();
@@ -26,37 +32,50 @@ namespace Pinspace
 
         public WindowApplicationContext WindowApplicationContext { get; set; }
 
-        public PinWindowConfig Config()
+        public void Load(PinWindow pinWindow)
         {
-            var config = new PinWindowConfig();
+            this.pinWindow = pinWindow;
+
             // Pin Window Settings
-            config.Color = (BackColor == SystemColors.Control) ? "" : BackColor.ToHtmlString();
+            BackColor = ColorExtensions.FromHtmlString(pinWindow.Color, SystemColors.Control);
+            Height = pinWindow.Height;
+            Left = pinWindow.Left;
+            Top = pinWindow.Top;
+            Width = pinWindow.Width;
+
+            if (pinWindow.IsMaximized)
+            {
+                WindowState = FormWindowState.Maximized;
+            }
+
+            pinspace = dataContext.GetPinspace(pinWindow.ActivePinspaceId);
 
             // Pin Panels
-            foreach (var control in Controls)
+            foreach (var pin in pinspace.Pins)
             {
-                if (control is not PinPanel pinPanel)
+                var typeName = "Pinspace.Pins." + pin.GetType().Name + "Panel";
+                var type = Type.GetType(typeName);
+                if (type == null)
                 {
-                    continue;
+                    throw new ArgumentException($"Unknown Pin Panel Type: {typeName}");
                 }
-                config.Panels.Add(pinPanel.Config());
+                var panel = CreateNewPinPanel(type);
+                panel.Load(pin);
             }
-            return config;
         }
 
-        public void LoadConfig(PinWindowConfig config)
+        private static Control FindContextParent(Control control)
         {
-            // Pin Window Settings
-            BackColor = ColorExtensions.FromHtmlString(config.Color, SystemColors.Control);
-
-            // Pin Panels
-            foreach (var panelConfig in config.Panels)
+            while (control != null && !(control is PinPanel) && !(control is PinWindowForm))
             {
-                var typeName = "Pinspace.PinPanels." + panelConfig.GetType().Name.Replace("Config", "");
-                var type = Type.GetType(typeName);
-                var panel = CreateNewPinPanel(type);
-                panel.LoadConfig(panelConfig);
+                control = control.Parent;
             }
+            return control;
+        }
+
+        private static string GetPinDisplayName(Type type)
+        {
+            return type.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? type.Name;
         }
 
         private void ChangeColorMenuItem_Click(object sender, EventArgs e)
@@ -64,7 +83,7 @@ namespace Pinspace
             using var colorDialog = new ColorDialog();
             if (colorDialog.ShowDialog() == DialogResult.OK)
             {
-                if (contextControl is PinWindow pinWindow)
+                if (contextControl is PinWindowForm pinWindow)
                 {
                     pinWindow.BackColor = colorDialog.Color;
                 }
@@ -81,18 +100,17 @@ namespace Pinspace
             contextControl = FindContextParent(contextMenuStrip.SourceControl);
 
             // Pinboard Window
-            newPinMenuItem.Visible = contextControl is PinWindow;
-            changeColorMenuItem.Visible = (contextControl is PinWindow) || (contextControl is PinPanel);
+            newPinMenuItem.Visible = contextControl is PinWindowForm;
+            changeColorMenuItem.Visible = (contextControl is PinWindowForm) || (contextControl is PinPanel);
 
             // Pinboard Pin
             renamePinMenuItem.Visible = contextControl is PinPanel;
             removePinMenuItem.Visible = contextControl is PinPanel;
         }
 
-        private PinPanel CreateNewPinPanel(Type pinPanelType)
+        private PinPanel CreateNewPinPanel(Type pinType)
         {
-            var panel = Activator.CreateInstance(pinPanelType, null) as PinPanel;
-            panel.Title = "New " + GetPinDisplayName(pinPanelType);
+            var panel = Activator.CreateInstance(pinType, null) as PinPanel;
             panel.ContextMenuStrip = contextMenuStrip;
             Controls.Add(panel);
             return panel;
@@ -101,15 +119,6 @@ namespace Pinspace
         private void ExitMenuItem_Click(object sender, EventArgs e)
         {
             Close();
-        }
-
-        private Control FindContextParent(Control control)
-        {
-            while (control != null && !(control is PinPanel) && !(control is PinWindow))
-            {
-                control = control.Parent;
-            }
-            return control;
         }
 
         private void GenerateNewPinControlsMenu()
@@ -129,19 +138,19 @@ namespace Pinspace
             }
         }
 
-        private string GetPinDisplayName(Type type)
-        {
-            return type.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? type.Name;
-        }
-
         private void NewPinMenuItem_Click(object sender, EventArgs e)
         {
             var menuItem = sender as ToolStripMenuItem;
             var pinType = pinTypes[(int)menuItem.Tag];
             var pinPanel = CreateNewPinPanel(pinType);
-            pinPanel.Left = targetPoint.X;
-            pinPanel.Top = targetPoint.Y;
-            Controls.Add(pinPanel);
+            var pin = Activator.CreateInstance(pinPanel.PinType(), null) as Pin;
+            pin.Height = pinPanel.Height;
+            pin.Left = targetPoint.X;
+            pin.Title = "New " + GetPinDisplayName(pinType);
+            pin.Top = targetPoint.Y;
+            pin.Width = pinPanel.Width;
+            pinspace.Pins.Add(pin);
+            pinPanel.Load(pin);
         }
 
         private void RemovePinMenuItem_Click(object sender, EventArgs e)
@@ -162,7 +171,16 @@ namespace Pinspace
 
         private void SaveMenuItem_Click(object sender, EventArgs e)
         {
-            WindowApplicationContext.SaveConfig();
+            pinWindow.ActivePinspaceId = pinspace.Id;
+            pinWindow.Color = (BackColor == SystemColors.Control) ? "" : BackColor.ToHtmlString();
+            pinWindow.Height = Height;
+            pinWindow.IsMaximized = WindowState == FormWindowState.Maximized;
+            pinWindow.Left = Left;
+            pinWindow.Top = Top;
+            pinWindow.Width = Width;
+
+            dataContext.UpdatePinspace(pinspace);
+            dataContext.UpdatePinWindow(pinWindow);
         }
     }
 }

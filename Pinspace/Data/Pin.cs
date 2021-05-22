@@ -1,8 +1,8 @@
-using System.Drawing;
+using System;
 
-namespace Pinspace.Config
+namespace Pinspace.Data
 {
-    public abstract class PinPanelConfig
+    public abstract class Pin : ICloneable
     {
         public string Color { get; set; }
         public int Height { get; set; }
@@ -10,5 +10,10 @@ namespace Pinspace.Config
         public string Title { get; set; }
         public int Top { get; set; }
         public int Width { get; set; }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
     }
 }

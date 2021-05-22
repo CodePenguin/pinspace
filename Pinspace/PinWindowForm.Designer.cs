@@ -1,7 +1,7 @@
 
 namespace Pinspace
 {
-    partial class PinWindow
+    partial class PinWindowForm
     {
         /// <summary>
         /// Required designer variable.
@@ -132,6 +132,7 @@ namespace Pinspace
             this.Controls.Add(this.mainMenuStrip);
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "PinWindow";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Pinspace";
             this.mainMenuStrip.ResumeLayout(false);
             this.mainMenuStrip.PerformLayout();

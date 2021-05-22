@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using Pinspace.Data;
+using Pinspace.Interfaces;
 using System;
 using System.Windows.Forms;
 
@@ -19,9 +21,10 @@ namespace Pinspace
         private static IServiceProvider BuildContainer()
         {
             var services = new ServiceCollection()
+                .AddSingleton<IDataContext, JsonDataContext>()
                 .AddSingleton<WindowApplicationContext>()
                 .AddTransient<FormFactory>()
-                .AddTransient<PinWindow>();
+                .AddTransient<PinWindowForm>();
             return services.BuildServiceProvider();
         }
     }

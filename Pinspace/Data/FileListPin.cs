@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 
-namespace Pinspace.Config
+namespace Pinspace.Data
 {
-    public class FileListPinPanelConfig : PinPanelConfig
+    public class FileListPin : Pin
     {
-        public FileListPinPanelConfig()
+        public FileListPin()
         {
             Files = new List<string>();
         }

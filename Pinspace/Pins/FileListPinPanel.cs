@@ -1,6 +1,6 @@
 using GongSolutions.Shell;
 using GongSolutions.Shell.Interop;
-using Pinspace.Config;
+using Pinspace.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -9,7 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Pinspace.PinPanels
+namespace Pinspace.Pins
 {
     [DisplayName("File List")]
     public class FileListPinPanel : PinPanel, IDropSource
@@ -18,24 +18,20 @@ namespace Pinspace.PinPanels
         private bool isDragging = false;
         private ListView listView;
 
-        public override PinPanelConfig Config()
-        {
-            var config = base.Config() as FileListPinPanelConfig;
-            foreach (var file in files)
-            {
-                config.Files.Add(file.FileSystemPath);
-            }
-            return config;
-        }
+        private FileListPin Pin => pin as FileListPin;
 
-        public override void LoadConfig(PinPanelConfig config)
+        public override void Load(Pin pin)
         {
-            base.LoadConfig(config);
-            var typedConfig = config as FileListPinPanelConfig;
-            foreach (var file in typedConfig.Files)
+            base.Load(pin);
+            foreach (var file in Pin.Files)
             {
                 AddFile(file, files.Count);
             }
+        }
+
+        public override Type PinType()
+        {
+            return typeof(FileListPin);
         }
 
         HResult IDropSource.GiveFeedback(int dwEffect)
@@ -57,11 +53,6 @@ namespace Pinspace.PinPanels
             {
                 return HResult.S_OK;
             }
-        }
-
-        protected override Type ConfigType()
-        {
-            return typeof(FileListPinPanelConfig);
         }
 
         protected override void InitializeControl()
@@ -131,6 +122,8 @@ namespace Pinspace.PinPanels
                 {
                     AddFile(fileName, insertIndex);
                 }
+
+                UpdatePin();
             }
             finally
             {
@@ -215,8 +208,17 @@ namespace Pinspace.PinPanels
 
             if (!shellItem.IsFolder || fileInfo.Extension.Equals(".zip", System.StringComparison.CurrentCultureIgnoreCase))
             {
-                var size = System.Math.Ceiling(fileInfo.Length / 1024d);
+                var size = Math.Ceiling(fileInfo.Length / 1024d);
                 item.SubItems.Add($"{size:n0} KB");
+            }
+        }
+
+        private void UpdatePin()
+        {
+            Pin.Files.Clear();
+            foreach (var file in files)
+            {
+                Pin.Files.Add(file.FileSystemPath);
             }
         }
     }

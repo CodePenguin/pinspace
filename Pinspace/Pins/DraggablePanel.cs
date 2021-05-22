@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Pinspace.PinPanels
+namespace Pinspace.Pins
 {
     public enum PanelEdge
     {
@@ -145,9 +145,25 @@ namespace Pinspace.PinPanels
 
         protected void MouseUpHandler(object sender, MouseEventArgs e)
         {
+            if (isDragging)
+            {
+                OnMovedPanel();
+            }
+            if (isResizing)
+            {
+                OnResizedPanel();
+            }
             isDragging = false;
             isResizing = false;
             mouseDownEdge = PanelEdge.None;
+        }
+
+        protected virtual void OnMovedPanel()
+        {
+        }
+
+        protected virtual void OnResizedPanel()
+        {
         }
 
         private Point ControlPointToClientPoint(object sender, Point controlPoint)

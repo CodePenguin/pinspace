@@ -1,87 +1,46 @@
 using Microsoft.Extensions.DependencyInjection;
-using Pinspace.Config;
+using Pinspace.Data;
+using Pinspace.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 using System.Windows.Forms;
-using static System.Environment;
 
 namespace Pinspace
 {
     public class WindowApplicationContext : ApplicationContext
     {
+        private readonly IDataContext dataContext;
         private readonly IServiceScopeFactory scopeFactory;
-        private readonly List<PinWindow> windows = new List<PinWindow>();
-        private readonly Dictionary<Form, IServiceScope> windowScopes = new Dictionary<Form, IServiceScope>();
+        private readonly List<PinWindowForm> windows = new();
+        private readonly Dictionary<Form, IServiceScope> windowScopes = new();
 
-        public WindowApplicationContext(IServiceScopeFactory scopeFactory)
+        public WindowApplicationContext(IServiceScopeFactory scopeFactory, IDataContext dataContext)
         {
             this.scopeFactory = scopeFactory;
-            LoadConfig();
-            if (windows.Count == 0)
-            {
-                NewWindow(new PinWindowConfig());
-            }
+            this.dataContext = dataContext;
+            LoadData();
         }
 
-        public void LoadConfig()
+        public void LoadData()
         {
-            var configFileName = GetConfigFileName();
-            if (!File.Exists(configFileName))
-            {
-                return;
-            }
-            var text = File.ReadAllText(configFileName);
-            var deserializeOptions = new JsonSerializerOptions();
-            deserializeOptions.Converters.Add(new PinPanelConfigConverter());
-            var config = JsonSerializer.Deserialize<PinspaceConfig>(text, deserializeOptions);
-            foreach (var windowConfig in config.Windows)
-            {
-                NewWindow(windowConfig);
-            }
-        }
-
-        public void NewWindow(PinWindowConfig config)
-        {
-            var windowScope = scopeFactory.CreateScope();
-            var window = windowScope.ServiceProvider.GetService<PinWindow>();
-            windows.Add(window);
-            windowScopes.Add(window, windowScope);
-            window.Disposed += Window_Disposed;
-            window.FormClosed += Window_FormClosed;
-            window.WindowApplicationContext = this;
-            window.LoadConfig(config);
-            window.Show();
-        }
-
-        public void SaveConfig()
-        {
-            var config = new PinspaceConfig();
+            var windows = dataContext.GetPinWindows();
             foreach (var window in windows)
             {
-                config.Windows.Add(window.Config());
-            }
-
-            var configFileName = GetConfigFileName();
-            using (var fileStream = new FileStream(configFileName, FileMode.Create))
-            {
-                var options = new JsonWriterOptions
-                {
-                    Indented = true
-                };
-                var serializeOptions = new JsonSerializerOptions();
-                serializeOptions.Converters.Add(new PinPanelConfigConverter());
-                var writer = new Utf8JsonWriter(fileStream, options);
-                JsonSerializer.Serialize(writer, config, serializeOptions);
+                NewWindow(window);
             }
         }
 
-        private string GetConfigFileName()
+        public void NewWindow(PinWindow pinWindow)
         {
-            var localAppDataPath = Path.Combine(GetFolderPath(SpecialFolder.LocalApplicationData, SpecialFolderOption.DoNotVerify), "Pinspace");
-            Directory.CreateDirectory(localAppDataPath);
-            return Path.Combine(localAppDataPath, "settings.json");
+            var windowScope = scopeFactory.CreateScope();
+            var form = windowScope.ServiceProvider.GetService<PinWindowForm>();
+            windows.Add(form);
+            windowScopes.Add(form, windowScope);
+            form.Disposed += Window_Disposed;
+            form.FormClosed += Window_FormClosed;
+            form.WindowApplicationContext = this;
+            form.Load(pinWindow);
+            form.Show();
         }
 
         private void Window_Disposed(object sender, EventArgs e)
@@ -94,7 +53,7 @@ namespace Pinspace
 
         private void Window_FormClosed(object sender, FormClosedEventArgs e)
         {
-            var window = sender as PinWindow;
+            var window = sender as PinWindowForm;
             windows.Remove(window);
 
             if (windows.Count == 0)

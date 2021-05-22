@@ -2,16 +2,16 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Pinspace.Config
+namespace Pinspace.Data
 {
-    public class PinPanelConfigConverter : JsonConverter<PinPanelConfig>
+    public class PinJsonConverter : JsonConverter<Pin>
     {
         public override bool CanConvert(Type typeToConvert)
         {
-            return typeof(PinPanelConfig).IsAssignableFrom(typeToConvert);
+            return typeof(Pin).IsAssignableFrom(typeToConvert);
         }
 
-        public override PinPanelConfig Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override Pin Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.StartObject)
             {
@@ -25,8 +25,12 @@ namespace Pinspace.Config
             {
                 throw new JsonException();
             }
-            var typeName = "Pinspace.Config." + reader.GetString() + "Config";
+            var typeName = "Pinspace.Data." + reader.GetString();
             var type = Type.GetType(typeName);
+            if (type == null)
+            {
+                throw new ArgumentException($"Unknown Pin Type: {typeName}");
+            }
             if (!reader.Read() || reader.GetString() != "Properties")
             {
                 throw new JsonException();
@@ -36,30 +40,30 @@ namespace Pinspace.Config
                 throw new JsonException();
             }
 
-            var config = JsonSerializer.Deserialize(ref reader, type) as PinPanelConfig;
+            var pin = JsonSerializer.Deserialize(ref reader, type) as Pin;
 
             if (!reader.Read() || reader.TokenType != JsonTokenType.EndObject)
             {
                 throw new JsonException();
             }
 
-            return config;
+            return pin;
         }
 
-        public override void Write(Utf8JsonWriter writer, PinPanelConfig value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, Pin value, JsonSerializerOptions options)
         {
-            var typeName = value.GetType().Name.Replace("Config", "");
+            var typeName = value.GetType().Name;
             writer.WriteStartObject();
             writer.WriteString("Type", typeName);
-            if (value is FileListPinPanelConfig fileListPanelConfig)
+            if (value is FileListPin fileListPin)
             {
                 writer.WritePropertyName("Properties");
-                JsonSerializer.Serialize(writer, fileListPanelConfig);
+                JsonSerializer.Serialize(writer, fileListPin);
             }
-            else if (value is TextBoxPinPanelConfig textBoxPinPanelConfig)
+            else if (value is TextBoxPin textBoxPin)
             {
                 writer.WritePropertyName("Properties");
-                JsonSerializer.Serialize(writer, textBoxPinPanelConfig);
+                JsonSerializer.Serialize(writer, textBoxPin);
             }
             writer.WriteEndObject();
         }

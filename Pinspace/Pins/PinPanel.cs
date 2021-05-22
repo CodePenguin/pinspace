@@ -1,13 +1,14 @@
-using Pinspace.Config;
+using Pinspace.Data;
 using Pinspace.Extensions;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Pinspace.PinPanels
+namespace Pinspace.Pins
 {
     public class PinPanel : DraggablePanel
     {
+        protected Pin pin;
         private readonly Color defaultPinColor = Color.FromArgb(51, 122, 183);
         private Label titleLabel;
         private Panel titlePanel;
@@ -26,40 +27,34 @@ namespace Pinspace.PinPanels
                 BackColor = value;
                 titlePanel.BackColor = BackColor;
                 titlePanel.ForeColor = BackColor.TextColor();
+                pin.Color = BackColor.ToHtmlString();
             }
         }
 
         public string Title
         {
             get => titleLabel.Text;
-            set => titleLabel.Text = value;
+            set
+            {
+                titleLabel.Text = value;
+                pin.Title = value;
+            }
         }
 
-        public virtual PinPanelConfig Config()
+        public virtual void Load(Pin pin)
         {
-            var config = Activator.CreateInstance(ConfigType(), null) as PinPanelConfig;
-            config.Color = PinColor.ToHtmlString();
-            config.Height = Height;
-            config.Left = Left;
-            config.Title = Title;
-            config.Top = Top;
-            config.Width = Width;
-            return config;
+            this.pin = pin;
+            Height = pin.Height > 0 ? pin.Height : Height;
+            PinColor = ColorExtensions.FromHtmlString(pin.Color, defaultPinColor);
+            Left = pin.Left;
+            Title = pin.Title;
+            Top = pin.Top;
+            Width = pin.Width > 0 ? pin.Width : Width;
         }
 
-        public virtual void LoadConfig(PinPanelConfig config)
+        public virtual Type PinType()
         {
-            Height = config.Height;
-            PinColor = ColorExtensions.FromHtmlString(config.Color, defaultPinColor);
-            Left = config.Left;
-            Title = config.Title;
-            Top = config.Top;
-            Width = config.Width;
-        }
-
-        protected virtual Type ConfigType()
-        {
-            return typeof(PinPanelConfig);
+            return typeof(Pin);
         }
 
         protected virtual void InitializeControl()
@@ -84,8 +79,19 @@ namespace Pinspace.PinPanels
             HandleDraggablePanelEvents(titleLabel);
             HandleDraggablePanelEvents(titlePanel);
 
-            PinColor = Color.FromArgb(51, 122, 183);
             Controls.Add(titlePanel);
+        }
+
+        protected override void OnMovedPanel()
+        {
+            pin.Left = Left;
+            pin.Top = Top;
+        }
+
+        protected override void OnResizedPanel()
+        {
+            pin.Height = Height;
+            pin.Width = Width;
         }
 
         private void PinboardPanel_ContextMenuStripChanged(object sender, EventArgs e)
