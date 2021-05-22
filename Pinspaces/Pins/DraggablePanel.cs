@@ -113,33 +113,14 @@ namespace Pinspaces.Pins
             else
             {
                 // Change mouse cursor based on edges
-                var mouseMoveEdge = PanelEdgeAtPosition(mousePos);
-                switch (mouseMoveEdge)
+                mouseCursor = PanelEdgeAtPosition(mousePos) switch
                 {
-                    case PanelEdge.Top:
-                    case PanelEdge.Bottom:
-                        mouseCursor = Cursors.SizeNS;
-                        break;
-
-                    case PanelEdge.Left:
-                    case PanelEdge.Right:
-                        mouseCursor = Cursors.SizeWE;
-                        break;
-
-                    case PanelEdge.TopLeft:
-                    case PanelEdge.BottomRight:
-                        mouseCursor = Cursors.SizeNWSE;
-                        break;
-
-                    case PanelEdge.TopRight:
-                    case PanelEdge.BottomLeft:
-                        mouseCursor = Cursors.SizeNESW;
-                        break;
-
-                    default:
-                        mouseCursor = Cursors.Default;
-                        break;
-                }
+                    PanelEdge.Top or PanelEdge.Bottom => Cursors.SizeNS,
+                    PanelEdge.Left or PanelEdge.Right => Cursors.SizeWE,
+                    PanelEdge.TopLeft or PanelEdge.BottomRight => Cursors.SizeNWSE,
+                    PanelEdge.TopRight or PanelEdge.BottomLeft => Cursors.SizeNESW,
+                    _ => Cursors.Default,
+                };
             }
             Cursor.Current = mouseCursor;
         }
