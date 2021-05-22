@@ -12,9 +12,9 @@ namespace Pinspaces.Pins
 
         private TextBoxPin Pin => pin as TextBoxPin;
 
-        public override void Load(Pin pin)
+        public override void LoadPin(Pin pin)
         {
-            base.Load(pin);
+            base.LoadPin(pin);
             textBox.Text = Pin.Text;
         }
 

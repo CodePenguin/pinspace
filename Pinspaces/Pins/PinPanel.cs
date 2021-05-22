@@ -41,7 +41,7 @@ namespace Pinspaces.Pins
             }
         }
 
-        public virtual void Load(Pin pin)
+        public virtual void LoadPin(Pin pin)
         {
             this.pin = pin;
             Height = pin.Height > 0 ? pin.Height : Height;

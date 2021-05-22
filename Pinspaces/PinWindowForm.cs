@@ -16,7 +16,6 @@ namespace Pinspaces
     {
         private readonly IDataContext dataContext;
         private readonly List<Type> pinTypes = new();
-        private Control contextControl;
         private Pinspace pinspace;
         private PinWindow pinWindow;
         private Point targetPoint;
@@ -32,7 +31,7 @@ namespace Pinspaces
 
         public WindowApplicationContext WindowApplicationContext { get; set; }
 
-        public void Load(PinWindow pinWindow)
+        public void LoadWindow(PinWindow pinWindow)
         {
             this.pinWindow = pinWindow;
 
@@ -60,17 +59,8 @@ namespace Pinspaces
                     throw new ArgumentException($"Unknown Pin Panel Type: {typeName}");
                 }
                 var panel = CreateNewPinPanel(type);
-                panel.Load(pin);
+                panel.LoadPin(pin);
             }
-        }
-
-        private static Control FindContextParent(Control control)
-        {
-            while (control != null && !(control is PinPanel) && !(control is PinWindowForm))
-            {
-                control = control.Parent;
-            }
-            return control;
         }
 
         private static string GetPinDisplayName(Type type)
@@ -80,6 +70,7 @@ namespace Pinspaces
 
         private void ChangeColorMenuItem_Click(object sender, EventArgs e)
         {
+            var contextControl = GetContextControl();
             using var colorDialog = new ColorDialog();
             if (colorDialog.ShowDialog() == DialogResult.OK)
             {
@@ -97,7 +88,7 @@ namespace Pinspaces
         private void ContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             targetPoint = PointToClient(contextMenuStrip.Bounds.Location);
-            contextControl = FindContextParent(contextMenuStrip.SourceControl);
+            var contextControl = GetContextControl();
 
             // Pinboard Window
             newPinMenuItem.Visible = contextControl is PinWindowForm;
@@ -138,6 +129,16 @@ namespace Pinspaces
             }
         }
 
+        private Control GetContextControl()
+        {
+            var control = contextMenuStrip.SourceControl;
+            while (control != null && !(control is PinPanel) && !(control is PinWindowForm))
+            {
+                control = control.Parent;
+            }
+            return control;
+        }
+
         private void NewPinMenuItem_Click(object sender, EventArgs e)
         {
             var menuItem = sender as ToolStripMenuItem;
@@ -150,18 +151,19 @@ namespace Pinspaces
             pin.Top = targetPoint.Y;
             pin.Width = pinPanel.Width;
             pinspace.Pins.Add(pin);
-            pinPanel.Load(pin);
+            pinPanel.LoadPin(pin);
         }
 
         private void RemovePinMenuItem_Click(object sender, EventArgs e)
         {
+            var contextControl = GetContextControl();
             Controls.Remove(contextControl);
             contextControl.Dispose();
         }
 
         private void RenamePinMenuItem_Click(object sender, EventArgs e)
         {
-            var pinPanel = contextControl as PinPanel;
+            var pinPanel = GetContextControl() as PinPanel;
             var title = pinPanel.Title;
             if (this.ShowInputDialog("Rename", ref title) == DialogResult.OK)
             {

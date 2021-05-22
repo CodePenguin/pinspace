@@ -12,17 +12,17 @@ using System.Windows.Forms;
 namespace Pinspaces.Pins
 {
     [DisplayName("File List")]
-    public class FileListPinPanel : PinPanel, IDropSource
+    public sealed class FileListPinPanel : PinPanel, IDropSource
     {
-        private readonly List<ShellItem> files = new List<ShellItem>();
+        private readonly List<ShellItem> files = new();
         private bool isDragging = false;
         private ListView listView;
 
         private FileListPin Pin => pin as FileListPin;
 
-        public override void Load(Pin pin)
+        public override void LoadPin(Pin pin)
         {
-            base.Load(pin);
+            base.LoadPin(pin);
             foreach (var file in Pin.Files)
             {
                 AddFile(file, files.Count);
@@ -151,7 +151,7 @@ namespace Pinspaces.Pins
                 isDragging = true;
                 if (selectedItems.Length == 1)
                 {
-                    Ole32.DoDragDrop(selectedItems[0].GetIDataObject(), this, DragDropEffects.All, out _);
+                    _ = Ole32.DoDragDrop(selectedItems[0].GetIDataObject(), this, DragDropEffects.All, out _);
                     return;
                 }
 
@@ -163,7 +163,7 @@ namespace Pinspaces.Pins
                     fileNames.Add(file.FileSystemPath);
                 }
                 dataObject.SetFileDropList(fileNames);
-                Ole32.DoDragDrop(dataObject, this, DragDropEffects.All, out _);
+                _ = Ole32.DoDragDrop(dataObject, this, DragDropEffects.All, out _);
             }
             finally
             {

@@ -39,7 +39,7 @@ namespace Pinspaces
             form.Disposed += Window_Disposed;
             form.FormClosed += Window_FormClosed;
             form.WindowApplicationContext = this;
-            form.Load(pinWindow);
+            form.LoadWindow(pinWindow);
             form.Show();
         }
 
