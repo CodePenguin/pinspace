@@ -123,15 +123,17 @@ namespace Pinspaces
             this.removePinMenuItem.Text = "Remove";
             this.removePinMenuItem.Click += new System.EventHandler(this.RemovePinMenuItem_Click);
             // 
-            // PinWindow
+            // PinWindowForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScroll = true;
+            this.AutoScrollMargin = new System.Drawing.Size(10, 10);
             this.ClientSize = new System.Drawing.Size(933, 519);
             this.ContextMenuStrip = this.contextMenuStrip;
             this.Controls.Add(this.mainMenuStrip);
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.Name = "PinWindow";
+            this.Name = "PinWindowForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Pinspace";
             this.mainMenuStrip.ResumeLayout(false);
