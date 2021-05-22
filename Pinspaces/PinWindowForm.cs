@@ -16,6 +16,7 @@ namespace Pinspaces
     {
         private readonly IDataContext dataContext;
         private readonly List<Type> pinTypes = new();
+        private int baseContextMenuItemCount;
         private Pinspace pinspace;
         private PinWindow pinWindow;
         private Point targetPoint;
@@ -25,6 +26,8 @@ namespace Pinspaces
             this.dataContext = dataContext;
 
             InitializeComponent();
+
+            baseContextMenuItemCount = ContextMenuStrip.Items.Count;
 
             GenerateNewPinControlsMenu();
         }
@@ -89,8 +92,23 @@ namespace Pinspaces
             }
         }
 
+        private void ContextMenuStrip_Closing(object sender, ToolStripDropDownClosingEventArgs e)
+        {
+            while (ContextMenuStrip.Items.Count > baseContextMenuItemCount)
+            {
+                ContextMenuStrip.Items.RemoveAt(baseContextMenuItemCount);
+            }
+        }
+
         private void ContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
+            if (contextMenuStrip.SourceControl is PinPanel)
+            {
+                // Do no show the context menu if coming from the panel itself
+                e.Cancel = true;
+                return;
+            }
+
             targetPoint = PointToClient(contextMenuStrip.Bounds.Location);
             var contextControl = GetContextControl();
 
@@ -101,6 +119,16 @@ namespace Pinspaces
             // Pinboard Pin
             renamePinMenuItem.Visible = contextControl is PinPanel;
             removePinMenuItem.Visible = contextControl is PinPanel;
+
+            if (contextControl is PinPanel pinPanel)
+            {
+                pinPanel.AddContextMenuItems(contextMenuStrip);
+            }
+
+            if (contextMenuStrip.Items.Count > baseContextMenuItemCount)
+            {
+                contextMenuStrip.Items.Insert(baseContextMenuItemCount, new ToolStripSeparator());
+            }
         }
 
         private PinPanel CreateNewPinPanel(Type pinType)

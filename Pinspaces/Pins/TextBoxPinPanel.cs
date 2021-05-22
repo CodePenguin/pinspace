@@ -12,10 +12,20 @@ namespace Pinspaces.Pins
 
         private TextBoxPin Pin => pin as TextBoxPin;
 
+        public override void AddContextMenuItems(ContextMenuStrip contextMenu)
+        {
+            base.AddContextMenuItems(contextMenu);
+
+            var menuItem = new ToolStripMenuItem { Text = "Word Wrap", Checked = textBox.WordWrap };
+            menuItem.Click += WordWrapContextMenuItem_Click;
+            contextMenu.Items.Add(menuItem);
+        }
+
         public override void LoadPin(Pin pin)
         {
             base.LoadPin(pin);
             textBox.Text = Pin.Text;
+            textBox.WordWrap = Pin.WordWrap;
         }
 
         public override Type PinType()
@@ -42,6 +52,12 @@ namespace Pinspaces.Pins
         private void TextBox_OnTextChanged(object sender, EventArgs e)
         {
             Pin.Text = textBox.Text;
+        }
+
+        private void WordWrapContextMenuItem_Click(object sender, EventArgs e)
+        {
+            textBox.WordWrap = !textBox.WordWrap;
+            Pin.WordWrap = textBox.WordWrap;
         }
     }
 }

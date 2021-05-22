@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace Pinspaces.Pins
 {
-    public class PinPanel : DraggablePanel
+    public abstract class PinPanel : DraggablePanel
     {
         protected Pin pin;
         private readonly Color defaultPinColor = Color.FromArgb(51, 122, 183);
@@ -41,6 +41,11 @@ namespace Pinspaces.Pins
             }
         }
 
+        public virtual void AddContextMenuItems(ContextMenuStrip contextMenu)
+        {
+            // Override to add additional context menu items
+        }
+
         public virtual void LoadPin(Pin pin)
         {
             this.pin = pin;
@@ -52,10 +57,7 @@ namespace Pinspaces.Pins
             Width = pin.Width > 0 ? pin.Width : Width;
         }
 
-        public virtual Type PinType()
-        {
-            return typeof(Pin);
-        }
+        public abstract Type PinType();
 
         protected virtual void InitializeControl()
         {
