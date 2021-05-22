@@ -49,6 +49,7 @@ namespace Pinspaces.Pins
             isDragging = mouseDownEdge == PanelEdge.None;
             isResizing = mouseDownEdge != PanelEdge.None;
             Cursor.Current = mouseCursor;
+            BringToFront();
         }
 
         protected void MouseMoveHandler(object sender, MouseEventArgs e)
