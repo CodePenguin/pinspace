@@ -1,5 +1,5 @@
 
-namespace Pinspace
+namespace Pinspaces
 {
     partial class PinWindowForm
     {

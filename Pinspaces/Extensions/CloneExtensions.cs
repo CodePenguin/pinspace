@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pinspace.Extensions
+namespace Pinspaces.Extensions
 {
     public static class CloneExtensions
     {

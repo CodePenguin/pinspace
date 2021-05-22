@@ -5,19 +5,19 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using Pinspace.Data;
-using Pinspace.Extensions;
-using Pinspace.Interfaces;
-using Pinspace.Pins;
+using Pinspaces.Data;
+using Pinspaces.Extensions;
+using Pinspaces.Interfaces;
+using Pinspaces.Pins;
 
-namespace Pinspace
+namespace Pinspaces
 {
     public partial class PinWindowForm : Form
     {
         private readonly IDataContext dataContext;
         private readonly List<Type> pinTypes = new();
         private Control contextControl;
-        private Data.Pinspace pinspace;
+        private Pinspace pinspace;
         private PinWindow pinWindow;
         private Point targetPoint;
 
@@ -53,7 +53,7 @@ namespace Pinspace
             // Pin Panels
             foreach (var pin in pinspace.Pins)
             {
-                var typeName = "Pinspace.Pins." + pin.GetType().Name + "Panel";
+                var typeName = "Pinspaces.Pins." + pin.GetType().Name + "Panel";
                 var type = Type.GetType(typeName);
                 if (type == null)
                 {

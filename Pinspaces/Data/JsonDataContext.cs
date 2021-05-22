@@ -1,5 +1,5 @@
-using Pinspace.Extensions;
-using Pinspace.Interfaces;
+using Pinspaces.Extensions;
+using Pinspaces.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text.Json;
 using static System.Environment;
 
-namespace Pinspace.Data
+namespace Pinspaces.Data
 {
     public class JsonDataContext : IDataContext
     {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Pinspace.Data
+namespace Pinspaces.Data
 {
     public class FileListPin : Pin
     {

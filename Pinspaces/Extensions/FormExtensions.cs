@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Pinspace.Extensions
+namespace Pinspaces.Extensions
 {
     internal static class FormExtensions
     {

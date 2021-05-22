@@ -1,8 +1,8 @@
-using Pinspace.Extensions;
+using Pinspaces.Extensions;
 using System;
 using System.Collections.Generic;
 
-namespace Pinspace.Data
+namespace Pinspaces.Data
 {
     public class Pinspace : ICloneable
     {

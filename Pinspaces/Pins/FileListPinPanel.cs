@@ -1,6 +1,6 @@
 using GongSolutions.Shell;
 using GongSolutions.Shell.Interop;
-using Pinspace.Data;
+using Pinspaces.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -9,7 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Pinspace.Pins
+namespace Pinspaces.Pins
 {
     [DisplayName("File List")]
     public class FileListPinPanel : PinPanel, IDropSource

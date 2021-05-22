@@ -1,6 +1,6 @@
 using System;
 
-namespace Pinspace.Data
+namespace Pinspaces.Data
 {
     public abstract class Pin : ICloneable
     {

@@ -2,7 +2,7 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Pinspace.Data
+namespace Pinspaces.Data
 {
     public class PinJsonConverter : JsonConverter<Pin>
     {
@@ -25,7 +25,7 @@ namespace Pinspace.Data
             {
                 throw new JsonException();
             }
-            var typeName = "Pinspace.Data." + reader.GetString();
+            var typeName = "Pinspaces.Data." + reader.GetString();
             var type = Type.GetType(typeName);
             if (type == null)
             {

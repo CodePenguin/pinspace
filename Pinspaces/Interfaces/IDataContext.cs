@@ -1,16 +1,16 @@
-using Pinspace.Data;
+using Pinspaces.Data;
 using System;
 using System.Collections.Generic;
 
-namespace Pinspace.Interfaces
+namespace Pinspaces.Interfaces
 {
     public interface IDataContext
     {
-        public Data.Pinspace GetPinspace(Guid id);
+        public Pinspace GetPinspace(Guid id);
 
         public IList<PinWindow> GetPinWindows();
 
-        public void UpdatePinspace(Data.Pinspace pinspace);
+        public void UpdatePinspace(Pinspace pinspace);
 
         public void UpdatePinWindow(PinWindow pinWindow);
     }

@@ -2,7 +2,7 @@ using System;
 using System.Drawing;
 using System.Text.RegularExpressions;
 
-namespace Pinspace.Extensions
+namespace Pinspaces.Extensions
 {
     public static class ColorExtensions
     {

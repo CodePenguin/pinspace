@@ -1,11 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
-using Pinspace.Data;
-using Pinspace.Interfaces;
+using Pinspaces.Data;
+using Pinspaces.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace Pinspace
+namespace Pinspaces
 {
     public class WindowApplicationContext : ApplicationContext
     {

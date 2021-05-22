@@ -1,9 +1,9 @@
-using Pinspace.Data;
+using Pinspaces.Data;
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace Pinspace.Pins
+namespace Pinspaces.Pins
 {
     [DisplayName("Text Box")]
     internal class TextBoxPinPanel : PinPanel

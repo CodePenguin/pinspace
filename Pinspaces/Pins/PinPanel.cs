@@ -1,10 +1,10 @@
-using Pinspace.Data;
-using Pinspace.Extensions;
+using Pinspaces.Data;
+using Pinspaces.Extensions;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Pinspace.Pins
+namespace Pinspaces.Pins
 {
     public class PinPanel : DraggablePanel
     {

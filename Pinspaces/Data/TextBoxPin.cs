@@ -1,4 +1,4 @@
-namespace Pinspace.Data
+namespace Pinspaces.Data
 {
     public class TextBoxPin : Pin
     {
