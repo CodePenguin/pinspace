@@ -1,8 +1,10 @@
+using Pinspaces.Extensions;
+using Pinspaces.Interfaces;
 using System;
 
 namespace Pinspaces.Data
 {
-    public abstract class Pin : ICloneable
+    public abstract class Pin : ICloneable<Pin>
     {
         public string Color { get; set; }
         public int Height { get; set; }
@@ -11,9 +13,16 @@ namespace Pinspaces.Data
         public int Top { get; set; }
         public int Width { get; set; }
 
-        public object Clone()
+        public virtual void Assign(Pin source, out bool wasChanged)
         {
-            return MemberwiseClone();
+            CloneExtensions.Assign(GetType(), this, source, out wasChanged);
+        }
+
+        public Pin Clone()
+        {
+            var clone = (Pin)MemberwiseClone();
+            clone.Assign(this, out _);
+            return clone;
         }
     }
 }

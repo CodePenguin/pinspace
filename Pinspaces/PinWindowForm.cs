@@ -178,7 +178,7 @@ namespace Pinspaces
         private void SaveMenuItem_Click(object sender, EventArgs e)
         {
             pinWindow.ActivePinspaceId = pinspace.Id;
-            pinWindow.Color = (BackColor == SystemColors.Control) ? "" : BackColor.ToHtmlString();
+            pinWindow.Color = (BackColor == SystemColors.Control) ? null : BackColor.ToHtmlString();
             pinWindow.Height = Height;
             pinWindow.IsMaximized = WindowState == FormWindowState.Maximized;
             pinWindow.Left = Left;

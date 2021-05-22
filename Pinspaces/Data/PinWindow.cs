@@ -1,8 +1,10 @@
+using Pinspaces.Extensions;
+using Pinspaces.Interfaces;
 using System;
 
 namespace Pinspaces.Data
 {
-    public class PinWindow : ICloneable
+    public class PinWindow : ICloneable<PinWindow>
     {
         private const int DefaultWindowHeight = 600;
         private const int DefaultWindowWidth = 900;
@@ -57,9 +59,16 @@ namespace Pinspaces.Data
             }
         }
 
-        public object Clone()
+        public void Assign(PinWindow source, out bool wasChanged)
         {
-            return MemberwiseClone();
+            CloneExtensions.Assign(GetType(), this, source, out wasChanged);
+        }
+
+        public PinWindow Clone()
+        {
+            var clone = (PinWindow)MemberwiseClone();
+            Assign(this, out _);
+            return clone;
         }
 
         private void CheckMaximized()

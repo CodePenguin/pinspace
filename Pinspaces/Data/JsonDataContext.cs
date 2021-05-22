@@ -23,7 +23,7 @@ namespace Pinspaces.Data
             var pinspace = data.Pinspaces.Where(p => p.Id.Equals(id)).FirstOrDefault();
             if (pinspace != null)
             {
-                return (Pinspace)pinspace.Clone();
+                return pinspace.Clone();
             }
             return null;
         }
@@ -37,8 +37,7 @@ namespace Pinspaces.Data
         {
             var storedPin = data.Pinspaces.Where(p => p.Id.Equals(pinspace.Id)).FirstOrDefault();
             storedPin.Assign(pinspace, out var wasChanged);
-            storedPin.Pins.Assign(pinspace.Pins, out var pinsWereChanged);
-            if (wasChanged || pinsWereChanged)
+            if (wasChanged)
             {
                 SaveDataFile(data);
             }
