@@ -71,7 +71,11 @@ namespace Pinspaces
         private void ChangeColorMenuItem_Click(object sender, EventArgs e)
         {
             var contextControl = GetContextControl();
-            using var colorDialog = new ColorDialog();
+            using var colorDialog = new ColorDialog
+            {
+                Color = contextControl.BackColor,
+                FullOpen = true
+            };
             if (colorDialog.ShowDialog() == DialogResult.OK)
             {
                 if (contextControl is PinWindowForm pinWindow)
