@@ -50,22 +50,20 @@ namespace Pinspaces
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
-                components = null;
+                components?.Dispose();
                 updateFormLocationAndSizeMethodExecutor.Dispose();
             }
             base.Dispose(disposing);
         }
 
-        private void Form_LocationChanged(object sender, EventArgs e)
+        private void Form_LocationOrPositionChanged(object sender, EventArgs e)
         {
-            updateFormLocationAndSizeMethodExecutor.Execute();
-        }
-
-        private void Form_ResizeEnd(object sender, EventArgs e)
-        {
+            if (!isLoaded)
+            {
+                return;
+            }
             updateFormLocationAndSizeMethodExecutor.Execute();
         }
 

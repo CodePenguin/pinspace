@@ -50,8 +50,8 @@ namespace Pinspaces
             this.Name = "PinWindowForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Pinspace";
-            this.ResizeEnd += new System.EventHandler(this.Form_ResizeEnd);
-            this.LocationChanged += new System.EventHandler(this.Form_LocationChanged);
+            this.ResizeEnd += new System.EventHandler(this.Form_LocationOrPositionChanged);
+            this.LocationChanged += new System.EventHandler(this.Form_LocationOrPositionChanged);
             this.ResumeLayout(false);
             this.PerformLayout();
 
