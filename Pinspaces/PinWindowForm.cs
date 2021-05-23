@@ -14,9 +14,12 @@ namespace Pinspaces
 {
     public partial class PinWindowForm : Form
     {
+        private readonly int baseContextMenuItemCount;
         private readonly IDataContext dataContext;
+        private readonly Color defaultPinColor = Color.FromArgb(51, 122, 183);
         private readonly List<Type> pinTypes = new();
-        private int baseContextMenuItemCount;
+        private readonly DebounceMethodExecutor updateFormLocationAndSizeMethodExecutor;
+        private bool isLoaded = false;
         private Pinspace pinspace;
         private PinWindow pinWindow;
         private Point targetPoint;
@@ -28,6 +31,7 @@ namespace Pinspaces
             InitializeComponent();
 
             baseContextMenuItemCount = ContextMenuStrip.Items.Count;
+            updateFormLocationAndSizeMethodExecutor = new(UpdateFormLocationAndSize, 1000);
 
             GenerateNewPinControlsMenu();
         }
@@ -64,6 +68,18 @@ namespace Pinspaces
                 var panel = CreateNewPinPanel(type);
                 panel.LoadPin(pin);
             }
+
+            isLoaded = true;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+                updateFormLocationAndSizeMethodExecutor.Dispose();
+            }
+            base.Dispose(disposing);
         }
 
         private static string GetPinDisplayName(Type type)
@@ -81,9 +97,11 @@ namespace Pinspaces
             };
             if (colorDialog.ShowDialog() == DialogResult.OK)
             {
-                if (contextControl is PinWindowForm pinWindow)
+                if (contextControl is PinWindowForm)
                 {
-                    pinWindow.BackColor = colorDialog.Color;
+                    BackColor = colorDialog.Color;
+                    pinWindow.Color = colorDialog.Color.ToHtmlString();
+                    SendPropertiesChangedNotification(this);
                 }
                 if (contextControl is PinPanel pinPanel)
                 {
@@ -104,7 +122,7 @@ namespace Pinspaces
         {
             if (contextMenuStrip.SourceControl is PinPanel)
             {
-                // Do no show the context menu if coming from the panel itself
+                // Do not show the context menu if coming from the panel itself
                 e.Cancel = true;
                 return;
             }
@@ -135,13 +153,19 @@ namespace Pinspaces
         {
             var panel = Activator.CreateInstance(pinType, null) as PinPanel;
             panel.ContextMenuStrip = contextMenuStrip;
+            panel.PropertiesChanged += PropertiesChanged;
             Controls.Add(panel);
             return panel;
         }
 
-        private void ExitMenuItem_Click(object sender, EventArgs e)
+        private void Form_LocationChanged(object sender, EventArgs e)
         {
-            Close();
+            updateFormLocationAndSizeMethodExecutor.Execute();
+        }
+
+        private void Form_ResizeEnd(object sender, EventArgs e)
+        {
+            updateFormLocationAndSizeMethodExecutor.Execute();
         }
 
         private void GenerateNewPinControlsMenu()
@@ -177,6 +201,7 @@ namespace Pinspaces
             var pinType = pinTypes[(int)menuItem.Tag];
             var pinPanel = CreateNewPinPanel(pinType);
             var pin = Activator.CreateInstance(pinPanel.PinType(), null) as Pin;
+            pin.Color = defaultPinColor.ToHtmlString();
             pin.Height = pinPanel.Height;
             pin.Left = targetPoint.X;
             pin.Title = "New " + GetPinDisplayName(pinType);
@@ -184,6 +209,20 @@ namespace Pinspaces
             pin.Width = pinPanel.Width;
             pinspace.Pins.Add(pin);
             pinPanel.LoadPin(pin);
+            SendPropertiesChangedNotification(pinPanel);
+        }
+
+        private void PropertiesChanged(object sender, EventArgs e)
+        {
+            if (!isLoaded)
+            {
+                return;
+            }
+            if (sender is PinWindowForm)
+            {
+                dataContext.UpdatePinWindow(pinWindow);
+            }
+            dataContext.UpdatePinspace(pinspace);
         }
 
         private void RemovePinMenuItem_Click(object sender, EventArgs e)
@@ -203,18 +242,19 @@ namespace Pinspaces
             }
         }
 
-        private void SaveMenuItem_Click(object sender, EventArgs e)
+        private void SendPropertiesChangedNotification(object sender)
         {
-            pinWindow.ActivePinspaceId = pinspace.Id;
-            pinWindow.Color = (BackColor == SystemColors.Control) ? null : BackColor.ToHtmlString();
+            PropertiesChanged(sender, new EventArgs());
+        }
+
+        private void UpdateFormLocationAndSize()
+        {
             pinWindow.Height = Height;
             pinWindow.IsMaximized = WindowState == FormWindowState.Maximized;
             pinWindow.Left = Left;
             pinWindow.Top = Top;
             pinWindow.Width = Width;
-
-            dataContext.UpdatePinspace(pinspace);
-            dataContext.UpdatePinWindow(pinWindow);
+            SendPropertiesChangedNotification(this);
         }
     }
 }

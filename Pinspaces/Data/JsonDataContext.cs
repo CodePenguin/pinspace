@@ -9,13 +9,23 @@ using static System.Environment;
 
 namespace Pinspaces.Data
 {
-    public class JsonDataContext : IDataContext
+    public class JsonDataContext : IDataContext, IDisposable
     {
         private readonly JsonData data;
+        private readonly DebounceMethodExecutor saveDataFileMethodExecutor;
+        private bool disposedValue;
 
         public JsonDataContext()
         {
             data = LoadDataFile();
+
+            saveDataFileMethodExecutor = new(() => SaveDataFile(data), 5000);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         public Pinspace GetPinspace(Guid id)
@@ -39,7 +49,7 @@ namespace Pinspaces.Data
             storedPin.Assign(pinspace, out var wasChanged);
             if (wasChanged)
             {
-                SaveDataFile(data);
+                saveDataFileMethodExecutor.Execute();
             }
         }
 
@@ -49,9 +59,20 @@ namespace Pinspaces.Data
             storedPinWindow.Assign(pinWindow, out var wasChanged);
             if (wasChanged)
             {
-                SaveDataFile(data);
+                saveDataFileMethodExecutor.Execute();
             }
-            SaveDataFile(data);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    saveDataFileMethodExecutor.Dispose();
+                }
+                disposedValue = true;
+            }
         }
 
         private static string GetDataFilename()

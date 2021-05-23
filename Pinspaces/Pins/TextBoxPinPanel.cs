@@ -52,12 +52,14 @@ namespace Pinspaces.Pins
         private void TextBox_OnTextChanged(object sender, EventArgs e)
         {
             Pin.Text = textBox.Text;
+            SendPropertiesChangedNotification();
         }
 
         private void WordWrapContextMenuItem_Click(object sender, EventArgs e)
         {
             textBox.WordWrap = !textBox.WordWrap;
             Pin.WordWrap = textBox.WordWrap;
+            SendPropertiesChangedNotification();
         }
     }
 }

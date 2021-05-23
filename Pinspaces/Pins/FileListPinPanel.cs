@@ -220,6 +220,7 @@ namespace Pinspaces.Pins
             {
                 Pin.Files.Add(file.FileSystemPath);
             }
+            SendPropertiesChangedNotification();
         }
     }
 }

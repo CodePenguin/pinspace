@@ -1,15 +1,16 @@
 using Pinspaces.Data;
 using Pinspaces.Extensions;
+using Pinspaces.Interfaces;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace Pinspaces.Pins
 {
-    public abstract class PinPanel : DraggablePanel
+    public abstract class PinPanel : DraggablePanel, INotifyPropertiesChanged
     {
         protected Pin pin;
-        private readonly Color defaultPinColor = Color.FromArgb(51, 122, 183);
+        private readonly DebounceMethodExecutor sendPropertiesNotificationMethodExecutor;
         private Label titleLabel;
         private Panel titlePanel;
 
@@ -17,7 +18,10 @@ namespace Pinspaces.Pins
         {
             InitializeControl();
             ContextMenuStripChanged += PinboardPanel_ContextMenuStripChanged;
+            sendPropertiesNotificationMethodExecutor = new(() => PropertiesChanged?.Invoke(this, new EventArgs()), 1000);
         }
+
+        public event INotifyPropertiesChanged.PropertiesChangedEventHandler PropertiesChanged;
 
         public Color PinColor
         {
@@ -28,6 +32,7 @@ namespace Pinspaces.Pins
                 titlePanel.BackColor = BackColor;
                 titlePanel.ForeColor = BackColor.TextColor();
                 pin.Color = BackColor.ToHtmlString();
+                SendPropertiesChangedNotification();
             }
         }
 
@@ -38,6 +43,7 @@ namespace Pinspaces.Pins
             {
                 titleLabel.Text = value;
                 pin.Title = value;
+                SendPropertiesChangedNotification();
             }
         }
 
@@ -50,7 +56,7 @@ namespace Pinspaces.Pins
         {
             this.pin = pin;
             Height = pin.Height > 0 ? pin.Height : Height;
-            PinColor = ColorExtensions.FromHtmlString(pin.Color, defaultPinColor);
+            PinColor = ColorExtensions.FromHtmlString(pin.Color, BackColor);
             Left = pin.Left;
             Title = pin.Title;
             Top = pin.Top;
@@ -58,6 +64,17 @@ namespace Pinspaces.Pins
         }
 
         public abstract Type PinType();
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                sendPropertiesNotificationMethodExecutor.Dispose();
+                titleLabel.Dispose();
+                titlePanel.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
         protected virtual void InitializeControl()
         {
@@ -94,6 +111,11 @@ namespace Pinspaces.Pins
         {
             pin.Height = Height;
             pin.Width = Width;
+        }
+
+        protected void SendPropertiesChangedNotification()
+        {
+            sendPropertiesNotificationMethodExecutor.Execute();
         }
 
         private void PinboardPanel_ContextMenuStripChanged(object sender, EventArgs e)
