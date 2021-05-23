@@ -46,14 +46,15 @@ namespace Pinspaces
 
             foreach (var pin in pinspace.Pins)
             {
-                var typeName = "Pinspaces.Pins." + pin.GetType().Name + "Panel";
-                var type = Type.GetType(typeName);
-                if (type == null)
+                var pinTypeName = "Pinspaces.Pins." + pin.GetType().Name + "Panel";
+                var pinType = Type.GetType(pinTypeName);
+                if (pinType == null)
                 {
-                    throw new ArgumentException($"Unknown Pin Panel Type: {typeName}");
+                    throw new ArgumentException($"Unknown Pin Panel Type: {pinTypeName}");
                 }
-                var panel = CreateNewPinPanel(type);
-                panel.LoadPin(pin);
+                var pinPanel = CreateNewPinPanel(pinType);
+                pinPanel.LoadPin(pin);
+                Controls.Add(pinPanel);
             }
         }
 
@@ -69,6 +70,7 @@ namespace Pinspaces
             pin.Width = pinPanel.Width;
             pinspace.Pins.Add(pin);
             pinPanel.LoadPin(pin);
+            Controls.Add(pinPanel);
             SendPropertiesChangedNotification();
         }
 
@@ -120,7 +122,6 @@ namespace Pinspaces
             var panel = Activator.CreateInstance(pinType, null) as PinPanel;
             panel.ContextMenuStrip = ContextMenuStrip;
             panel.PropertiesChanged += PinPanel_PropertiesChanged;
-            Controls.Add(panel);
             return panel;
         }
 

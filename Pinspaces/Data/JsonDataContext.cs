@@ -46,6 +46,11 @@ namespace Pinspaces.Data
         public void UpdatePinspace(Pinspace pinspace)
         {
             var storedPin = data.Pinspaces.Where(p => p.Id.Equals(pinspace.Id)).FirstOrDefault();
+            if (storedPin == null)
+            {
+                storedPin = new Pinspace();
+                data.Pinspaces.Add(storedPin);
+            }
             storedPin.Assign(pinspace, out var wasChanged);
             if (wasChanged)
             {
@@ -56,6 +61,11 @@ namespace Pinspaces.Data
         public void UpdatePinWindow(PinWindow pinWindow)
         {
             var storedPinWindow = data.Windows.Where(w => w.Id.Equals(pinWindow.Id)).FirstOrDefault();
+            if (storedPinWindow == null)
+            {
+                storedPinWindow = new PinWindow();
+                data.Windows.Add(storedPinWindow);
+            }
             storedPinWindow.Assign(pinWindow, out var wasChanged);
             if (wasChanged)
             {
@@ -77,9 +87,9 @@ namespace Pinspaces.Data
 
         private static string GetDataFilename()
         {
-            var localAppDataPath = Path.Combine(GetFolderPath(SpecialFolder.LocalApplicationData, SpecialFolderOption.DoNotVerify), "Pinspace");
+            var localAppDataPath = Path.Combine(GetFolderPath(SpecialFolder.LocalApplicationData, SpecialFolderOption.DoNotVerify), "Pinspaces");
             Directory.CreateDirectory(localAppDataPath);
-            return Path.Combine(localAppDataPath, "settings.json");
+            return Path.Combine(localAppDataPath, "Pinspaces.json");
         }
 
         private static JsonData LoadDataFile()
@@ -87,11 +97,7 @@ namespace Pinspaces.Data
             var dataFilename = GetDataFilename();
             if (!File.Exists(dataFilename))
             {
-                var data = new JsonData();
-                var pinspace = new Pinspace();
-                data.Pinspaces.Add(pinspace);
-                data.Windows.Add(new PinWindow { ActivePinspaceId = pinspace.Id });
-                return data;
+                return new JsonData();
             }
             var text = File.ReadAllText(dataFilename);
             var deserializeOptions = new JsonSerializerOptions();

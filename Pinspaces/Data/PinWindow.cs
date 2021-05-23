@@ -6,57 +6,28 @@ namespace Pinspaces.Data
 {
     public class PinWindow : ICloneable<PinWindow>
     {
-        private const int DefaultWindowHeight = 600;
-        private const int DefaultWindowWidth = 900;
+        public const int DefaultHeight = 600;
 
-        private int height;
-        private bool isMaximized;
-        private int width;
+        public const int DefaultWidth = 800;
 
         public PinWindow()
         {
             Id = Guid.NewGuid();
-            Height = DefaultWindowHeight;
-            Width = DefaultWindowWidth;
         }
 
         public Guid ActivePinspaceId { get; set; }
 
-        public int Height
-        {
-            get => height;
-            set
-            {
-                height = value;
-                CheckMaximized();
-            }
-        }
+        public int Height { get; set; }
 
         public Guid Id { get; set; }
 
-        public bool IsMaximized
-        {
-            get => isMaximized;
-            set
-            {
-                isMaximized = value;
-                CheckMaximized();
-            }
-        }
+        public bool IsMaximized { get; set; }
 
         public int Left { get; set; }
 
         public int Top { get; set; }
 
-        public int Width
-        {
-            get => width;
-            set
-            {
-                width = value;
-                CheckMaximized();
-            }
-        }
+        public int Width { get; set; }
 
         public void Assign(PinWindow source, out bool wasChanged)
         {
@@ -68,15 +39,6 @@ namespace Pinspaces.Data
             var clone = (PinWindow)MemberwiseClone();
             Assign(this, out _);
             return clone;
-        }
-
-        private void CheckMaximized()
-        {
-            if (IsMaximized)
-            {
-                height = DefaultWindowHeight;
-                width = DefaultWindowWidth;
-            }
         }
     }
 }

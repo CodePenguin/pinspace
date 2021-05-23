@@ -21,6 +21,9 @@ namespace Pinspaces
             InitializeComponent();
             pinspacePanel.PropertiesChanged += PropertiesChanged;
 
+            Height = PinWindow.DefaultHeight;
+            Width = PinWindow.DefaultWidth;
+
             updateFormLocationAndSizeMethodExecutor = new(UpdateFormLocationAndSize, 1000);
         }
 
@@ -90,11 +93,12 @@ namespace Pinspaces
 
         private void UpdateFormLocationAndSize()
         {
-            pinWindow.Height = Height;
+            var isMaximized = WindowState == FormWindowState.Maximized;
+            pinWindow.Height = !isMaximized ? Height : PinWindow.DefaultHeight;
             pinWindow.IsMaximized = WindowState == FormWindowState.Maximized;
-            pinWindow.Left = Left;
-            pinWindow.Top = Top;
-            pinWindow.Width = Width;
+            pinWindow.Left = !isMaximized ? Left : Width / 2 - PinWindow.DefaultWidth / 2;
+            pinWindow.Top = !isMaximized ? Top : Height / 2 - PinWindow.DefaultHeight / 2;
+            pinWindow.Width = !isMaximized ? Width : PinWindow.DefaultWidth;
             SendPropertiesChangedNotification(this);
         }
     }

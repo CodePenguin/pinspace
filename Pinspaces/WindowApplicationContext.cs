@@ -24,10 +24,30 @@ namespace Pinspaces
         public void LoadData()
         {
             var windows = dataContext.GetPinWindows();
+            if (windows.Count == 0)
+            {
+                NewWindow();
+            }
             foreach (var window in windows)
             {
                 NewWindow(window);
             }
+        }
+
+        public void NewWindow()
+        {
+            var pinspace = new Pinspace();
+            var pinWindow = new PinWindow
+            {
+                ActivePinspaceId = pinspace.Id,
+                Height = PinWindow.DefaultHeight,
+                Left = Screen.PrimaryScreen.WorkingArea.Width / 2 - PinWindow.DefaultWidth / 2,
+                Top = Screen.PrimaryScreen.WorkingArea.Height / 2 - PinWindow.DefaultHeight / 2,
+                Width = PinWindow.DefaultWidth
+            };
+            dataContext.UpdatePinspace(pinspace);
+            dataContext.UpdatePinWindow(pinWindow);
+            NewWindow(pinWindow);
         }
 
         public void NewWindow(PinWindow pinWindow)
