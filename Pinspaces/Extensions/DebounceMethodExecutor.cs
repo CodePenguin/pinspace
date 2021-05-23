@@ -8,6 +8,7 @@ namespace Pinspaces.Extensions
         private readonly DebounceMethod method;
         private readonly Timer timer;
         private bool canceled = false;
+        private bool pending = false;
 
         public DebounceMethodExecutor(DebounceMethod method, int waitMilliseconds)
         {
@@ -30,6 +31,7 @@ namespace Pinspaces.Extensions
         public void Execute()
         {
             timer.Stop();
+            pending = true;
             timer.Start();
         }
 
@@ -39,6 +41,11 @@ namespace Pinspaces.Extensions
             {
                 Cancel();
                 timer.Dispose();
+                if (pending)
+                {
+                    method();
+                    pending = false;
+                }
             }
             base.Dispose(disposing);
         }
@@ -48,6 +55,7 @@ namespace Pinspaces.Extensions
             if (!canceled)
             {
                 method();
+                pending = false;
             }
         }
     }

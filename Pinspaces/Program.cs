@@ -8,24 +8,26 @@ namespace Pinspaces
 {
     public static class Program
     {
+        public static void ConfigureServices(IServiceCollection services)
+        {
+            services.AddSingleton<IDataContext, JsonDataContext>();
+            services.AddSingleton<WindowApplicationContext>();
+            services.AddTransient<FormFactory>();
+            services.AddTransient<PinWindowForm>();
+        }
+
         [STAThread]
         internal static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var context = BuildContainer().GetService<WindowApplicationContext>();
-            Application.Run(context);
-        }
+            var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection);
 
-        private static IServiceProvider BuildContainer()
-        {
-            var services = new ServiceCollection()
-                .AddSingleton<IDataContext, JsonDataContext>()
-                .AddSingleton<WindowApplicationContext>()
-                .AddTransient<FormFactory>()
-                .AddTransient<PinWindowForm>();
-            return services.BuildServiceProvider();
+            using var ServiceProvider = serviceCollection.BuildServiceProvider();
+            var context = ServiceProvider.GetService<WindowApplicationContext>();
+            Application.Run(context);
         }
     }
 }

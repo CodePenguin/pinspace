@@ -36,8 +36,6 @@ namespace Pinspaces
             GenerateNewPinControlsMenu();
         }
 
-        public WindowApplicationContext WindowApplicationContext { get; set; }
-
         public void LoadWindow(PinWindow pinWindow)
         {
             this.pinWindow = pinWindow;
@@ -77,6 +75,7 @@ namespace Pinspaces
             if (disposing && (components != null))
             {
                 components.Dispose();
+                components = null;
                 updateFormLocationAndSizeMethodExecutor.Dispose();
             }
             base.Dispose(disposing);
