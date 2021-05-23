@@ -2,7 +2,9 @@ using Pinspaces.Data;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
+using System.ComponentModel;
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace Pinspaces.Pins
@@ -11,6 +13,7 @@ namespace Pinspaces.Pins
     {
         protected Pin pin;
         private readonly DebounceMethodExecutor sendPropertiesNotificationMethodExecutor;
+        private bool isLoaded = false;
         private Label titleLabel;
         private Panel titlePanel;
 
@@ -47,6 +50,11 @@ namespace Pinspaces.Pins
             }
         }
 
+        public static string GetPinDisplayName(Type type)
+        {
+            return type.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? type.Name;
+        }
+
         public virtual void AddContextMenuItems(ContextMenuStrip contextMenu)
         {
             // Override to add additional context menu items
@@ -54,6 +62,7 @@ namespace Pinspaces.Pins
 
         public virtual void LoadPin(Pin pin)
         {
+            isLoaded = false;
             this.pin = pin;
             Height = pin.Height > 0 ? pin.Height : Height;
             PinColor = ColorExtensions.FromHtmlString(pin.Color, BackColor);
@@ -61,6 +70,7 @@ namespace Pinspaces.Pins
             Title = pin.Title;
             Top = pin.Top;
             Width = pin.Width > 0 ? pin.Width : Width;
+            isLoaded = true;
         }
 
         public abstract Type PinType();
@@ -101,16 +111,28 @@ namespace Pinspaces.Pins
             Controls.Add(titlePanel);
         }
 
-        protected override void OnMovedPanel()
+        protected override void OnLocationChanged(EventArgs e)
         {
+            base.OnLocationChanged(e);
+            if (!isLoaded)
+            {
+                return;
+            }
             pin.Left = Left;
             pin.Top = Top;
+            SendPropertiesChangedNotification();
         }
 
-        protected override void OnResizedPanel()
+        protected override void OnResize(EventArgs e)
         {
+            base.OnResize(e);
+            if (!isLoaded)
+            {
+                return;
+            }
             pin.Height = Height;
             pin.Width = Width;
+            SendPropertiesChangedNotification();
         }
 
         protected void SendPropertiesChangedNotification()

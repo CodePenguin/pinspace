@@ -5,7 +5,7 @@ namespace Pinspaces.Extensions
 {
     internal static class FormExtensions
     {
-        public static DialogResult ShowInputDialog(this Form _, string caption, ref string input)
+        public static DialogResult ShowInputDialog(string caption, ref string input)
         {
             var size = new Size(200, 70);
             using var dialog = new Form

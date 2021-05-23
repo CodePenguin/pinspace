@@ -21,7 +21,6 @@ namespace Pinspaces.Data
         }
 
         public Guid ActivePinspaceId { get; set; }
-        public string Color { get; set; }
 
         public int Height
         {

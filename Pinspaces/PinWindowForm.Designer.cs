@@ -16,79 +16,50 @@ namespace Pinspaces
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.changeColorMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newPinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.renamePinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removePinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextMenuStrip.SuspendLayout();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.pinspacePanel = new Pinspaces.PinspacePanel();
             this.SuspendLayout();
             // 
-            // contextMenuStrip
+            // statusStrip
             // 
-            this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.changeColorMenuItem,
-            this.newPinMenuItem,
-            this.renamePinMenuItem,
-            this.removePinMenuItem});
-            this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(155, 92);
-            this.contextMenuStrip.Closing += new System.Windows.Forms.ToolStripDropDownClosingEventHandler(this.ContextMenuStrip_Closing);
-            this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_Opening);
+            this.statusStrip.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.statusStrip.Location = new System.Drawing.Point(0, 497);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(933, 22);
+            this.statusStrip.TabIndex = 2;
+            this.statusStrip.Text = "statusStrip1";
             // 
-            // changeColorMenuItem
+            // pinspacePanel
             // 
-            this.changeColorMenuItem.Name = "changeColorMenuItem";
-            this.changeColorMenuItem.Size = new System.Drawing.Size(154, 22);
-            this.changeColorMenuItem.Text = "Change color...";
-            this.changeColorMenuItem.Click += new System.EventHandler(this.ChangeColorMenuItem_Click);
-            // 
-            // newPinMenuItem
-            // 
-            this.newPinMenuItem.Name = "newPinMenuItem";
-            this.newPinMenuItem.Size = new System.Drawing.Size(154, 22);
-            this.newPinMenuItem.Text = "New";
-            // 
-            // renamePinMenuItem
-            // 
-            this.renamePinMenuItem.Name = "renamePinMenuItem";
-            this.renamePinMenuItem.Size = new System.Drawing.Size(154, 22);
-            this.renamePinMenuItem.Text = "Rename...";
-            this.renamePinMenuItem.Click += new System.EventHandler(this.RenamePinMenuItem_Click);
-            // 
-            // removePinMenuItem
-            // 
-            this.removePinMenuItem.Name = "removePinMenuItem";
-            this.removePinMenuItem.Size = new System.Drawing.Size(154, 22);
-            this.removePinMenuItem.Text = "Remove";
-            this.removePinMenuItem.Click += new System.EventHandler(this.RemovePinMenuItem_Click);
+            this.pinspacePanel.AutoScroll = true;
+            this.pinspacePanel.AutoScrollMargin = new System.Drawing.Size(10, 10);
+            this.pinspacePanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pinspacePanel.Location = new System.Drawing.Point(0, 0);
+            this.pinspacePanel.Name = "pinspacePanel";
+            this.pinspacePanel.Size = new System.Drawing.Size(933, 497);
+            this.pinspacePanel.TabIndex = 3;
             // 
             // PinWindowForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoScroll = true;
-            this.AutoScrollMargin = new System.Drawing.Size(10, 10);
             this.ClientSize = new System.Drawing.Size(933, 519);
-            this.ContextMenuStrip = this.contextMenuStrip;
+            this.Controls.Add(this.pinspacePanel);
+            this.Controls.Add(this.statusStrip);
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "PinWindowForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Pinspace";
             this.ResizeEnd += new System.EventHandler(this.Form_ResizeEnd);
             this.LocationChanged += new System.EventHandler(this.Form_LocationChanged);
-            this.contextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem newPinMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem removePinMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem renamePinMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem changeColorMenuItem;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private PinspacePanel pinspacePanel;
     }
 }
 

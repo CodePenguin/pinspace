@@ -127,25 +127,14 @@ namespace Pinspaces.Pins
 
         protected void MouseUpHandler(object sender, MouseEventArgs e)
         {
-            if (isDragging)
-            {
-                OnMovedPanel();
-            }
-            if (isResizing)
-            {
-                OnResizedPanel();
-            }
             isDragging = false;
             isResizing = false;
             mouseDownEdge = PanelEdge.None;
         }
 
-        protected virtual void OnMovedPanel()
+        protected override void OnLocationChanged(System.EventArgs e)
         {
-        }
-
-        protected virtual void OnResizedPanel()
-        {
+            base.OnLocationChanged(e);
         }
 
         private Point ControlPointToClientPoint(object sender, Point controlPoint)

@@ -13,6 +13,7 @@ namespace Pinspaces.Data
             Pins = new List<Pin>();
         }
 
+        public string Color { get; set; }
         public Guid Id { get; set; }
         public IList<Pin> Pins { get; set; }
 
