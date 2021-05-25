@@ -2,12 +2,12 @@ name: Pinspaces-CI
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches: [ main ]
     paths-ignore:
       - 'README.md'
       - 'docs/**'
   pull_request:
-    branches: [ $default-branch ]
+    branches: [ main ]
 
 jobs:
   build:
