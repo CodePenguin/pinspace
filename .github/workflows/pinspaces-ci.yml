@@ -40,4 +40,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Binaries
-        path: ${{ env.GITHUB_WORKSPACE }}\Pinspaces\bin\Release\net5.0-windows\publish\
+        path: $GITHUB_WORKSPACE\Pinspaces\bin\Release\net5.0-windows\publish\
