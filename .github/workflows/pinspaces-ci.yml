@@ -1,0 +1,42 @@
+name: Pinspaces-CI
+
+on:
+  push:
+    branches: [ $default-branch ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore --framework net5.0-windows
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+
+    - name: Publish
+      run: dotnet publish --framework net5.0-windows --configuration Release
+
+    - name: Upload binaries
+      uses: actions/upload-artifact@v2
+      with:
+        name: Binaries
+        path: ${{ env.GITHUB_WORKSPACE }}\Pinspaces\bin\Release\net5.0-windows\publish\
