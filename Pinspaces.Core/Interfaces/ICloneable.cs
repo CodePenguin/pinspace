@@ -1,4 +1,4 @@
-namespace Pinspaces.Interfaces
+namespace Pinspaces.Core.Interfaces
 {
     public interface ICloneable<T>
     {

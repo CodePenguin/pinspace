@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows.Forms;
 
-namespace Pinspaces
+namespace Pinspaces.Extensions
 {
     public class FormFactory
     {

@@ -1,21 +1,19 @@
-using Pinspaces.Data;
+using Pinspaces.Core.Data;
+using Pinspaces.Core.Extensions;
+using Pinspaces.Core.Interfaces;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
-using Pinspaces.Pins;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
 
-namespace Pinspaces
+namespace Pinspaces.Controls
 {
     public class PinspacePanel : Panel, INotifyPropertiesChanged
     {
         private readonly Color defaultPinColor = Color.FromArgb(51, 122, 183);
-        private readonly List<Type> pinTypes = new();
+        private readonly IPinFactory pinFactory;
         private readonly DebounceMethodExecutor sendPropertiesNotificationMethodExecutor;
         private int baseContextMenuItemCount;
         private ToolStripMenuItem changeColorMenuItem;
@@ -26,8 +24,10 @@ namespace Pinspaces
         private ToolStripMenuItem renamePinMenuItem;
         private Point targetPoint;
 
-        public PinspacePanel()
+        public PinspacePanel(IPinFactory pinFactory)
         {
+            this.pinFactory = pinFactory;
+
             AutoScroll = true;
             AutoScrollMargin = new Size(10, 10);
 
@@ -38,49 +38,7 @@ namespace Pinspaces
 
         public event INotifyPropertiesChanged.PropertiesChangedEventHandler PropertiesChanged;
 
-        public void LoadPinspace(Pinspace pinspace)
-        {
-            this.pinspace = pinspace;
-
-            BackColor = ColorExtensions.FromHtmlString(pinspace.Color, SystemColors.Control);
-
-            foreach (var pin in pinspace.Pins)
-            {
-                var pinTypeName = "Pinspaces.Pins." + pin.GetType().Name + "Panel";
-                var pinType = Type.GetType(pinTypeName);
-                if (pinType == null)
-                {
-                    throw new ArgumentException($"Unknown Pin Panel Type: {pinTypeName}");
-                }
-                var pinPanel = CreateNewPinPanel(pinType);
-                pinPanel.LoadPin(pin);
-                Controls.Add(pinPanel);
-            }
-        }
-
-        public void NewPin(Type pinType, Point position)
-        {
-            var pinPanel = CreateNewPinPanel(pinType);
-            var pin = Activator.CreateInstance(pinPanel.PinType(), null) as Pin;
-            pin.Color = defaultPinColor.ToHtmlString();
-            pin.Height = pinPanel.Height;
-            pin.Left = position.X;
-            pin.Title = "New " + PinPanel.GetPinDisplayName(pinType);
-            pin.Top = position.Y;
-            pin.Width = pinPanel.Width;
-            pinspace.Pins.Add(pin);
-            pinPanel.LoadPin(pin);
-            Controls.Add(pinPanel);
-            SendPropertiesChangedNotification();
-        }
-
-        public void RemovePin(PinPanel pinPanel)
-        {
-            Controls.Remove(pinPanel);
-            pinPanel.Dispose();
-        }
-
-        public void RenamePin(PinPanel pinPanel)
+        public static void RenamePin(PinPanel pinPanel)
         {
             var title = pinPanel.Title;
             if (FormExtensions.ShowInputDialog("Rename", ref title) == DialogResult.OK)
@@ -89,9 +47,51 @@ namespace Pinspaces
             }
         }
 
+        public void LoadPinspace(Pinspace pinspace)
+        {
+            this.pinspace = pinspace;
+
+            BackColor = ColorExtensions.FromHtmlString(pinspace.Color, SystemColors.Control);
+
+            foreach (var pin in pinspace.Pins)
+            {
+                AddPinPanel(pin);
+            }
+        }
+
+        public void NewPin(Type pinControlType, Point position)
+        {
+            var pin = pinFactory.NewPin(pinControlType);
+            pin.Color = defaultPinColor.ToHtmlString();
+            pin.Left = position.X;
+            pin.Title = "New " + pinFactory.GetDisplayName(pinControlType);
+            pin.Top = position.Y;
+            pinspace.Pins.Add(pin);
+
+            AddPinPanel(pin);
+            SendPropertiesChangedNotification();
+        }
+
+        public void RemovePin(PinPanel pinPanel)
+        {
+            Controls.Remove(pinPanel);
+            pinspace.Pins.Remove(pinPanel.Pin);
+            pinPanel.Dispose();
+            SendPropertiesChangedNotification();
+        }
+
         protected void SendPropertiesChangedNotification()
         {
             sendPropertiesNotificationMethodExecutor.Execute();
+        }
+
+        private void AddPinPanel(Pin pin)
+        {
+            var pinControl = pinFactory.NewPinControl(pin.GetType());
+            var pinPanel = new PinPanel(pinControl) { ContextMenuStrip = ContextMenuStrip };
+            pinPanel.PropertiesChanged += PinPanel_PropertiesChanged;
+            pinPanel.LoadPin(pin);
+            Controls.Add(pinPanel);
         }
 
         private void ChangeColorMenuItem_Click(object sender, EventArgs e)
@@ -117,28 +117,17 @@ namespace Pinspaces
             }
         }
 
-        private PinPanel CreateNewPinPanel(Type pinType)
-        {
-            var panel = Activator.CreateInstance(pinType, null) as PinPanel;
-            panel.ContextMenuStrip = ContextMenuStrip;
-            panel.PropertiesChanged += PinPanel_PropertiesChanged;
-            return panel;
-        }
-
         private void GenerateNewPinControlsMenu()
         {
-            var types = Assembly.GetAssembly(typeof(PinPanel)).GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(PinPanel)));
-            foreach (var type in types)
+            foreach (var type in pinFactory.PinControlTypes)
             {
                 var newMenuItem = new ToolStripMenuItem
                 {
-                    Text = PinPanel.GetPinDisplayName(type)
+                    Text = pinFactory.GetDisplayName(type)
                 };
                 newMenuItem.Click += NewPinMenuItem_Click;
-                newMenuItem.Tag = pinTypes.Count;
+                newMenuItem.Tag = type;
                 newPinMenuItem.DropDownItems.Add(newMenuItem);
-                pinTypes.Add(type);
             }
         }
 
@@ -185,8 +174,8 @@ namespace Pinspaces
         private void NewPinMenuItem_Click(object sender, EventArgs e)
         {
             var menuItem = sender as ToolStripMenuItem;
-            var pinType = pinTypes[(int)menuItem.Tag];
-            NewPin(pinType, targetPoint);
+            var pinControlType = (Type)menuItem.Tag;
+            NewPin(pinControlType, targetPoint);
             SendPropertiesChangedNotification();
         }
 

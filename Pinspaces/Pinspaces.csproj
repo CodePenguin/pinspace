@@ -12,6 +12,17 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\submodules\gong-shell\Shell\Shell.csproj" />
+    <ProjectReference Include="..\Pinspaces.Core.Controls\Pinspaces.Core.Controls.csproj" />
+    <ProjectReference Include="..\Pinspaces.Core\Pinspaces.Core.csproj" />
+    <ProjectReference Include="..\Pinspaces.Shell\Pinspaces.Shell.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Controls\DraggablePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\PinPanel.cs" />
+    <Compile Update="Extensions\DebounceMethodExecutor.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

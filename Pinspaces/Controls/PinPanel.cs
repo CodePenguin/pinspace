@@ -1,30 +1,31 @@
-using Pinspaces.Data;
-using Pinspaces.Extensions;
-using Pinspaces.Interfaces;
+using Pinspaces.Core.Controls;
+using Pinspaces.Core.Data;
+using Pinspaces.Core.Extensions;
+using Pinspaces.Core.Interfaces;
 using System;
-using System.ComponentModel;
 using System.Drawing;
-using System.Reflection;
 using System.Windows.Forms;
 
-namespace Pinspaces.Pins
+namespace Pinspaces.Controls
 {
-    public abstract class PinPanel : DraggablePanel, INotifyPropertiesChanged
+    public class PinPanel : DraggablePanel, INotifyPropertiesChanged
     {
-        protected Pin pin;
-        private readonly DebounceMethodExecutor sendPropertiesNotificationMethodExecutor;
+        private readonly PinControl pinControl;
         private bool isLoaded = false;
         private Label titleLabel;
         private Panel titlePanel;
 
-        public PinPanel()
+        public PinPanel(PinControl pinControl)
         {
+            this.pinControl = pinControl;
+
             InitializeControl();
             ContextMenuStripChanged += PinboardPanel_ContextMenuStripChanged;
-            sendPropertiesNotificationMethodExecutor = new(() => PropertiesChanged?.Invoke(this, new EventArgs()), 1000);
         }
 
         public event INotifyPropertiesChanged.PropertiesChangedEventHandler PropertiesChanged;
+
+        public Pin Pin { get; private set; }
 
         public Color PinColor
         {
@@ -34,7 +35,7 @@ namespace Pinspaces.Pins
                 BackColor = value;
                 titlePanel.BackColor = BackColor;
                 titlePanel.ForeColor = BackColor.TextColor();
-                pin.Color = BackColor.ToHtmlString();
+                Pin.Color = BackColor.ToHtmlString();
                 SendPropertiesChangedNotification();
             }
         }
@@ -45,50 +46,24 @@ namespace Pinspaces.Pins
             set
             {
                 titleLabel.Text = value;
-                pin.Title = value;
+                Pin.Title = value;
                 SendPropertiesChangedNotification();
             }
         }
 
-        public static string GetPinDisplayName(Type type)
+        public void AddContextMenuItems(ContextMenuStrip contextMenu)
         {
-            return type.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? type.Name;
+            pinControl.AddContextMenuItems(contextMenu);
         }
 
-        public virtual void AddContextMenuItems(ContextMenuStrip contextMenu)
-        {
-            // Override to add additional context menu items
-        }
-
-        public virtual void LoadPin(Pin pin)
-        {
-            isLoaded = false;
-            this.pin = pin;
-            Height = pin.Height > 0 ? pin.Height : Height;
-            PinColor = ColorExtensions.FromHtmlString(pin.Color, BackColor);
-            Left = pin.Left;
-            Title = pin.Title;
-            Top = pin.Top;
-            Width = pin.Width > 0 ? pin.Width : Width;
-            isLoaded = true;
-        }
-
-        public abstract Type PinType();
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                sendPropertiesNotificationMethodExecutor.Dispose();
-                titleLabel.Dispose();
-                titlePanel.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        protected virtual void InitializeControl()
+        public void InitializeControl()
         {
             Padding = new Padding(2);
+
+            pinControl.Dock = DockStyle.Fill;
+            pinControl.PropertiesChanged += PropertiesChanged;
+            Controls.Add(pinControl);
+
             titlePanel = new Panel
             {
                 Dock = DockStyle.Top,
@@ -111,6 +86,30 @@ namespace Pinspaces.Pins
             Controls.Add(titlePanel);
         }
 
+        public void LoadPin(Pin pin)
+        {
+            isLoaded = false;
+            Pin = pin;
+            Height = pin.Height > 0 ? pin.Height : Height;
+            PinColor = ColorExtensions.FromHtmlString(pin.Color, BackColor);
+            Left = pin.Left;
+            Title = pin.Title;
+            Top = pin.Top;
+            Width = pin.Width > 0 ? pin.Width : Width;
+            pinControl.LoadPin(pin);
+            isLoaded = true;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                titleLabel.Dispose();
+                titlePanel.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         protected override void OnLocationChanged(EventArgs e)
         {
             base.OnLocationChanged(e);
@@ -118,8 +117,8 @@ namespace Pinspaces.Pins
             {
                 return;
             }
-            pin.Left = Left;
-            pin.Top = Top;
+            Pin.Left = Left;
+            Pin.Top = Top;
             SendPropertiesChangedNotification();
         }
 
@@ -130,14 +129,18 @@ namespace Pinspaces.Pins
             {
                 return;
             }
-            pin.Height = Height;
-            pin.Width = Width;
+            Pin.Height = Height;
+            Pin.Width = Width;
             SendPropertiesChangedNotification();
         }
 
         protected void SendPropertiesChangedNotification()
         {
-            sendPropertiesNotificationMethodExecutor.Execute();
+            if (!isLoaded)
+            {
+                return;
+            }
+            PropertiesChanged?.Invoke(this, new EventArgs());
         }
 
         private void PinboardPanel_ContextMenuStripChanged(object sender, EventArgs e)

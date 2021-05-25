@@ -1,3 +1,5 @@
+using Pinspaces.Core.Data;
+using Pinspaces.Core.Extensions;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
@@ -12,14 +14,16 @@ namespace Pinspaces.Data
     public class JsonDataContext : IDataContext, IDisposable
     {
         private readonly JsonData data;
+        private readonly PinJsonConverter pinJsonConverter;
         private readonly DebounceMethodExecutor saveDataFileMethodExecutor;
         private bool disposedValue;
 
-        public JsonDataContext()
+        public JsonDataContext(PinJsonConverter pinJsonConverter)
         {
-            data = LoadDataFile();
-
+            this.pinJsonConverter = pinJsonConverter;
             saveDataFileMethodExecutor = new(() => SaveDataFile(data), 5000);
+
+            data = LoadDataFile();
         }
 
         public void Dispose()
@@ -92,7 +96,7 @@ namespace Pinspaces.Data
             return Path.Combine(localAppDataPath, "Pinspaces.json");
         }
 
-        private static JsonData LoadDataFile()
+        private JsonData LoadDataFile()
         {
             var dataFilename = GetDataFilename();
             if (!File.Exists(dataFilename))
@@ -101,11 +105,11 @@ namespace Pinspaces.Data
             }
             var text = File.ReadAllText(dataFilename);
             var deserializeOptions = new JsonSerializerOptions();
-            deserializeOptions.Converters.Add(new PinJsonConverter());
+            deserializeOptions.Converters.Add(pinJsonConverter);
             return JsonSerializer.Deserialize<JsonData>(text, deserializeOptions);
         }
 
-        private static void SaveDataFile(JsonData data)
+        private void SaveDataFile(JsonData data)
         {
             var dataFilename = GetDataFilename();
             using var fileStream = new FileStream(dataFilename, FileMode.Create);
@@ -114,7 +118,7 @@ namespace Pinspaces.Data
                 Indented = true
             };
             var serializeOptions = new JsonSerializerOptions();
-            serializeOptions.Converters.Add(new PinJsonConverter());
+            serializeOptions.Converters.Add(pinJsonConverter);
             var writer = new Utf8JsonWriter(fileStream, options);
             JsonSerializer.Serialize(writer, data, serializeOptions);
         }

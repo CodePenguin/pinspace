@@ -1,12 +1,11 @@
-using Pinspaces.Data;
+using Pinspaces.Core.Data;
 using System;
-using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace Pinspaces.Pins
+namespace Pinspaces.Core.Controls
 {
-    [DisplayName("Text Box")]
-    internal class TextBoxPinPanel : PinPanel
+    [PinType(DisplayName = "Text Box", PinType = typeof(TextBoxPin))]
+    public class TextBoxPinPanel : PinControl
     {
         private TextBox textBox;
 
@@ -15,7 +14,6 @@ namespace Pinspaces.Pins
         public override void AddContextMenuItems(ContextMenuStrip contextMenu)
         {
             base.AddContextMenuItems(contextMenu);
-
             var menuItem = new ToolStripMenuItem { Text = "Word Wrap", Checked = textBox.WordWrap };
             menuItem.Click += WordWrapContextMenuItem_Click;
             contextMenu.Items.Add(menuItem);
@@ -26,11 +24,6 @@ namespace Pinspaces.Pins
             base.LoadPin(pin);
             textBox.Text = Pin.Text;
             textBox.WordWrap = Pin.WordWrap;
-        }
-
-        public override Type PinType()
-        {
-            return typeof(TextBoxPin);
         }
 
         protected override void InitializeControl()

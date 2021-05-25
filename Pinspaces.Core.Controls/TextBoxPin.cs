@@ -1,4 +1,6 @@
-namespace Pinspaces.Data
+using Pinspaces.Core.Data;
+
+namespace Pinspaces.Core.Controls
 {
     public class TextBoxPin : Pin
     {

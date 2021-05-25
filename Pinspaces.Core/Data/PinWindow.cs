@@ -1,8 +1,8 @@
-using Pinspaces.Extensions;
-using Pinspaces.Interfaces;
+using Pinspaces.Core.Extensions;
+using Pinspaces.Core.Interfaces;
 using System;
 
-namespace Pinspaces.Data
+namespace Pinspaces.Core.Data
 {
     public class PinWindow : ICloneable<PinWindow>
     {

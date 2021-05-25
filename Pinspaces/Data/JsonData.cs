@@ -1,3 +1,4 @@
+using Pinspaces.Core.Data;
 using System.Collections.Generic;
 
 namespace Pinspaces.Data

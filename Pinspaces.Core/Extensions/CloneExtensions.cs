@@ -1,9 +1,9 @@
-using Pinspaces.Interfaces;
+using Pinspaces.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pinspaces.Extensions
+namespace Pinspaces.Core.Extensions
 {
     public static class CloneExtensions
     {

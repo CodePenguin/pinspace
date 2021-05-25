@@ -1,5 +1,5 @@
 
-namespace Pinspaces
+namespace Pinspaces.Controls
 {
     partial class PinWindowForm
     {
@@ -17,7 +17,6 @@ namespace Pinspaces
         private void InitializeComponent()
         {
             this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.pinspacePanel = new Pinspaces.PinspacePanel();
             this.SuspendLayout();
             // 
             // statusStrip
@@ -29,22 +28,11 @@ namespace Pinspaces
             this.statusStrip.TabIndex = 2;
             this.statusStrip.Text = "statusStrip1";
             // 
-            // pinspacePanel
-            // 
-            this.pinspacePanel.AutoScroll = true;
-            this.pinspacePanel.AutoScrollMargin = new System.Drawing.Size(10, 10);
-            this.pinspacePanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pinspacePanel.Location = new System.Drawing.Point(0, 0);
-            this.pinspacePanel.Name = "pinspacePanel";
-            this.pinspacePanel.Size = new System.Drawing.Size(933, 497);
-            this.pinspacePanel.TabIndex = 3;
-            // 
             // PinWindowForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(933, 519);
-            this.Controls.Add(this.pinspacePanel);
             this.Controls.Add(this.statusStrip);
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "PinWindowForm";
@@ -59,7 +47,6 @@ namespace Pinspaces
 
         #endregion
         private System.Windows.Forms.StatusStrip statusStrip;
-        private PinspacePanel pinspacePanel;
     }
 }
 

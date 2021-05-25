@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
-using Pinspaces.Data;
+using Pinspaces.Controls;
+using Pinspaces.Core.Data;
+using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
 using System.Collections.Generic;

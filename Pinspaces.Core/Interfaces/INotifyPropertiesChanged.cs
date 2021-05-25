@@ -1,6 +1,6 @@
 using System;
 
-namespace Pinspaces.Interfaces
+namespace Pinspaces.Core.Interfaces
 {
     public interface INotifyPropertiesChanged
     {

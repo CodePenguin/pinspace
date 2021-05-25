@@ -1,18 +1,18 @@
 using GongSolutions.Shell;
 using GongSolutions.Shell.Interop;
-using Pinspaces.Data;
+using Pinspaces.Core.Controls;
+using Pinspaces.Core.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Pinspaces.Pins
+namespace Pinspaces.Shell.Controls
 {
-    [DisplayName("File List")]
-    public sealed class FileListPinPanel : PinPanel, IDropSource
+    [PinType(DisplayName = "File List", PinType = typeof(FileListPin))]
+    public sealed class FileListPinPanel : PinControl, IDropSource
     {
         private readonly List<ShellItem> files = new();
         private bool isDragging = false;
@@ -27,11 +27,6 @@ namespace Pinspaces.Pins
             {
                 AddFile(file, files.Count);
             }
-        }
-
-        public override Type PinType()
-        {
-            return typeof(FileListPin);
         }
 
         HResult IDropSource.GiveFeedback(int dwEffect)

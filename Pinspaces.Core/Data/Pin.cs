@@ -1,16 +1,16 @@
-using Pinspaces.Extensions;
-using Pinspaces.Interfaces;
+using Pinspaces.Core.Extensions;
+using Pinspaces.Core.Interfaces;
 
-namespace Pinspaces.Data
+namespace Pinspaces.Core.Data
 {
     public abstract class Pin : ICloneable<Pin>
     {
         public string Color { get; set; }
-        public int Height { get; set; }
+        public int Height { get; set; } = 200;
         public int Left { get; set; }
         public string Title { get; set; }
         public int Top { get; set; }
-        public int Width { get; set; }
+        public int Width { get; set; } = 300;
 
         public virtual void Assign(Pin source, out bool wasChanged)
         {

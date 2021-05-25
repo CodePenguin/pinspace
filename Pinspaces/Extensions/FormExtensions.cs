@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace Pinspaces.Extensions
 {
-    internal static class FormExtensions
+    public static class FormExtensions
     {
         public static DialogResult ShowInputDialog(string caption, ref string input)
         {

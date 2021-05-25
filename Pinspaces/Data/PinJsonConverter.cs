@@ -1,3 +1,5 @@
+using Pinspaces.Core.Data;
+using Pinspaces.Interfaces;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -6,6 +8,13 @@ namespace Pinspaces.Data
 {
     public class PinJsonConverter : JsonConverter<Pin>
     {
+        private readonly IPinFactory pinFactory;
+
+        public PinJsonConverter(IPinFactory pinFactory)
+        {
+            this.pinFactory = pinFactory;
+        }
+
         public override bool CanConvert(Type typeToConvert)
         {
             return typeof(Pin).IsAssignableFrom(typeToConvert);
@@ -25,12 +34,8 @@ namespace Pinspaces.Data
             {
                 throw new JsonException();
             }
-            var typeName = "Pinspaces.Data." + reader.GetString();
-            var type = Type.GetType(typeName);
-            if (type == null)
-            {
-                throw new ArgumentException($"Unknown Pin Type: {typeName}");
-            }
+            var pinTypeName = reader.GetString();
+            var pinType = pinFactory.GetPinType(pinTypeName);
             if (!reader.Read() || reader.GetString() != "Properties")
             {
                 throw new JsonException();
@@ -40,7 +45,7 @@ namespace Pinspaces.Data
                 throw new JsonException();
             }
 
-            var pin = JsonSerializer.Deserialize(ref reader, type) as Pin;
+            var pin = JsonSerializer.Deserialize(ref reader, pinType) as Pin;
 
             if (!reader.Read() || reader.TokenType != JsonTokenType.EndObject)
             {
@@ -52,19 +57,11 @@ namespace Pinspaces.Data
 
         public override void Write(Utf8JsonWriter writer, Pin value, JsonSerializerOptions options)
         {
-            var typeName = value.GetType().Name;
+            var typeName = value.GetType().FullName;
             writer.WriteStartObject();
             writer.WriteString("Type", typeName);
-            if (value is FileListPin fileListPin)
-            {
-                writer.WritePropertyName("Properties");
-                JsonSerializer.Serialize(writer, fileListPin);
-            }
-            else if (value is TextBoxPin textBoxPin)
-            {
-                writer.WritePropertyName("Properties");
-                JsonSerializer.Serialize(writer, textBoxPin);
-            }
+            writer.WritePropertyName("Properties");
+            JsonSerializer.Serialize(writer, (object)value);
             writer.WriteEndObject();
         }
     }

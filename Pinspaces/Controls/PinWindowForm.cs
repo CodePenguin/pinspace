@@ -1,25 +1,32 @@
 using System;
 using System.Windows.Forms;
-using Pinspaces.Data;
+using Pinspaces.Core.Data;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 
-namespace Pinspaces
+namespace Pinspaces.Controls
 {
     public partial class PinWindowForm : Form
     {
         private readonly IDataContext dataContext;
+        private readonly PinspacePanel pinspacePanel;
         private readonly DebounceMethodExecutor updateFormLocationAndSizeMethodExecutor;
         private bool isLoaded = false;
         private Pinspace pinspace;
         private PinWindow pinWindow;
 
-        public PinWindowForm(IDataContext dataContext)
+        public PinWindowForm(IDataContext dataContext, PinspacePanel pinspacePanel)
         {
             this.dataContext = dataContext;
 
             InitializeComponent();
+
+            this.pinspacePanel = pinspacePanel;
+            pinspacePanel.AutoScroll = true;
+            pinspacePanel.AutoScrollMargin = new System.Drawing.Size(10, 10);
+            pinspacePanel.Dock = DockStyle.Fill;
             pinspacePanel.PropertiesChanged += PropertiesChanged;
+            Controls.Add(pinspacePanel);
 
             Height = PinWindow.DefaultHeight;
             Width = PinWindow.DefaultWidth;

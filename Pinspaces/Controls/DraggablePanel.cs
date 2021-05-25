@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Pinspaces.Pins
+namespace Pinspaces.Controls
 {
     public enum PanelEdge
     {
