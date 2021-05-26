@@ -18,6 +18,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
+        submodules: true
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
@@ -39,4 +40,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Binaries
-        path: ${{ env.GITHUB_WORKSPACE }}\Pinspaces\bin\Release\net5.0-windows\publish\
+        path: Pinspaces\bin\Release\net5.0-windows\publish\
