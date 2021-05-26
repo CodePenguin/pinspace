@@ -2,6 +2,7 @@ using Pinspaces.Core.Controls;
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Extensions;
 using Pinspaces.Core.Interfaces;
+using Pinspaces.Extensions;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
