@@ -19,7 +19,7 @@ namespace Pinspaces.Controls
         private Pinspace pinspace;
         private ContextMenuStrip pinspaceContextMenuStrip;
         private ToolStripMenuItem removePinMenuItem;
-        private ToolStripMenuItem renamePinMenuItem;
+        private ToolStripMenuItem renameMenuItem;
         private Point targetPoint;
 
         public PinspacePanel(IDataContext dataContext, IPinFactory pinFactory)
@@ -47,6 +47,7 @@ namespace Pinspaces.Controls
             pinspace = dataContext.GetPinspace(pinspaceId);
             BackColor = ColorExtensions.FromHtmlString(pinspace.Color, SystemColors.Control);
 
+            Controls.Clear();
             foreach (var pin in dataContext.GetPins(pinspaceId))
             {
                 AddPinPanel(pin);
@@ -139,16 +140,16 @@ namespace Pinspaces.Controls
 
             newPinMenuItem = new ToolStripMenuItem { Text = "New" };
 
-            renamePinMenuItem = new ToolStripMenuItem { Text = "Rename..." };
-            renamePinMenuItem.Click += RenamePinMenuItem_Click;
+            renameMenuItem = new ToolStripMenuItem { Text = "Rename..." };
+            renameMenuItem.Click += RenameMenuItem_Click;
 
             removePinMenuItem = new ToolStripMenuItem { Text = "Remove" };
-            removePinMenuItem.Click += RemovePinMenuItem_Click;
+            removePinMenuItem.Click += RemoveMenuItemClick;
 
             pinspaceContextMenuStrip.Items.AddRange(new ToolStripItem[] {
-                changeColorMenuItem,
                 newPinMenuItem,
-                renamePinMenuItem,
+                changeColorMenuItem,
+                renameMenuItem,
                 removePinMenuItem});
 
             baseContextMenuItemCount = pinspaceContextMenuStrip.Items.Count;
@@ -194,9 +195,9 @@ namespace Pinspaces.Controls
             // Pinboard Window
             newPinMenuItem.Visible = contextControl is PinspacePanel;
             changeColorMenuItem.Visible = (contextControl is PinspacePanel) || (contextControl is PinPanel);
+            renameMenuItem.Visible = (contextControl is PinspacePanel) || contextControl is PinPanel;
 
             // Pinboard Pin
-            renamePinMenuItem.Visible = contextControl is PinPanel;
             removePinMenuItem.Visible = contextControl is PinPanel;
 
             if (contextControl is PinPanel pinPanel)
@@ -210,14 +211,32 @@ namespace Pinspaces.Controls
             }
         }
 
-        private void RemovePinMenuItem_Click(object sender, EventArgs e)
+        private void RemoveMenuItemClick(object sender, EventArgs e)
         {
             RemovePin(GetContextControl() as PinPanel);
         }
 
-        private void RenamePinMenuItem_Click(object sender, EventArgs e)
+        private void RenameMenuItem_Click(object sender, EventArgs e)
         {
-            RenamePin(GetContextControl() as PinPanel);
+            var contextControl = GetContextControl();
+            if (contextControl is PinspacePanel)
+            {
+                RenamePinspace();
+            }
+            if (contextControl is PinPanel pinPanel)
+            {
+                RenamePin(pinPanel);
+            }
+        }
+
+        private void RenamePinspace()
+        {
+            var title = pinspace.Title;
+            if (FormExtensions.ShowInputDialog("Rename", ref title) == DialogResult.OK)
+            {
+                pinspace.Title = title;
+                dataContext.UpdatePinspace(pinspace);
+            }
         }
     }
 }

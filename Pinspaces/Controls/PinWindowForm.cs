@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using Pinspaces.Core.Data;
 using Pinspaces.Extensions;
@@ -12,6 +13,7 @@ namespace Pinspaces.Controls
         private readonly PinspacePanel pinspacePanel;
         private readonly DebounceMethodExecutor updateFormLocationAndSizeMethodExecutor;
         private bool isLoading = false;
+        private Dictionary<Guid, Pinspace> pinspaces = new();
         private PinWindow pinWindow;
 
         public PinWindowForm(IDataContext dataContext, PinspacePanel pinspacePanel)
@@ -51,7 +53,14 @@ namespace Pinspaces.Controls
                 }
 
                 // Pinspace Settings
-                pinspacePanel.LoadPinspace(pinWindow.ActivePinspaceId);
+                pinspaces.Clear();
+                foreach (var pinspace in dataContext.GetPinspaces())
+                {
+                    pinspaces.Add(pinspace.Id, pinspace);
+                }
+                BuildPinspaceDropDown();
+
+                SwitchActivePinspace(pinWindow.ActivePinspaceId);
             }
             finally
             {
@@ -69,6 +78,27 @@ namespace Pinspaces.Controls
             base.Dispose(disposing);
         }
 
+        private void BuildPinspaceDropDown()
+        {
+            pinspaceDropDownButton.DropDownItems.Clear();
+
+            var newMenuItem = new ToolStripMenuItem { Text = "New..." };
+            newMenuItem.Click += NewPinspaceMenuItem_Click;
+
+            pinspaceDropDownButton.DropDownItems.AddRange(new ToolStripItem[] {
+                newMenuItem,
+                new ToolStripSeparator()
+            });
+
+            foreach (var pinspace in pinspaces.Values)
+            {
+                var switchMenuItem = new ToolStripMenuItem { Text = pinspace.Title };
+                switchMenuItem.Tag = pinspace.Id;
+                switchMenuItem.Click += (s, e) => SwitchActivePinspace(pinspace.Id);
+                pinspaceDropDownButton.DropDownItems.Add(switchMenuItem);
+            }
+        }
+
         private void Form_LocationOrPositionChanged(object sender, EventArgs e)
         {
             if (isLoading)
@@ -76,6 +106,28 @@ namespace Pinspaces.Controls
                 return;
             }
             updateFormLocationAndSizeMethodExecutor.Execute();
+        }
+
+        private void NewPinspaceMenuItem_Click(object sender, EventArgs e)
+        {
+            var title = "Pinspace";
+            if (FormExtensions.ShowInputDialog("New Pinspace", ref title) == DialogResult.OK)
+            {
+                var pinspace = new Pinspace { Title = title };
+                dataContext.UpdatePinspace(pinspace);
+                pinspaces.Add(pinspace.Id, pinspace);
+                BuildPinspaceDropDown();
+                SwitchActivePinspace(pinspace.Id);
+            }
+        }
+
+        private void SwitchActivePinspace(Guid pinspaceId)
+        {
+            var pinspace = pinspaces[pinspaceId];
+            pinspaceDropDownButton.Text = pinspace.Title;
+            pinspacePanel.LoadPinspace(pinspaceId);
+            pinWindow.ActivePinspaceId = pinspaceId;
+            UpdatePinWindow();
         }
 
         private void UpdateFormLocationAndSize()
@@ -86,6 +138,15 @@ namespace Pinspaces.Controls
             pinWindow.Left = !isMaximized ? Left : Width / 2 - PinWindow.DefaultWidth / 2;
             pinWindow.Top = !isMaximized ? Top : Height / 2 - PinWindow.DefaultHeight / 2;
             pinWindow.Width = !isMaximized ? Width : PinWindow.DefaultWidth;
+            UpdatePinWindow();
+        }
+
+        private void UpdatePinWindow()
+        {
+            if (isLoading)
+            {
+                return;
+            }
             dataContext.UpdatePinWindow(pinWindow);
         }
     }

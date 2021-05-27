@@ -13,6 +13,7 @@ namespace Pinspaces.Core.Data
 
         public string Color { get; set; }
         public Guid Id { get; set; }
+        public string Title { get; set; }
 
         public void Assign(Pinspace source, out bool wasChanged)
         {

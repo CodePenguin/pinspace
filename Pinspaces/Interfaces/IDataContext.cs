@@ -12,6 +12,8 @@ namespace Pinspaces.Interfaces
 
         public Pinspace GetPinspace(Guid id);
 
+        public IList<Pinspace> GetPinspaces();
+
         public IList<PinWindow> GetPinWindows();
 
         public void UpdatePin(Guid pinspaceId, Pin pin);

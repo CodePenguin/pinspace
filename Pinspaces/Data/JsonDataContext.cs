@@ -78,6 +78,11 @@ namespace Pinspaces.Data
             return null;
         }
 
+        public IList<Pinspace> GetPinspaces()
+        {
+            return data.Pinspaces.Clone();
+        }
+
         public IList<PinWindow> GetPinWindows()
         {
             return data.Windows.Clone();
