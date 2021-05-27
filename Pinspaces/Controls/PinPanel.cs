@@ -1,6 +1,5 @@
 using Pinspaces.Core.Controls;
 using Pinspaces.Core.Data;
-using Pinspaces.Core.Extensions;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Extensions;
 using System;
@@ -12,7 +11,7 @@ namespace Pinspaces.Controls
     public class PinPanel : DraggablePanel, INotifyPropertiesChanged
     {
         private readonly PinControl pinControl;
-        private bool isLoaded = false;
+        private bool isLoading = false;
         private Label titleLabel;
         private Panel titlePanel;
 
@@ -62,7 +61,7 @@ namespace Pinspaces.Controls
             Padding = new Padding(2);
 
             pinControl.Dock = DockStyle.Fill;
-            pinControl.PropertiesChanged += PropertiesChanged;
+            pinControl.PropertiesChanged += PinControl_PropertiesChanged;
             Controls.Add(pinControl);
 
             titlePanel = new Panel
@@ -89,16 +88,22 @@ namespace Pinspaces.Controls
 
         public void LoadPin(Pin pin)
         {
-            isLoaded = false;
-            Pin = pin;
-            Height = pin.Height > 0 ? pin.Height : Height;
-            PinColor = ColorExtensions.FromHtmlString(pin.Color, BackColor);
-            Left = pin.Left;
-            Title = pin.Title;
-            Top = pin.Top;
-            Width = pin.Width > 0 ? pin.Width : Width;
-            pinControl.LoadPin(pin);
-            isLoaded = true;
+            isLoading = true;
+            try
+            {
+                Pin = pin;
+                Height = pin.Height > 0 ? pin.Height : Height;
+                PinColor = ColorExtensions.FromHtmlString(pin.Color, BackColor);
+                Left = pin.Left;
+                Title = pin.Title;
+                Top = pin.Top;
+                Width = pin.Width > 0 ? pin.Width : Width;
+                pinControl.LoadPin(pin);
+            }
+            finally
+            {
+                isLoading = false;
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -114,7 +119,7 @@ namespace Pinspaces.Controls
         protected override void OnLocationChanged(EventArgs e)
         {
             base.OnLocationChanged(e);
-            if (!isLoaded)
+            if (isLoading)
             {
                 return;
             }
@@ -126,7 +131,7 @@ namespace Pinspaces.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            if (!isLoaded)
+            if (isLoading)
             {
                 return;
             }
@@ -137,7 +142,7 @@ namespace Pinspaces.Controls
 
         protected void SendPropertiesChangedNotification()
         {
-            if (!isLoaded)
+            if (isLoading)
             {
                 return;
             }
@@ -148,6 +153,11 @@ namespace Pinspaces.Controls
         {
             titleLabel.ContextMenuStrip = ContextMenuStrip;
             titlePanel.ContextMenuStrip = ContextMenuStrip;
+        }
+
+        private void PinControl_PropertiesChanged(object sender, EventArgs e)
+        {
+            SendPropertiesChangedNotification();
         }
     }
 }

@@ -3,6 +3,7 @@ using Pinspaces.Core.Extensions;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,22 +15,57 @@ namespace Pinspaces.Data
     public class JsonDataContext : IDataContext, IDisposable
     {
         private readonly JsonData data;
+        private readonly ConcurrentQueue<(Guid pinspaceId, Pin pin)> pendingPinChanges = new();
         private readonly PinJsonConverter pinJsonConverter;
         private readonly DebounceMethodExecutor saveDataFileMethodExecutor;
+        private readonly DebounceMethodExecutor savePinChangesMethodExecutor;
         private bool disposedValue;
 
         public JsonDataContext(PinJsonConverter pinJsonConverter)
         {
             this.pinJsonConverter = pinJsonConverter;
-            saveDataFileMethodExecutor = new(() => SaveDataFile(data), 5000);
+            saveDataFileMethodExecutor = new(() => SaveDataChanges(), 5000);
+            savePinChangesMethodExecutor = new(() => SavePinChanges(), 5000);
 
             data = LoadDataFile();
+        }
+
+        public void DeletePin(Guid pinspaceId, Pin pin)
+        {
+            var pinDataFileName = GetPinDataFileName(pinspaceId, pin.Id);
+            if (File.Exists(pinDataFileName))
+            {
+                File.Delete(pinDataFileName);
+            }
         }
 
         public void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        public IList<Pin> GetPins(Guid pinspaceId)
+        {
+            var list = new List<Pin>();
+            var pinspacePath = GetPinspacePath(pinspaceId);
+            if (!Directory.Exists(pinspacePath))
+            {
+                throw new Exception($"Pinspace not found: {pinspaceId}");
+            }
+            var options = new EnumerationOptions
+            {
+                IgnoreInaccessible = true,
+                MatchCasing = MatchCasing.CaseInsensitive,
+                MatchType = MatchType.Simple,
+                RecurseSubdirectories = false
+            };
+            var pinFilenames = Directory.GetFiles(pinspacePath, "pin_*.json", options);
+            foreach (var pinFilename in pinFilenames)
+            {
+                list.Add(LoadJsonFile<Pin>(pinFilename));
+            }
+            return list;
         }
 
         public Pinspace GetPinspace(Guid id)
@@ -45,6 +81,12 @@ namespace Pinspaces.Data
         public IList<PinWindow> GetPinWindows()
         {
             return data.Windows.Clone();
+        }
+
+        public void UpdatePin(Guid pinspaceId, Pin pin)
+        {
+            pendingPinChanges.Enqueue((pinspaceId, pin.Clone()));
+            savePinChangesMethodExecutor.Execute();
         }
 
         public void UpdatePinspace(Pinspace pinspace)
@@ -84,6 +126,7 @@ namespace Pinspaces.Data
                 if (disposing)
                 {
                     saveDataFileMethodExecutor.Dispose();
+                    savePinChangesMethodExecutor.Dispose();
                 }
                 disposedValue = true;
             }
@@ -91,9 +134,24 @@ namespace Pinspaces.Data
 
         private static string GetDataFilename()
         {
-            var localAppDataPath = Path.Combine(GetFolderPath(SpecialFolder.LocalApplicationData, SpecialFolderOption.DoNotVerify), "Pinspaces");
-            Directory.CreateDirectory(localAppDataPath);
-            return Path.Combine(localAppDataPath, "Pinspaces.json");
+            return Path.Combine(GetDataPath(), "Pinspaces.json");
+        }
+
+        private static string GetDataPath()
+        {
+            return Path.Combine(GetFolderPath(SpecialFolder.LocalApplicationData, SpecialFolderOption.DoNotVerify), "Pinspaces");
+        }
+
+        private static string GetPinDataFileName(Guid pinspaceId, Guid pinId)
+        {
+            return Path.Combine(GetPinspacePath(pinspaceId), $"pin_{pinId}.json");
+        }
+
+        private static string GetPinspacePath(Guid pinspaceId)
+        {
+            var pinspacePath = Path.Combine(GetDataPath(), $"pinspace-{pinspaceId}");
+            Directory.CreateDirectory(pinspacePath);
+            return pinspacePath;
         }
 
         private JsonData LoadDataFile()
@@ -103,16 +161,27 @@ namespace Pinspaces.Data
             {
                 return new JsonData();
             }
-            var text = File.ReadAllText(dataFilename);
-            var deserializeOptions = new JsonSerializerOptions();
-            deserializeOptions.Converters.Add(pinJsonConverter);
-            return JsonSerializer.Deserialize<JsonData>(text, deserializeOptions);
+            return LoadJsonFile<JsonData>(dataFilename);
         }
 
-        private void SaveDataFile(JsonData data)
+        private T LoadJsonFile<T>(string filename)
+        {
+            var fileContents = File.ReadAllText(filename);
+            var deserializeOptions = new JsonSerializerOptions();
+            deserializeOptions.Converters.Add(pinJsonConverter);
+            return JsonSerializer.Deserialize<T>(fileContents, deserializeOptions);
+        }
+
+        private void SaveDataChanges()
         {
             var dataFilename = GetDataFilename();
-            using var fileStream = new FileStream(dataFilename, FileMode.Create);
+            Directory.CreateDirectory(Path.GetDirectoryName(dataFilename));
+            SaveJsonFile(dataFilename, data);
+        }
+
+        private void SaveJsonFile(string filename, object data)
+        {
+            using var fileStream = new FileStream(filename, FileMode.Create);
             var options = new JsonWriterOptions
             {
                 Indented = true
@@ -121,6 +190,15 @@ namespace Pinspaces.Data
             serializeOptions.Converters.Add(pinJsonConverter);
             var writer = new Utf8JsonWriter(fileStream, options);
             JsonSerializer.Serialize(writer, data, serializeOptions);
+        }
+
+        private void SavePinChanges()
+        {
+            while (pendingPinChanges.TryDequeue(out var change))
+            {
+                var pinDataFileName = GetPinDataFileName(change.pinspaceId, change.pin.Id);
+                SaveJsonFile(pinDataFileName, change.pin);
+            }
         }
     }
 }

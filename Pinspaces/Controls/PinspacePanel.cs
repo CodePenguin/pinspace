@@ -1,6 +1,4 @@
 using Pinspaces.Core.Data;
-using Pinspaces.Core.Extensions;
-using Pinspaces.Core.Interfaces;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
@@ -10,11 +8,11 @@ using System.Windows.Forms;
 
 namespace Pinspaces.Controls
 {
-    public class PinspacePanel : Panel, INotifyPropertiesChanged
+    public class PinspacePanel : Panel
     {
+        private readonly IDataContext dataContext;
         private readonly Color defaultPinColor = Color.FromArgb(51, 122, 183);
         private readonly IPinFactory pinFactory;
-        private readonly DebounceMethodExecutor sendPropertiesNotificationMethodExecutor;
         private int baseContextMenuItemCount;
         private ToolStripMenuItem changeColorMenuItem;
         private ToolStripMenuItem newPinMenuItem;
@@ -24,19 +22,16 @@ namespace Pinspaces.Controls
         private ToolStripMenuItem renamePinMenuItem;
         private Point targetPoint;
 
-        public PinspacePanel(IPinFactory pinFactory)
+        public PinspacePanel(IDataContext dataContext, IPinFactory pinFactory)
         {
+            this.dataContext = dataContext;
             this.pinFactory = pinFactory;
 
             AutoScroll = true;
             AutoScrollMargin = new Size(10, 10);
 
-            sendPropertiesNotificationMethodExecutor = new(() => PropertiesChanged?.Invoke(this, new EventArgs()), 1000);
-
             InitializeControl();
         }
-
-        public event INotifyPropertiesChanged.PropertiesChangedEventHandler PropertiesChanged;
 
         public static void RenamePin(PinPanel pinPanel)
         {
@@ -47,13 +42,12 @@ namespace Pinspaces.Controls
             }
         }
 
-        public void LoadPinspace(Pinspace pinspace)
+        public void LoadPinspace(Guid pinspaceId)
         {
-            this.pinspace = pinspace;
-
+            pinspace = dataContext.GetPinspace(pinspaceId);
             BackColor = ColorExtensions.FromHtmlString(pinspace.Color, SystemColors.Control);
 
-            foreach (var pin in pinspace.Pins)
+            foreach (var pin in dataContext.GetPins(pinspaceId))
             {
                 AddPinPanel(pin);
             }
@@ -66,23 +60,16 @@ namespace Pinspaces.Controls
             pin.Left = position.X;
             pin.Title = "New " + pinFactory.GetDisplayName(pinControlType);
             pin.Top = position.Y;
-            pinspace.Pins.Add(pin);
-
             AddPinPanel(pin);
-            SendPropertiesChangedNotification();
+            dataContext.UpdatePin(pinspace.Id, pin);
         }
 
         public void RemovePin(PinPanel pinPanel)
         {
             Controls.Remove(pinPanel);
-            pinspace.Pins.Remove(pinPanel.Pin);
             pinPanel.Dispose();
-            SendPropertiesChangedNotification();
-        }
 
-        protected void SendPropertiesChangedNotification()
-        {
-            sendPropertiesNotificationMethodExecutor.Execute();
+            dataContext.DeletePin(pinspace.Id, pinPanel.Pin);
         }
 
         private void AddPinPanel(Pin pin)
@@ -108,7 +95,7 @@ namespace Pinspaces.Controls
                 {
                     BackColor = colorDialog.Color;
                     pinspace.Color = colorDialog.Color.ToHtmlString();
-                    SendPropertiesChangedNotification();
+                    dataContext.UpdatePinspace(pinspace);
                 }
                 if (contextControl is PinPanel pinPanel)
                 {
@@ -176,12 +163,12 @@ namespace Pinspaces.Controls
             var menuItem = sender as ToolStripMenuItem;
             var pinControlType = (Type)menuItem.Tag;
             NewPin(pinControlType, targetPoint);
-            SendPropertiesChangedNotification();
         }
 
         private void PinPanel_PropertiesChanged(object sender, EventArgs e)
         {
-            SendPropertiesChangedNotification();
+            var pinPanel = sender as PinPanel;
+            dataContext.UpdatePin(pinspace.Id, pinPanel.Pin);
         }
 
         private void PinspaceContextMenuStrip_Closing(object sender, ToolStripDropDownClosingEventArgs e)

@@ -6,9 +6,15 @@ namespace Pinspaces.Interfaces
 {
     public interface IDataContext
     {
+        void DeletePin(Guid pinspaceId, Pin pin);
+
+        public IList<Pin> GetPins(Guid pinspaceId);
+
         public Pinspace GetPinspace(Guid id);
 
         public IList<PinWindow> GetPinWindows();
+
+        public void UpdatePin(Guid pinspaceId, Pin pin);
 
         public void UpdatePinspace(Pinspace pinspace);
 

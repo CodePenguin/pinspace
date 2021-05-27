@@ -11,51 +11,52 @@ namespace Pinspaces.Controls
         private readonly IDataContext dataContext;
         private readonly PinspacePanel pinspacePanel;
         private readonly DebounceMethodExecutor updateFormLocationAndSizeMethodExecutor;
-        private bool isLoaded = false;
-        private Pinspace pinspace;
+        private bool isLoading = false;
         private PinWindow pinWindow;
 
         public PinWindowForm(IDataContext dataContext, PinspacePanel pinspacePanel)
         {
             this.dataContext = dataContext;
+            updateFormLocationAndSizeMethodExecutor = new(UpdateFormLocationAndSize, 1000);
 
+            // Initialize Pin Window
             InitializeComponent();
+            Height = PinWindow.DefaultHeight;
+            Width = PinWindow.DefaultWidth;
 
+            // Initialize Pinspace Panel
             this.pinspacePanel = pinspacePanel;
             pinspacePanel.AutoScroll = true;
             pinspacePanel.AutoScrollMargin = new System.Drawing.Size(10, 10);
             pinspacePanel.Dock = DockStyle.Fill;
-            pinspacePanel.PropertiesChanged += PropertiesChanged;
             Controls.Add(pinspacePanel);
-
-            Height = PinWindow.DefaultHeight;
-            Width = PinWindow.DefaultWidth;
-
-            updateFormLocationAndSizeMethodExecutor = new(UpdateFormLocationAndSize, 1000);
         }
 
         public void LoadWindow(PinWindow pinWindow)
         {
-            isLoaded = false;
-
-            this.pinWindow = pinWindow;
-
-            // Pin Window Settings
-            Height = pinWindow.Height;
-            Left = pinWindow.Left;
-            Top = pinWindow.Top;
-            Width = pinWindow.Width;
-
-            if (pinWindow.IsMaximized)
+            isLoading = true;
+            try
             {
-                WindowState = FormWindowState.Maximized;
+                this.pinWindow = pinWindow;
+
+                // Pin Window Settings
+                Height = pinWindow.Height;
+                Left = pinWindow.Left;
+                Top = pinWindow.Top;
+                Width = pinWindow.Width;
+
+                if (pinWindow.IsMaximized)
+                {
+                    WindowState = FormWindowState.Maximized;
+                }
+
+                // Pinspace Settings
+                pinspacePanel.LoadPinspace(pinWindow.ActivePinspaceId);
             }
-
-            // Pinspace Settings
-            pinspace = dataContext.GetPinspace(pinWindow.ActivePinspaceId);
-            pinspacePanel.LoadPinspace(pinspace);
-
-            isLoaded = true;
+            finally
+            {
+                isLoading = false;
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -70,32 +71,11 @@ namespace Pinspaces.Controls
 
         private void Form_LocationOrPositionChanged(object sender, EventArgs e)
         {
-            if (!isLoaded)
+            if (isLoading)
             {
                 return;
             }
             updateFormLocationAndSizeMethodExecutor.Execute();
-        }
-
-        private void PropertiesChanged(object sender, EventArgs e)
-        {
-            if (!isLoaded)
-            {
-                return;
-            }
-            if (sender is PinWindowForm)
-            {
-                dataContext.UpdatePinWindow(pinWindow);
-            }
-            if (sender is PinspacePanel)
-            {
-                dataContext.UpdatePinspace(pinspace);
-            }
-        }
-
-        private void SendPropertiesChangedNotification(object sender)
-        {
-            PropertiesChanged(sender, new EventArgs());
         }
 
         private void UpdateFormLocationAndSize()
@@ -106,7 +86,7 @@ namespace Pinspaces.Controls
             pinWindow.Left = !isMaximized ? Left : Width / 2 - PinWindow.DefaultWidth / 2;
             pinWindow.Top = !isMaximized ? Top : Height / 2 - PinWindow.DefaultHeight / 2;
             pinWindow.Width = !isMaximized ? Width : PinWindow.DefaultWidth;
-            SendPropertiesChangedNotification(this);
+            dataContext.UpdatePinWindow(pinWindow);
         }
     }
 }

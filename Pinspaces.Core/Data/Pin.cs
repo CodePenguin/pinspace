@@ -1,12 +1,19 @@
 using Pinspaces.Core.Extensions;
 using Pinspaces.Core.Interfaces;
+using System;
 
 namespace Pinspaces.Core.Data
 {
     public abstract class Pin : ICloneable<Pin>
     {
+        public Pin()
+        {
+            Id = Guid.NewGuid();
+        }
+
         public string Color { get; set; }
         public int Height { get; set; } = 200;
+        public Guid Id { get; set; }
         public int Left { get; set; }
         public string Title { get; set; }
         public int Top { get; set; }
