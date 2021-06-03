@@ -6,7 +6,27 @@
         mc:Ignorable="d"
         Title="Pinspaces" Height="450" Width="800">
     <DockPanel>
-        <StatusBar Height="20" DockPanel.Dock="Bottom" />
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem HorizontalAlignment="Right">
+                <Button Click="PinspaceButton_Click">
+                    <Button.ContextMenu>
+                        <ContextMenu ItemsSource="{Binding Pinspaces}">
+                            <ContextMenu.ItemContainerStyle>
+                                <Style TargetType="MenuItem">
+                                    <Setter Property="Header" Value="{Binding Title}" />
+                                    <Setter Property="Tag" Value="{Binding Id}" />
+                                    <EventSetter Event="Click" Handler="PinspaceMenuItem_Click" />
+                                </Style>
+                            </ContextMenu.ItemContainerStyle>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ActivePinspaceTitle}" d:Text="Pinspace Title" />
+                        <Path VerticalAlignment="Center" Margin="4,2,0,0" Fill="Black" Data="M 0 0 L 6 6 L 12 0 Z" />
+                    </StackPanel>
+                </Button>
+            </StatusBarItem>
+        </StatusBar>
         <ContentControl Content="{Binding PinspacePanel}"></ContentControl>
     </DockPanel>
 </Window>
