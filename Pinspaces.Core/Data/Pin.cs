@@ -12,12 +12,12 @@ namespace Pinspaces.Core.Data
         }
 
         public string Color { get; set; }
-        public int Height { get; set; } = 200;
+        public double Height { get; set; } = 200;
         public Guid Id { get; set; }
-        public int Left { get; set; }
+        public double Left { get; set; }
         public string Title { get; set; }
-        public int Top { get; set; }
-        public int Width { get; set; } = 300;
+        public double Top { get; set; }
+        public double Width { get; set; } = 300;
 
         public virtual void Assign(Pin source, out bool wasChanged)
         {

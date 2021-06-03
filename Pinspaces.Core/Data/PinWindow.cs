@@ -6,9 +6,9 @@ namespace Pinspaces.Core.Data
 {
     public class PinWindow : ICloneable<PinWindow>
     {
-        public const int DefaultHeight = 600;
+        public const double DefaultHeight = 600;
 
-        public const int DefaultWidth = 800;
+        public const double DefaultWidth = 800;
 
         public PinWindow()
         {
@@ -17,17 +17,17 @@ namespace Pinspaces.Core.Data
 
         public Guid ActivePinspaceId { get; set; }
 
-        public int Height { get; set; }
+        public double Height { get; set; }
 
         public Guid Id { get; set; }
 
         public bool IsMaximized { get; set; }
 
-        public int Left { get; set; }
+        public double Left { get; set; }
 
-        public int Top { get; set; }
+        public double Top { get; set; }
 
-        public int Width { get; set; }
+        public double Width { get; set; }
 
         public void Assign(PinWindow source, out bool wasChanged)
         {

@@ -1,5 +1,6 @@
 using Pinspaces.Core.Controls;
 using Pinspaces.Core.Data;
+using Pinspaces.Core.Interfaces;
 using Pinspaces.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -68,11 +69,11 @@ namespace Pinspaces.Controls
             return Activator.CreateInstance(pinType, null) as Pin;
         }
 
-        public PinControl NewPinControl(Type pinType)
+        public IPinControl NewPinControl(Type pinType)
         {
             var pinTypeName = GetPinTypeName(pinType);
             var pinControlType = GetPinControlType(pinTypeName);
-            return ServiceProvider.GetService(pinControlType) as PinControl;
+            return ServiceProvider.GetService(pinControlType) as IPinControl;
         }
 
         private PinTypeAttribute GetPinTypeAttribute(Type pinControlType)
@@ -88,7 +89,7 @@ namespace Pinspaces.Controls
         private string GetPinTypeName(Type type)
         {
             Type pinType;
-            if (type.IsAssignableTo(typeof(PinControl)))
+            if (type.IsAssignableTo(typeof(IPinControl)))
             {
                 var attribute = GetPinTypeAttribute(type);
                 pinType = attribute.PinType;

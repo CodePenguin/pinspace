@@ -1,5 +1,5 @@
-using Pinspaces.Core.Controls;
 using Pinspaces.Core.Data;
+using Pinspaces.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 
@@ -19,6 +19,6 @@ namespace Pinspaces.Interfaces
 
         Pin NewPin(Type pinControlType);
 
-        PinControl NewPinControl(Type pinType);
+        IPinControl NewPinControl(Type pinType);
     }
 }

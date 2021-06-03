@@ -1,5 +1,5 @@
 using System;
-using System.Drawing;
+using System.Windows.Media;
 using System.Text.RegularExpressions;
 
 namespace Pinspaces.Extensions
@@ -34,7 +34,7 @@ namespace Pinspaces.Extensions
 
         public static Color TextColor(this Color color)
         {
-            return color.IsLight() ? Color.Black : Color.White;
+            return color.IsLight() ? Brushes.Black.Color : Brushes.White.Color;
         }
 
         public static string ToHtmlString(this Color color)
@@ -59,7 +59,7 @@ namespace Pinspaces.Extensions
             var g = HexStringToByte(match.Groups[1].Captures[1].Value);
             var b = HexStringToByte(match.Groups[1].Captures[2].Value);
 
-            output = Color.FromArgb(r, g, b);
+            output = Color.FromArgb(255, r, g, b);
             return true;
         }
 

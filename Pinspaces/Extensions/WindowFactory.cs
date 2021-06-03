@@ -1,23 +1,23 @@
 using Microsoft.Extensions.DependencyInjection;
-using System.Windows.Forms;
+using System.Windows;
 
 namespace Pinspaces.Extensions
 {
-    public class FormFactory
+    public class WindowFactory
     {
         private readonly IServiceScopeFactory scopeFactory;
 
-        public FormFactory(IServiceScopeFactory scopeFactory)
+        public WindowFactory(IServiceScopeFactory scopeFactory)
         {
             this.scopeFactory = scopeFactory;
         }
 
-        public TForm CreateForm<TForm>() where TForm : Form
+        public TWindow CreateForm<TWindow>() where TWindow : Window
         {
             var formScope = scopeFactory.CreateScope();
-            var form = formScope.ServiceProvider.GetService<TForm>();
+            var form = formScope.ServiceProvider.GetService<TWindow>();
 
-            form.Disposed += (s, e) =>
+            form.Closed += (s, e) =>
             {
                 formScope.Dispose();
             };

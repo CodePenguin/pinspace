@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Pinspaces.Controls;
 using Pinspaces.Core.Controls;
+using Pinspaces.Core.Interfaces;
 using Pinspaces.Interfaces;
 using Pinspaces.Shell.Controls;
 using System;
@@ -30,7 +31,7 @@ namespace Pinspaces.Extensions
 
         private static IServiceCollection AddPinControl(this IServiceCollection services, Type pinControlType)
         {
-            if (!pinControlType.IsAssignableTo(typeof(PinControl)))
+            if (!pinControlType.IsAssignableTo(typeof(IPinControl)))
             {
                 throw new ArgumentException($"Incompatible Pin Control Type: {pinControlType.FullName}");
             }

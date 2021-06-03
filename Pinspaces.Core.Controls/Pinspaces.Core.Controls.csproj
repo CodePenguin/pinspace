@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,9 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="TextBoxPinPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="TextBoxPinPanel.cs" />
   </ItemGroup>
 
 </Project>

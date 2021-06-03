@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Pinspaces.Interfaces
 {
-    public interface IDataContext
+    public interface IDataRepository
     {
         void DeletePin(Guid pinspaceId, Pin pin);
 

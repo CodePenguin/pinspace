@@ -5,27 +5,26 @@ using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
+using System.Windows;
 
 namespace Pinspaces
 {
-    public class WindowApplicationContext : ApplicationContext
+    public class WindowApplicationContext
     {
-        private readonly IDataContext dataContext;
-        private readonly FormFactory formFactory;
+        private readonly IDataRepository dataRepository;
+        private readonly WindowFactory windowFactory;
         private readonly List<PinWindowForm> windows = new();
-        private readonly Dictionary<Form, IServiceScope> windowScopes = new();
+        private readonly Dictionary<Window, IServiceScope> windowScopes = new();
 
-        public WindowApplicationContext(FormFactory formFactory, IDataContext dataContext)
+        public WindowApplicationContext(WindowFactory windowFactory, IDataRepository dataRepository)
         {
-            this.formFactory = formFactory;
-            this.dataContext = dataContext;
-            LoadData();
+            this.windowFactory = windowFactory;
+            this.dataRepository = dataRepository;
         }
 
         public void LoadData()
         {
-            var windows = dataContext.GetPinWindows();
+            var windows = dataRepository.GetPinWindows();
             if (windows.Count == 0)
             {
                 NewWindow();
@@ -43,43 +42,44 @@ namespace Pinspaces
             {
                 ActivePinspaceId = pinspace.Id,
                 Height = PinWindow.DefaultHeight,
-                Left = Screen.PrimaryScreen.WorkingArea.Width / 2 - PinWindow.DefaultWidth / 2,
-                Top = Screen.PrimaryScreen.WorkingArea.Height / 2 - PinWindow.DefaultHeight / 2,
+                Left = SystemParameters.WorkArea.Width / 2 - PinWindow.DefaultWidth / 2,
+                Top = SystemParameters.WorkArea.Height / 2 - PinWindow.DefaultHeight / 2,
                 Width = PinWindow.DefaultWidth
             };
-            dataContext.UpdatePinspace(pinspace);
-            dataContext.UpdatePinWindow(pinWindow);
+
+            dataRepository.UpdatePinspace(pinspace);
+            dataRepository.UpdatePinWindow(pinWindow);
             NewWindow(pinWindow);
         }
 
         public void NewWindow(PinWindow pinWindow)
         {
-            var form = formFactory.CreateForm<PinWindowForm>();
-            windows.Add(form);
-            form.FormClosed += Window_FormClosed;
-            form.LoadWindow(pinWindow);
-            form.Show();
+            var window = windowFactory.CreateForm<PinWindowForm>();
+            windows.Add(window);
+            window.Closed += Window_FormClosed;
+            window.LoadWindow(pinWindow);
+            window.Show();
+        }
+
+        public void Run()
+        {
+            LoadData();
         }
 
         private void Window_Disposed(object sender, EventArgs e)
         {
-            var window = sender as Form;
+            var window = sender as Window;
             if (windowScopes.Remove(window, out var scope))
             {
                 scope.Dispose();
             }
         }
 
-        private void Window_FormClosed(object sender, FormClosedEventArgs e)
+        private void Window_FormClosed(object sender, EventArgs e)
         {
             var window = sender as PinWindowForm;
             windows.Remove(window);
-            window.Dispose();
-
-            if (windows.Count == 0)
-            {
-                ExitThread();
-            }
+            window.Close();
         }
     }
 }

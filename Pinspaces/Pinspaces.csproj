@@ -3,10 +3,7 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <CodeAnalysisRuleSet>..\stylecop.ruleset</CodeAnalysisRuleSet>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    <StartupObject>Pinspaces.Program</StartupObject>
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
@@ -17,10 +14,6 @@
     <ProjectReference Include="..\Pinspaces.Shell\Pinspaces.Shell.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Controls\DraggablePanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="Controls\PinPanel.cs" />
     <Compile Update="Extensions\DebounceMethodExecutor.cs">
       <SubType>Component</SubType>
     </Compile>
