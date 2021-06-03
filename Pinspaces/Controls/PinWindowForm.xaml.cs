@@ -32,7 +32,7 @@ namespace Pinspaces.Controls
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public string ActivePinspaceTitle => PinspacePanel.Title;
+        public string ActivePinspaceTitle => Pinspaces.FirstOrDefault(p => p.Id.Equals(pinWindow.ActivePinspaceId))?.Title;
         public PinspacePanel PinspacePanel { get; private set; }
         public ObservableCollection<Pinspace> Pinspaces { get; private set; } = new();
 
@@ -92,7 +92,6 @@ namespace Pinspaces.Controls
                 var pinspace = new Pinspace { Title = title };
                 Pinspaces.Add(pinspace);
                 dataRepository.UpdatePinspace(pinspace);
-                BuildPinspaceDropDown();
                 SwitchActivePinspace(pinspace.Id);
             }
         }

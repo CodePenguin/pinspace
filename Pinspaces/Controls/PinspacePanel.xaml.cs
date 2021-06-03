@@ -44,8 +44,6 @@ namespace Pinspaces.Controls
             }
         }
 
-        public string Title => pinspace.Title;
-
         public void LoadPinspace(Guid pinspaceId)
         {
             pinspace = dataRepository.GetPinspace(pinspaceId);
