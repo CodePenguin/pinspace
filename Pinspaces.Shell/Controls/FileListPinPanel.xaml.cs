@@ -15,45 +15,25 @@ namespace Pinspaces.Shell.Controls
     [PinType(DisplayName = "File List", PinType = typeof(FileListPin))]
     public partial class FileListPinPanel : UserControl, IPinControl, IDropSource
     {
-        private readonly ObservableCollection<ShellItem> files = new();
-
         private FileListPin fileListPin;
         private bool isDragging = false;
 
         public FileListPinPanel()
         {
             InitializeComponent();
-            listView.ItemsSource = files;
-
-            //listView = new ListView
-            //{
-            //    AllowDrop = true,
-            //    BorderStyle = BorderStyle.None,
-            //    Dock = DockStyle.Fill,
-            //    FullRowSelect = true,
-            //    MultiSelect = true,
-            //    View = View.Details,
-            //};
-            // FIX!!
-            //Controls.Add(listView);
+            DataContext = this;
 
             //listView.DragEnter += ListView_DragEnter;
             //listView.DragDrop += ListView_DragDrop;
             //listView.ItemDrag += ListView_ItemDrag;
             //listView.MouseClick += ListView_MouseClick;
             //SystemImageList.UseSystemImageList(listView);
-
-            //listView.Columns.Add("Name", 300);
-            //listView.Columns.Add("Date modified", 140);
-            //listView.Columns.Add("Type", 200);
-            //listView.Columns.Add("Size", 100);
-
-            //base.InitializeControl();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public Control ContentControl => this;
+        public ObservableCollection<FileListItem> Items { get; private set; } = new();
 
         public void AddContextMenuItems(ContextMenu contextMenu)
         {
@@ -65,7 +45,7 @@ namespace Pinspaces.Shell.Controls
             fileListPin = pin as FileListPin;
             foreach (var file in fileListPin.Files)
             {
-                AddFile(file, files.Count);
+                AddFile(file, Items.Count);
             }
         }
 
@@ -92,13 +72,8 @@ namespace Pinspaces.Shell.Controls
 
         private void AddFile(string fileName, int index)
         {
-            var shellItem = new ShellItem(fileName);
-            files.Insert(index, shellItem);
-
-            //FIX!!
-            //var item = new ListViewItem { Tag = files.Count - 1 };
-            //UpdateListViewItem(item);
-            //listView.Items.Insert(index, item);
+            var item = new FileListItem(fileName);
+            Items.Insert(index, item);
         }
 
         //FIX!!
@@ -199,38 +174,20 @@ namespace Pinspaces.Shell.Controls
         private ShellItem[] SelectedShellItems()
         {
             var items = new List<ShellItem>();
-            foreach (ListViewItem item in listView.SelectedItems)
+            foreach (var item in listView.SelectedItems)
             {
-                items.Add(files[(int)item.Tag]);
+                var fileListItem = item as FileListItem;
+                items.Add(new ShellItem(fileListItem.Uri));
             }
             return items.ToArray();
-        }
-
-        private void UpdateListViewItem(ListViewItem item)
-        {
-            var shellItem = files[(int)item.Tag];
-            var fileInfo = new FileInfo(shellItem.FileSystemPath);
-            //FIX!!
-            //item.ImageIndex = shellItem.GetSystemImageListIndex(ShellIconType.SmallIcon, ShellIconFlags.OverlayIndex);
-            //item.SubItems.Clear();
-            //item.Text = shellItem.DisplayName;
-            //item.SubItems.Add(fileInfo.LastWriteTime.ToString());
-            //item.SubItems.Add(shellItem.FileTypeDescription);
-
-            if (!shellItem.IsFolder || fileInfo.Extension.Equals(".zip", StringComparison.CurrentCultureIgnoreCase))
-            {
-                // FIX!!
-                //var size = Math.Ceiling(fileInfo.Length / 1024d);
-                //item.SubItems.Add($"{size:n0} KB");
-            }
         }
 
         private void UpdatePin()
         {
             fileListPin.Files.Clear();
-            foreach (var file in files)
+            foreach (var item in Items)
             {
-                fileListPin.Files.Add(file.FileSystemPath);
+                fileListPin.Files.Add(item.Uri);
             }
             PropertyChanged?.Invoke(fileListPin, new PropertyChangedEventArgs(nameof(fileListPin.Files)));
         }

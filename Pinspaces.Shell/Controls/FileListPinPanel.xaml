@@ -3,10 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:Pinspaces.Shell.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <ListView Name="listView"></ListView>
+        <ListView Name="listView" BorderThickness="0" ItemsSource="{Binding Items}" SelectionMode="Extended">
+            <ListView.Resources>
+                <Style TargetType="{x:Type GridViewColumnHeader}">
+                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                    <Setter Property="Padding" Value="8,2,8,2" />
+                </Style>
+            </ListView.Resources>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name" Width="300" DisplayMemberBinding="{Binding DisplayName}" />
+                    <GridViewColumn Header="Date Modified" Width="140" DisplayMemberBinding="{Binding LastModifiedDateTime}" />
+                    <GridViewColumn Header="Type" Width="200" DisplayMemberBinding="{Binding FileTypeDescription}" />
+                    <GridViewColumn Header="Size" Width="100" DisplayMemberBinding="{Binding Size, StringFormat={}{0:n0} KB}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
     </Grid>
 </UserControl>
