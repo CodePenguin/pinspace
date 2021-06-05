@@ -6,8 +6,6 @@
              xmlns:local="clr-namespace:Pinspaces.Core.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBox Name="textBox" AcceptsReturn="true" Text="{Binding Text}" d:Text="Contents" BorderThickness="0">
-        </TextBox>
-    </Grid>
+    <TextBox Name="textBox" AcceptsReturn="true" Text="{Binding Text}" d:Text="Contents" BorderThickness="0">
+    </TextBox>
 </UserControl>

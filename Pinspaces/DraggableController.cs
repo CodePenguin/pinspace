@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -6,6 +7,8 @@ namespace Pinspaces
 {
     public class DraggableController
     {
+        private const int edgeThreshold = 6;
+        private const double minimumSize = edgeThreshold * 2;
         private readonly ContentControl baseControl;
         private bool isDragging;
         private bool isResizing;
@@ -70,51 +73,60 @@ namespace Pinspaces
             }
             else if (isResizing)
             {
+                var newHeight = baseControl.Height;
+                var newWidth = baseControl.Width;
+                var newLeft = Canvas.GetLeft(baseControl);
+                var newTop = Canvas.GetTop(baseControl);
+
                 // Manipulate position and size while dragging
                 switch (mouseDownEdge)
                 {
                     case PanelEdge.Bottom:
-                        baseControl.Height = offset.Y + startingSize.Height;
+                        newHeight = offset.Y + startingSize.Height;
                         break;
 
                     case PanelEdge.BottomLeft:
-                        baseControl.Width -= offset.X;
-                        Canvas.SetLeft(baseControl, Canvas.GetLeft(baseControl) + offset.X);
-                        baseControl.Height = offset.Y + startingSize.Height;
+                        newWidth -= offset.X;
+                        newLeft += offset.X;
+                        newHeight = offset.Y + startingSize.Height;
                         break;
 
                     case PanelEdge.BottomRight:
-                        baseControl.Width = offset.X + startingSize.Width;
-                        baseControl.Height = offset.Y + startingSize.Height;
+                        newWidth = offset.X + startingSize.Width;
+                        newHeight = offset.Y + startingSize.Height;
                         break;
 
                     case PanelEdge.Left:
-                        baseControl.Width -= offset.X;
-                        Canvas.SetLeft(baseControl, Canvas.GetLeft(baseControl) + offset.X);
+                        newWidth -= offset.X;
+                        newLeft += offset.X;
                         break;
 
                     case PanelEdge.Right:
-                        baseControl.Width = offset.X + startingSize.Width;
+                        newWidth = offset.X + startingSize.Width;
                         break;
 
                     case PanelEdge.Top:
-                        baseControl.Height -= offset.Y;
-                        Canvas.SetTop(baseControl, Canvas.GetTop(baseControl) + offset.Y);
+                        newHeight -= offset.Y;
+                        newTop += offset.Y;
                         break;
 
                     case PanelEdge.TopLeft:
-                        baseControl.Width -= offset.X;
-                        Canvas.SetLeft(baseControl, Canvas.GetLeft(baseControl) + offset.X);
-                        baseControl.Height -= offset.Y;
-                        Canvas.SetTop(baseControl, Canvas.GetTop(baseControl) + offset.Y);
+                        newWidth -= offset.X;
+                        newLeft += offset.X;
+                        newHeight -= offset.Y;
+                        newTop += offset.Y;
                         break;
 
                     case PanelEdge.TopRight:
-                        baseControl.Width = offset.X + startingSize.Width;
-                        baseControl.Height -= offset.Y;
-                        Canvas.SetTop(baseControl, Canvas.GetTop(baseControl) + offset.Y);
+                        newWidth = offset.X + startingSize.Width;
+                        newHeight -= offset.Y;
+                        newTop += offset.Y;
                         break;
                 }
+                baseControl.Height = Math.Max(minimumSize, newHeight);
+                baseControl.Width = Math.Max(minimumSize, newWidth);
+                Canvas.SetLeft(baseControl, newLeft);
+                Canvas.SetTop(baseControl, newTop);
             }
             else
             {
@@ -143,7 +155,6 @@ namespace Pinspaces
 
         private PanelEdge PanelEdgeAtPosition(Point p)
         {
-            const int edgeThreshold = 6;
             var rightEdge = p.X >= baseControl.Width - edgeThreshold && p.X <= baseControl.Width;
             var leftEdge = p.X >= 0 && p.X <= edgeThreshold;
             var topEdge = p.Y >= 0 && p.Y <= edgeThreshold;
