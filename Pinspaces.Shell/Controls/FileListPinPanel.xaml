@@ -21,7 +21,17 @@
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="{Binding Pidl, Converter={StaticResource ShellIconConverter}}" Width="16" Height="16" Margin="2,2,2,2" />
-                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center">
+                                    <TextBlock.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Error}" Value="True">
+                                                    <Setter Property="TextDecorations" Value="Strikethrough" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Resources>
+                                </TextBlock>
                             </StackPanel>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>

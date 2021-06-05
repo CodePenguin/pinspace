@@ -14,10 +14,15 @@ namespace Pinspaces.Shell.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var pidl = (IntPtr)value;
-            Shell32.SHGetFileInfo(pidl, 0, out var info,
+            var result = Shell32.SHGetFileInfo(pidl, 0, out var info,
                 Marshal.SizeOf(typeof(SHFILEINFO)),
                 SHGFI.ADDOVERLAYS | SHGFI.ICON |
                 SHGFI.SHELLICONSIZE | SHGFI.PIDL);
+
+            if (result == IntPtr.Zero || info.hIcon == IntPtr.Zero)
+            {
+                return null;
+            }
 
             var imageSource = Imaging.CreateBitmapSourceFromHIcon(info.hIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             User32.DestroyIcon(info.hIcon);

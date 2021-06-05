@@ -174,6 +174,10 @@ namespace Pinspaces.Shell.Controls
             var items = new List<ShellItem>();
             foreach (var item in selectedItems)
             {
+                if (item.Error)
+                {
+                    continue;
+                }
                 items.Add(new ShellItem(item.Uri));
             }
             return items.ToArray();
