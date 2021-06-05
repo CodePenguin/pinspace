@@ -2,13 +2,15 @@ using GongSolutions.Shell;
 using GongSolutions.Shell.Interop;
 using Pinspaces.Core.Controls;
 using Pinspaces.Core.Data;
+using Pinspaces.Core.Extensions;
 using Pinspaces.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Pinspaces.Shell.Controls
 {
@@ -23,10 +25,13 @@ namespace Pinspaces.Shell.Controls
             InitializeComponent();
             DataContext = this;
 
-            //listView.DragEnter += ListView_DragEnter;
-            //listView.DragDrop += ListView_DragDrop;
+            listView.DragEnter += ListView_DragEnter;
+            listView.Drop += ListView_Drop;
+            //FIX!!
             //listView.ItemDrag += ListView_ItemDrag;
-            //listView.MouseClick += ListView_MouseClick;
+            listView.MouseRightButtonUp += ListView_MouseRightButtonUp;
+
+            //FIX!!
             //SystemImageList.UseSystemImageList(listView);
         }
 
@@ -76,53 +81,45 @@ namespace Pinspaces.Shell.Controls
             Items.Insert(index, item);
         }
 
-        //FIX!!
-        //private void ListView_DragDrop(object sender, DragEventArgs e)
-        //{
-        //    listView.BeginUpdate();
-        //    try
-        //    {
-        //        var dropPoint = listView.PointToClient(new Point(e.X, e.Y));
-        //        var targetItem = listView.GetItemAt(dropPoint.X, dropPoint.Y);
-        //        int insertIndex;
+        private void ListView_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+        }
 
-        //        // Move the selected items to the new position
-        //        if (isDragging)
-        //        {
-        //            foreach (ListViewItem item in listView.SelectedItems)
-        //            {
-        //                item.Remove();
-        //                insertIndex = targetItem != null ? targetItem.Index : listView.Items.Count;
-        //                listView.Items.Insert(insertIndex, item);
-        //                targetItem = item;
-        //                insertIndex = item.Index;
-        //            }
-        //            return;
-        //        }
+        private void ListView_Drop(object sender, DragEventArgs e)
+        {
+            var target = ((DependencyObject)e.OriginalSource).FindParent<ListViewItem>();
+            var targetItem = target?.DataContext as FileListItem;
+            var targetItemIndex = Items.IndexOf(targetItem);
+            int insertIndex;
 
-        //        // Add new items to the view
-        //        insertIndex = targetItem != null ? targetItem.Index : listView.Items.Count;
-        //        var droppedFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
-        //        foreach (var fileName in droppedFiles)
-        //        {
-        //            AddFile(fileName, insertIndex);
-        //        }
+            // Move the selected items to the new position
+            if (isDragging)
+            {
+                foreach (FileListItem item in listView.SelectedItems)
+                {
+                    Items.Remove(item);
+                    insertIndex = targetItem != null ? targetItemIndex : Items.Count;
+                    Items.Insert(insertIndex, item);
+                    targetItem = item;
+                    insertIndex = Items.IndexOf(item);
+                }
+                return;
+            }
 
-        //        UpdatePin();
-        //    }
-        //    finally
-        //    {
-        //        listView.EndUpdate();
-        //    }
-        //}
+            // Add new items to the view
+            insertIndex = targetItem != null ? targetItemIndex : Items.Count;
+            var droppedFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
+            foreach (var fileName in droppedFiles)
+            {
+                AddFile(fileName, insertIndex);
+            }
 
-        //private void ListView_DragEnter(object sender, DragEventArgs e)
-        //{
-        //    if (e.Data.GetDataPresent(DataFormats.FileDrop))
-        //    {
-        //        e.Effect = DragDropEffects.Copy;
-        //    }
-        //}
+            UpdatePin();
+        }
 
         //private void ListView_ItemDrag(object sender, ItemDragEventArgs e)
         //{
@@ -156,20 +153,18 @@ namespace Pinspaces.Shell.Controls
         //    }
         //}
 
-        //private void ListView_MouseClick(object sender, MouseEventArgs e)
-        //{
-        //    if (e.Button != MouseButtons.Right)
-        //    {
-        //        return;
-        //    }
-        //    var selectedItems = SelectedShellItems();
-        //    if (selectedItems.Length == 0)
-        //    {
-        //        return;
-        //    }
-        //    var contextMenu = new ShellContextMenu(selectedItems);
-        //    contextMenu.ShowContextMenu(listView, e.Location);
-        //}
+        private void ListView_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var selectedItems = SelectedShellItems();
+            if (selectedItems.Length == 0)
+            {
+                return;
+            }
+            var contextMenu = new ShellContextMenu(selectedItems);
+            var mousePos = e.GetPosition(listView);
+            //FIX!!
+            //contextMenu.ShowContextMenu(listView, mousePos));
+        }
 
         private ShellItem[] SelectedShellItems()
         {
