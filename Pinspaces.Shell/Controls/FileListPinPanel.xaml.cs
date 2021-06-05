@@ -7,10 +7,13 @@ using Pinspaces.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Pinspaces.Shell.Controls
 {
@@ -19,6 +22,8 @@ namespace Pinspaces.Shell.Controls
     {
         private FileListPin fileListPin;
         private bool isDragging = false;
+        private List<FileListItem> selectedItems = new();
+        private Point startingOffset;
 
         public FileListPinPanel()
         {
@@ -27,8 +32,8 @@ namespace Pinspaces.Shell.Controls
 
             listView.DragEnter += ListView_DragEnter;
             listView.Drop += ListView_Drop;
-            //FIX!!
-            //listView.ItemDrag += ListView_ItemDrag;
+            listView.PreviewMouseDown += ListView_PreviewMouseDown;
+            listView.MouseMove += ListView_MouseMove;
             listView.MouseRightButtonUp += ListView_MouseRightButtonUp;
 
             //FIX!!
@@ -38,6 +43,7 @@ namespace Pinspaces.Shell.Controls
         public event PropertyChangedEventHandler PropertyChanged;
 
         public Control ContentControl => this;
+
         public ObservableCollection<FileListItem> Items { get; private set; } = new();
 
         public void AddContextMenuItems(ContextMenu contextMenu)
@@ -99,7 +105,7 @@ namespace Pinspaces.Shell.Controls
             // Move the selected items to the new position
             if (isDragging)
             {
-                foreach (FileListItem item in listView.SelectedItems)
+                foreach (var item in selectedItems)
                 {
                     Items.Remove(item);
                     insertIndex = targetItem != null ? targetItemIndex : Items.Count;
@@ -107,6 +113,7 @@ namespace Pinspaces.Shell.Controls
                     targetItem = item;
                     insertIndex = Items.IndexOf(item);
                 }
+                selectedItems.Clear();
                 return;
             }
 
@@ -121,37 +128,15 @@ namespace Pinspaces.Shell.Controls
             UpdatePin();
         }
 
-        //private void ListView_ItemDrag(object sender, ItemDragEventArgs e)
-        //{
-        //    var selectedItems = SelectedShellItems();
-        //    if (selectedItems.Length == 0)
-        //    {
-        //        return;
-        //    }
-        //    try
-        //    {
-        //        isDragging = true;
-        //        if (selectedItems.Length == 1)
-        //        {
-        //            _ = Ole32.DoDragDrop(selectedItems[0].GetIDataObject(), this, DragDropEffects.All, out _);
-        //            return;
-        //        }
-
-        //        // Convert selected files to a DataObject of file names
-        //        var dataObject = new DataObject();
-        //        var fileNames = new StringCollection();
-        //        foreach (var file in selectedItems)
-        //        {
-        //            fileNames.Add(file.FileSystemPath);
-        //        }
-        //        dataObject.SetFileDropList(fileNames);
-        //        _ = Ole32.DoDragDrop(dataObject, this, DragDropEffects.All, out _);
-        //    }
-        //    finally
-        //    {
-        //        isDragging = false;
-        //    }
-        //}
+        private void ListView_MouseMove(object sender, MouseEventArgs e)
+        {
+            var mousePos = e.GetPosition(listView);
+            var offset = mousePos - startingOffset;
+            if (e.LeftButton == MouseButtonState.Pressed && (Math.Abs(offset.X) > SystemParameters.MinimumHorizontalDragDistance || Math.Abs(offset.Y) > SystemParameters.MinimumVerticalDragDistance))
+            {
+                StartItemDragOperation();
+            }
+        }
 
         private void ListView_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
@@ -166,15 +151,61 @@ namespace Pinspaces.Shell.Controls
             //contextMenu.ShowContextMenu(listView, mousePos));
         }
 
+        private void ListView_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            startingOffset = e.GetPosition(listView);
+            selectedItems.Clear();
+            selectedItems.AddRange(listView.SelectedItems.Cast<FileListItem>());
+            if (selectedItems.Count == 0)
+            {
+                var mouseItem = VisualTreeHelper.HitTest(listView, e.GetPosition(listView)).VisualHit.FindParent<ListViewItem>();
+                if (mouseItem != null)
+                {
+                    selectedItems.Add(mouseItem.DataContext as FileListItem);
+                }
+            }
+        }
+
         private ShellItem[] SelectedShellItems()
         {
             var items = new List<ShellItem>();
-            foreach (var item in listView.SelectedItems)
+            foreach (var item in selectedItems)
             {
-                var fileListItem = item as FileListItem;
-                items.Add(new ShellItem(fileListItem.Uri));
+                items.Add(new ShellItem(item.Uri));
             }
             return items.ToArray();
+        }
+
+        private void StartItemDragOperation()
+        {
+            var shellItems = SelectedShellItems();
+            if (shellItems.Length == 0)
+            {
+                return;
+            }
+            try
+            {
+                isDragging = true;
+                if (shellItems.Length == 1)
+                {
+                    _ = Ole32.DoDragDrop(shellItems[0].GetIDataObject(), this, System.Windows.Forms.DragDropEffects.All, out _);
+                    return;
+                }
+
+                // Convert selected files to a DataObject of file names
+                var dataObject = new DataObject();
+                var fileNames = new StringCollection();
+                foreach (var file in shellItems)
+                {
+                    fileNames.Add(file.FileSystemPath);
+                }
+                dataObject.SetFileDropList(fileNames);
+                _ = Ole32.DoDragDrop(dataObject, this, System.Windows.Forms.DragDropEffects.All, out _);
+            }
+            finally
+            {
+                isDragging = false;
+            }
         }
 
         private void UpdatePin()
