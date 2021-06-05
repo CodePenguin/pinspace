@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Pinspaces.Controls
 {
@@ -16,6 +17,7 @@ namespace Pinspaces.Controls
         private readonly IDataRepository dataRepository;
         private readonly Color defaultPinColor = Color.FromArgb(255, 51, 122, 183);
         private readonly IPinFactory pinFactory;
+        private readonly DebounceMethodExecutor updateCanvasSizeMethodExecutor;
         private FrameworkElement contextElement;
         private Pinspace pinspace;
         private Point targetPoint;
@@ -27,6 +29,7 @@ namespace Pinspaces.Controls
 
             this.dataRepository = dataRepository;
             this.pinFactory = pinFactory;
+            updateCanvasSizeMethodExecutor = new(UpdateCanvasSize, 100, Dispatcher);
 
             baseContextMenuItemCount = canvas.ContextMenu.Items.Count;
             GenerateNewPinControlsMenu();
@@ -78,6 +81,7 @@ namespace Pinspaces.Controls
         {
             var pinControl = pinFactory.NewPinControl(pin.GetType());
             var pinPanel = new PinPanel(pinControl) { ContextMenu = canvas.ContextMenu };
+            pinPanel.PropertyChanged += PinPanel_PropertyChanged;
             pinPanel.LoadPin(pin);
             canvas.Children.Add(pinPanel);
         }
@@ -163,6 +167,14 @@ namespace Pinspaces.Controls
             dataRepository.UpdatePin(pinspace.Id, pinPanel.Pin);
         }
 
+        private void PinPanel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Pin.Left) || e.PropertyName == nameof(Pin.Top) || e.PropertyName == nameof(Pin.Height) || e.PropertyName == nameof(Pin.Width))
+            {
+                updateCanvasSizeMethodExecutor.Execute();
+            }
+        }
+
         private void PinspaceContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
             var contextMenu = (sender as FrameworkElement).ContextMenu;
@@ -227,6 +239,36 @@ namespace Pinspaces.Controls
                 dataRepository.UpdatePinspace(pinspace);
                 PropertyChanged?.Invoke(pinspace, new PropertyChangedEventArgs(nameof(pinspace.Title)));
             }
+        }
+
+        private void UpdateCanvasSize()
+        {
+            var height = scrollViewer.ViewportHeight;
+            var width = scrollViewer.ViewportWidth;
+
+            foreach (var child in canvas.Children.OfType<PinPanel>())
+            {
+                height = Math.Max(height, Canvas.GetTop(child) + child.ActualHeight);
+                width = Math.Max(width, Canvas.GetLeft(child) + child.ActualWidth);
+            }
+
+            if (height > scrollViewer.ViewportHeight)
+            {
+                height += SystemParameters.HorizontalScrollBarHeight;
+            }
+
+            if (width > scrollViewer.ViewportWidth)
+            {
+                width += SystemParameters.VerticalScrollBarWidth;
+            }
+
+            canvas.Height = height;
+            canvas.Width = width;
+        }
+
+        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            updateCanvasSizeMethodExecutor.Execute();
         }
     }
 }

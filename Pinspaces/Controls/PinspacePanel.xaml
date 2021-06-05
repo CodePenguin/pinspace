@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Pinspaces.Controls"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" SizeChanged="UserControl_SizeChanged">
     <UserControl.CommandBindings>
         <CommandBinding Command="local:CustomCommands.New" CanExecute="NewCommand_CanExecute" />
         <CommandBinding Command="local:CustomCommands.ChangeColor" CanExecute="ChangeColorCommand_CanExecute" Executed="ChangeColorCommand_Executed" />
@@ -27,8 +27,8 @@
             <MenuItem Command="local:CustomCommands.Remove"></MenuItem>
         </ContextMenu>
     </UserControl.Resources>
-    <ScrollViewer>
-        <Canvas Name="canvas" Background="{Binding BackgroundColor}" ContextMenu="{StaticResource PinspaceContextMenu}" ContextMenuOpening="PinspaceContextMenu_ContextMenuOpening">
+    <ScrollViewer Name="scrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="{Binding BackgroundColor}">
+        <Canvas Name="canvas" ContextMenu="{StaticResource PinspaceContextMenu}" ContextMenuOpening="PinspaceContextMenu_ContextMenuOpening" HorizontalAlignment="Left" VerticalAlignment="Top">
         </Canvas>
     </ScrollViewer>
 </UserControl>
