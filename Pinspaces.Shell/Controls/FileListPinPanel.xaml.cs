@@ -35,9 +35,6 @@ namespace Pinspaces.Shell.Controls
             listView.PreviewMouseDown += ListView_PreviewMouseDown;
             listView.MouseMove += ListView_MouseMove;
             listView.MouseUp += ListView_MouseUpEvent;
-
-            //FIX!!
-            //SystemImageList.UseSystemImageList(listView);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

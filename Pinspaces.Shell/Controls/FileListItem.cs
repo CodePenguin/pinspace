@@ -6,6 +6,8 @@ namespace Pinspaces.Shell.Controls
 {
     public class FileListItem
     {
+        private ShellItem shellItem;
+
         public FileListItem(string uri)
         {
             Uri = uri;
@@ -18,9 +20,11 @@ namespace Pinspaces.Shell.Controls
         public int Size { get; private set; }
         public string Uri { get; private set; }
 
+        public IntPtr Pidl => shellItem.Pidl;
+
         public void Refresh()
         {
-            var shellItem = new ShellItem(Uri);
+            shellItem = new ShellItem(Uri);
             var fileInfo = new FileInfo(shellItem.FileSystemPath);
             DisplayName = shellItem.DisplayName;
             LastModifiedDateTime = fileInfo.LastWriteTime;
@@ -34,9 +38,6 @@ namespace Pinspaces.Shell.Controls
             {
                 Size = 0;
             }
-
-            // FIX!!!
-            //item.ImageIndex = shellItem.GetSystemImageListIndex(ShellIconType.SmallIcon, ShellIconFlags.OverlayIndex);
         }
     }
 }
