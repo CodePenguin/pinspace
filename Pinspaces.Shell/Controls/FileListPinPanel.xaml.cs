@@ -20,10 +20,10 @@ namespace Pinspaces.Shell.Controls
     [PinType(DisplayName = "File List", PinType = typeof(FileListPin))]
     public partial class FileListPinPanel : UserControl, IPinControl, IDropSource
     {
+        private readonly List<FileListItem> selectedItems = new();
         private FileListPin fileListPin;
         private bool isDragging = false;
-        private List<FileListItem> selectedItems = new();
-        private Point startingOffset;
+        private Point? startingOffset = null;
 
         public FileListPinPanel()
         {
@@ -34,7 +34,7 @@ namespace Pinspaces.Shell.Controls
             listView.Drop += ListView_Drop;
             listView.PreviewMouseDown += ListView_PreviewMouseDown;
             listView.MouseMove += ListView_MouseMove;
-            listView.MouseRightButtonUp += ListView_MouseRightButtonUp;
+            listView.MouseUp += ListView_MouseUpEvent;
 
             //FIX!!
             //SystemImageList.UseSystemImageList(listView);
@@ -130,25 +130,31 @@ namespace Pinspaces.Shell.Controls
 
         private void ListView_MouseMove(object sender, MouseEventArgs e)
         {
-            var mousePos = e.GetPosition(listView);
-            var offset = mousePos - startingOffset;
+            if (startingOffset == null)
+            {
+                return;
+            }
+            var offset = e.GetPosition(listView) - startingOffset.Value;
             if (e.LeftButton == MouseButtonState.Pressed && (Math.Abs(offset.X) > SystemParameters.MinimumHorizontalDragDistance || Math.Abs(offset.Y) > SystemParameters.MinimumVerticalDragDistance))
             {
                 StartItemDragOperation();
             }
         }
 
-        private void ListView_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        private void ListView_MouseUpEvent(object sender, MouseButtonEventArgs e)
         {
-            var selectedItems = SelectedShellItems();
-            if (selectedItems.Length == 0)
+            startingOffset = null;
+            if (e.ChangedButton == MouseButton.Right && e.RightButton == MouseButtonState.Released)
             {
-                return;
+                var selectedItems = SelectedShellItems();
+                if (selectedItems.Length == 0)
+                {
+                    return;
+                }
+                var contextMenu = new ShellContextMenu(selectedItems);
+                var mousePos = PointToScreen(e.GetPosition(listView));
+                contextMenu.ShowContextMenu(new System.Drawing.Point(Convert.ToInt32(mousePos.X), Convert.ToInt32(mousePos.Y)));
             }
-            var contextMenu = new ShellContextMenu(selectedItems);
-            var mousePos = e.GetPosition(listView);
-            //FIX!!
-            //contextMenu.ShowContextMenu(listView, mousePos));
         }
 
         private void ListView_PreviewMouseDown(object sender, MouseButtonEventArgs e)
