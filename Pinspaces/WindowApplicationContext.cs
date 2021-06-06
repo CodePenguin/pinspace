@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Pinspaces.Controls;
 using Pinspaces.Core.Data;
 using Pinspaces.Extensions;
@@ -14,7 +13,6 @@ namespace Pinspaces
         private readonly IDataRepository dataRepository;
         private readonly WindowFactory windowFactory;
         private readonly List<PinWindowForm> windows = new();
-        private readonly Dictionary<Window, IServiceScope> windowScopes = new();
 
         public WindowApplicationContext(WindowFactory windowFactory, IDataRepository dataRepository)
         {
@@ -64,15 +62,6 @@ namespace Pinspaces
         public void Run()
         {
             LoadData();
-        }
-
-        private void Window_Disposed(object sender, EventArgs e)
-        {
-            var window = sender as Window;
-            if (windowScopes.Remove(window, out var scope))
-            {
-                scope.Dispose();
-            }
         }
 
         private void Window_FormClosed(object sender, EventArgs e)

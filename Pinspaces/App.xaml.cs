@@ -3,26 +3,24 @@ using Pinspaces.Controls;
 using Pinspaces.Data;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
-using System;
 using System.Windows;
 
 namespace Pinspaces
 {
     public partial class App : Application
     {
-        private readonly IServiceProvider serviceProvider;
+        private readonly ServiceProvider serviceProvider;
 
         public App()
         {
             var services = new ServiceCollection();
             ConfigureServices(services);
             serviceProvider = services.BuildServiceProvider();
-            Startup += OnStartup;
         }
 
         public static void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IDataRepository, JsonDataContext>();
+            services.AddSingleton<IDataRepository, JsonDataRepository>();
             services.AddTransient<WindowFactory>();
             services.AddSingleton<IPinFactory, PinFactory>();
             services.AddTransient<PinJsonConverter>();
@@ -32,8 +30,15 @@ namespace Pinspaces
             services.AddPinControls();
         }
 
-        private void OnStartup(object sender, StartupEventArgs e)
+        protected override void OnExit(ExitEventArgs e)
         {
+            serviceProvider.Dispose();
+            base.OnExit(e);
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
             var appContext = serviceProvider.GetService<WindowApplicationContext>();
             appContext.Run();
         }

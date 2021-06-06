@@ -22,6 +22,7 @@ namespace Pinspaces.Controls
 
             this.pinControl = pinControl;
             PinContentControl = pinControl.ContentControl;
+            pinControl.PropertyChanged += PinControl_PropertyChanged;
 
             LayoutUpdated += PinPanel_LayoutUpdated;
             SizeChanged += PinPanel_SizeChanged;
@@ -89,6 +90,11 @@ namespace Pinspaces.Controls
         public void NotifyPropertyChanged(string propName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+        }
+
+        private void PinControl_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            NotifyPropertyChanged(e.PropertyName);
         }
 
         private void PinPanel_LayoutUpdated(object sender, EventArgs e)

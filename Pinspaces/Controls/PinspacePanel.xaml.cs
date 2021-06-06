@@ -8,17 +8,22 @@ using System.Windows.Input;
 using System.Windows;
 using System.ComponentModel;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Pinspaces.Controls
 {
-    public partial class PinspacePanel : UserControl, INotifyPropertyChanged
+    public partial class PinspacePanel : UserControl, INotifyPropertyChanged, IDisposable
     {
         private readonly int baseContextMenuItemCount;
         private readonly IDataRepository dataRepository;
         private readonly Color defaultPinColor = Color.FromArgb(255, 51, 122, 183);
+        private readonly Dictionary<Guid, Pin> pendingPinChanges = new();
         private readonly IPinFactory pinFactory;
+        private readonly DebounceMethodExecutor processPendingPinChangesMethodExecutor;
         private readonly DebounceMethodExecutor updateCanvasSizeMethodExecutor;
         private FrameworkElement contextElement;
+        private bool disposedValue;
+        private bool isLoading;
         private Pinspace pinspace;
         private Point targetPoint;
 
@@ -29,6 +34,7 @@ namespace Pinspaces.Controls
 
             this.dataRepository = dataRepository;
             this.pinFactory = pinFactory;
+            processPendingPinChangesMethodExecutor = new(ProcessPendingPinChanges, 5000, Dispatcher);
             updateCanvasSizeMethodExecutor = new(UpdateCanvasSize, 100, Dispatcher);
 
             baseContextMenuItemCount = canvas.ContextMenu.Items.Count;
@@ -47,14 +53,41 @@ namespace Pinspaces.Controls
             }
         }
 
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
         public void LoadPinspace(Guid pinspaceId)
         {
-            pinspace = dataRepository.GetPinspace(pinspaceId);
-
-            canvas.Children.Clear();
-            foreach (var pin in dataRepository.GetPins(pinspaceId))
+            isLoading = true;
+            try
             {
-                AddPinPanel(pin);
+                pinspace = dataRepository.GetPinspace(pinspaceId);
+
+                canvas.Children.Clear();
+                foreach (var pin in dataRepository.GetPins(pinspaceId))
+                {
+                    AddPinPanel(pin);
+                }
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    processPendingPinChangesMethodExecutor.Dispose();
+                    updateCanvasSizeMethodExecutor.Dispose();
+                }
+                disposedValue = true;
             }
         }
 
@@ -161,18 +194,19 @@ namespace Pinspaces.Controls
             NewPin(pinControlType, targetPoint);
         }
 
-        private void PinPanel_PropertiesChanged(object sender, EventArgs e)
-        {
-            var pinPanel = sender as PinPanel;
-            dataRepository.UpdatePin(pinspace.Id, pinPanel.Pin);
-        }
-
         private void PinPanel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Pin.Left) || e.PropertyName == nameof(Pin.Top) || e.PropertyName == nameof(Pin.Height) || e.PropertyName == nameof(Pin.Width))
             {
                 updateCanvasSizeMethodExecutor.Execute();
             }
+            if (isLoading)
+            {
+                return;
+            }
+            var pinPanel = sender as PinPanel;
+            pendingPinChanges.TryAdd(pinPanel.Pin.Id, pinPanel.Pin);
+            processPendingPinChangesMethodExecutor.Execute();
         }
 
         private void PinspaceContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
@@ -195,6 +229,15 @@ namespace Pinspaces.Controls
             {
                 contextMenu.Items.Insert(baseContextMenuItemCount, new Separator());
             }
+        }
+
+        private void ProcessPendingPinChanges()
+        {
+            foreach (var pin in pendingPinChanges.Values)
+            {
+                dataRepository.UpdatePin(pinspace.Id, pin);
+            }
+            pendingPinChanges.Clear();
         }
 
         private void RemoveCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)

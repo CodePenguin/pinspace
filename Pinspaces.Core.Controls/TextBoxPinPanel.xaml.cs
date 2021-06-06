@@ -37,7 +37,7 @@ namespace Pinspaces.Core.Controls
             textBox.TextWrapping = textBoxPin.WordWrap ? TextWrapping.Wrap : TextWrapping.NoWrap;
         }
 
-        private void TextBox_OnTextChanged(object sender, EventArgs e)
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             textBoxPin.Text = textBox.Text;
             PropertyChanged?.Invoke(textBoxPin, new PropertyChangedEventArgs(nameof(textBoxPin.Text)));

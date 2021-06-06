@@ -12,7 +12,7 @@ using static System.Environment;
 
 namespace Pinspaces.Data
 {
-    public class JsonDataContext : IDataRepository, IDisposable
+    public class JsonDataRepository : IDataRepository, IDisposable
     {
         private readonly JsonData data;
         private readonly ConcurrentQueue<(Guid pinspaceId, Pin pin)> pendingPinChanges = new();
@@ -21,7 +21,7 @@ namespace Pinspaces.Data
         private readonly DebounceMethodExecutor savePinChangesMethodExecutor;
         private bool disposedValue;
 
-        public JsonDataContext(PinJsonConverter pinJsonConverter)
+        public JsonDataRepository(PinJsonConverter pinJsonConverter)
         {
             this.pinJsonConverter = pinJsonConverter;
             saveDataFileMethodExecutor = new(() => SaveDataChanges(), 5000);
@@ -186,16 +186,15 @@ namespace Pinspaces.Data
 
         private void SaveJsonFile(string filename, object data)
         {
-            //FIX!! Temporarily don't save anything
-            //using var fileStream = new FileStream(filename, FileMode.Create);
-            //var options = new JsonWriterOptions
-            //{
-            //    Indented = true
-            //};
-            //var serializeOptions = new JsonSerializerOptions();
-            //serializeOptions.Converters.Add(pinJsonConverter);
-            //var writer = new Utf8JsonWriter(fileStream, options);
-            //JsonSerializer.Serialize(writer, data, serializeOptions);
+            using var fileStream = new FileStream(filename, FileMode.Create);
+            var options = new JsonWriterOptions
+            {
+                Indented = true
+            };
+            var serializeOptions = new JsonSerializerOptions();
+            serializeOptions.Converters.Add(pinJsonConverter);
+            var writer = new Utf8JsonWriter(fileStream, options);
+            JsonSerializer.Serialize(writer, data, serializeOptions);
         }
 
         private void SavePinChanges()
