@@ -78,6 +78,16 @@ namespace Pinspaces.Shell.Controls
             }
         }
 
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+            if (e.Key == Key.F5)
+            {
+                RefreshItems();
+                e.Handled = true;
+            }
+        }
+
         private void AddFile(string fileName, int index)
         {
             var item = new FileListItem(fileName);
@@ -166,6 +176,14 @@ namespace Pinspaces.Shell.Controls
                 {
                     selectedItems.Add(mouseItem.DataContext as FileListItem);
                 }
+            }
+        }
+
+        private void RefreshItems()
+        {
+            foreach (var item in Items)
+            {
+                item.Refresh();
             }
         }
 

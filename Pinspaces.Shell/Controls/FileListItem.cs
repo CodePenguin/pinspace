@@ -1,10 +1,11 @@
 using GongSolutions.Shell;
 using System;
+using System.ComponentModel;
 using System.IO;
 
 namespace Pinspaces.Shell.Controls
 {
-    public class FileListItem
+    public class FileListItem : INotifyPropertyChanged
     {
         private ShellItem shellItem;
 
@@ -13,6 +14,8 @@ namespace Pinspaces.Shell.Controls
             Uri = uri;
             Refresh();
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public string DisplayName { get; private set; }
         public bool Error { get; private set; }
@@ -52,6 +55,7 @@ namespace Pinspaces.Shell.Controls
                 Size = 0;
                 Error = true;
             }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
     }
 }
