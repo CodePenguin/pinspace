@@ -28,7 +28,10 @@
         </ContextMenu>
     </UserControl.Resources>
     <ScrollViewer Name="scrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="{Binding BackgroundColor}">
-        <Canvas Name="canvas" ContextMenu="{StaticResource PinspaceContextMenu}" ContextMenuOpening="PinspaceContextMenu_ContextMenuOpening" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Canvas Name="canvas" Background="{Binding BackgroundColor}"
+                ContextMenu="{StaticResource PinspaceContextMenu}"
+                ContextMenuOpening="PinspaceContextMenu_ContextMenuOpening"
+                HorizontalAlignment="Left" VerticalAlignment="Top">
         </Canvas>
     </ScrollViewer>
 </UserControl>
