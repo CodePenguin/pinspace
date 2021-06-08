@@ -21,7 +21,7 @@
                         </ContextMenu>
                     </Button.ContextMenu>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding ActivePinspaceTitle}" d:Text="Pinspace Title" />
+                        <TextBlock Text="{Binding PinspacePanel.Title}" d:Text="Pinspace Title" Margin="10,0,5,0" />
                         <Path VerticalAlignment="Center" Margin="4,2,0,0" Fill="Black" Data="M 0 0 L 6 6 L 12 0 Z" />
                     </StackPanel>
                 </Button>

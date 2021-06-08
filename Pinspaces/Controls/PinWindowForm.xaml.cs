@@ -10,7 +10,7 @@ using System.Windows.Controls;
 
 namespace Pinspaces.Controls
 {
-    public partial class PinWindowForm : Window, INotifyPropertyChanged
+    public partial class PinWindowForm : Window
     {
         private readonly IDataRepository dataRepository;
         private readonly DebounceMethodExecutor updateFormLocationAndSizeMethodExecutor;
@@ -28,12 +28,11 @@ namespace Pinspaces.Controls
             Height = PinWindow.DefaultHeight;
             Width = PinWindow.DefaultWidth;
             PinspacePanel = pinspacePanel;
+            PinspacePanel.PropertyChanged += PinspacePanel_PropertyChanged;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public string ActivePinspaceTitle => Pinspaces.FirstOrDefault(p => p.Id.Equals(pinWindow.ActivePinspaceId))?.Title;
         public PinspacePanel PinspacePanel { get; private set; }
+
         public ObservableCollection<Pinspace> Pinspaces { get; private set; } = new();
 
         public void LoadWindow(PinWindow pinWindow)
@@ -109,6 +108,16 @@ namespace Pinspaces.Controls
             SwitchActivePinspace((Guid)(sender as MenuItem).Tag);
         }
 
+        private void PinspacePanel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (isLoading)
+            {
+                return;
+            }
+            var pinspace = dataRepository.GetPinspace(pinWindow.ActivePinspaceId);
+            Pinspaces.FirstOrDefault(p => p.Id.Equals(pinWindow.ActivePinspaceId))?.Assign(pinspace, out _);
+        }
+
         private void SwitchActivePinspace(Guid pinspaceId)
         {
             var pinspace = Pinspaces.Where(p => p.Id.Equals(pinspaceId)).FirstOrDefault();
@@ -116,10 +125,9 @@ namespace Pinspaces.Controls
             {
                 return;
             }
-            PinspacePanel.LoadPinspace(pinspaceId);
             pinWindow.ActivePinspaceId = pinspaceId;
+            PinspacePanel.LoadPinspace(pinspaceId);
             UpdatePinWindow();
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActivePinspaceTitle)));
         }
 
         private void UpdateFormLocationAndSize()

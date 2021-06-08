@@ -49,9 +49,11 @@ namespace Pinspaces.Controls
             set
             {
                 pinspace.Color = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
+                NotifyPropertyChanged(nameof(BackgroundColor));
             }
         }
+
+        public string Title => pinspace.Title;
 
         public void Dispose()
         {
@@ -71,6 +73,7 @@ namespace Pinspaces.Controls
                 {
                     AddPinPanel(pin);
                 }
+                NotifyPropertyChanged(null);
             }
             finally
             {
@@ -104,7 +107,7 @@ namespace Pinspaces.Controls
         private static void RenamePin(PinPanel pinPanel)
         {
             var title = pinPanel.Title;
-            if (InputDialog.ShowInputDialog("Rename", "Enter the new name:", ref title))
+            if (InputDialog.ShowInputDialog("Rename Pin", "Enter the new name for this pin:", ref title))
             {
                 pinPanel.Title = title;
             }
@@ -194,6 +197,11 @@ namespace Pinspaces.Controls
             NewPin(pinControlType, targetPoint);
         }
 
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private void PinPanel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Pin.Left) || e.PropertyName == nameof(Pin.Top) || e.PropertyName == nameof(Pin.Height) || e.PropertyName == nameof(Pin.Width))
@@ -276,11 +284,11 @@ namespace Pinspaces.Controls
         private void RenamePinspace()
         {
             var title = pinspace.Title;
-            if (InputDialog.ShowInputDialog("Rename", "Enter a new name:", ref title))
+            if (InputDialog.ShowInputDialog("Rename Pinspace", "Enter a new name for this pinspace:", ref title))
             {
                 pinspace.Title = title;
                 dataRepository.UpdatePinspace(pinspace);
-                PropertyChanged?.Invoke(pinspace, new PropertyChangedEventArgs(nameof(pinspace.Title)));
+                NotifyPropertyChanged(nameof(Title));
             }
         }
 
