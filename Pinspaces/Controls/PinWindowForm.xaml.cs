@@ -3,6 +3,7 @@ using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
@@ -14,8 +15,10 @@ namespace Pinspaces.Controls
     {
         private readonly IDataRepository dataRepository;
         private readonly DebounceMethodExecutor updateFormLocationAndSizeMethodExecutor;
+        private int basePinspaceButtonContextMenuItemCount;
         private bool isLoading = false;
         private PinWindow pinWindow;
+        private bool reloadPinspaceButtonContextMenu = true;
 
         public PinWindowForm(IDataRepository dataRepository, PinspacePanel pinspacePanel)
         {
@@ -25,10 +28,12 @@ namespace Pinspaces.Controls
             // Initialize Pin Window
             InitializeComponent();
             DataContext = this;
+            basePinspaceButtonContextMenuItemCount = PinspaceButton.ContextMenu.Items.Count;
             Height = PinWindow.DefaultHeight;
             Width = PinWindow.DefaultWidth;
             PinspacePanel = pinspacePanel;
             PinspacePanel.PropertyChanged += PinspacePanel_PropertyChanged;
+            Pinspaces.CollectionChanged += Pinspaces_CollectionChanged;
         }
 
         public PinspacePanel PinspacePanel { get; private set; }
@@ -99,6 +104,22 @@ namespace Pinspaces.Controls
         {
             var button = sender as Button;
             var contextMenu = button.ContextMenu;
+
+            if (reloadPinspaceButtonContextMenu)
+            {
+                reloadPinspaceButtonContextMenu = false;
+                while (contextMenu.Items.Count > basePinspaceButtonContextMenuItemCount)
+                {
+                    contextMenu.Items.RemoveAt(basePinspaceButtonContextMenuItemCount);
+                }
+                foreach (var pinspace in Pinspaces)
+                {
+                    var menuItem = new MenuItem { Header = pinspace.Title, Tag = pinspace.Id };
+                    menuItem.Click += PinspaceMenuItem_Click;
+                    contextMenu.Items.Add(menuItem);
+                }
+            }
+
             contextMenu.PlacementTarget = button;
             contextMenu.IsOpen = true;
         }
@@ -116,6 +137,11 @@ namespace Pinspaces.Controls
             }
             var pinspace = dataRepository.GetPinspace(pinWindow.ActivePinspaceId);
             Pinspaces.FirstOrDefault(p => p.Id.Equals(pinWindow.ActivePinspaceId))?.Assign(pinspace, out _);
+        }
+
+        private void Pinspaces_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            reloadPinspaceButtonContextMenu = true;
         }
 
         private void SwitchActivePinspace(Guid pinspaceId)
