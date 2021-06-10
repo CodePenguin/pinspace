@@ -1,6 +1,7 @@
 using Pinspaces.Core.Data;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Pinspaces.Interfaces
 {
@@ -15,6 +16,10 @@ namespace Pinspaces.Interfaces
         public IList<Pinspace> GetPinspaces();
 
         public IList<PinWindow> GetPinWindows();
+
+        public bool RetrievePinData(Guid pinspaceId, Guid pinId, string key, out byte[] data);
+
+        public void StorePinData(Guid pinspaceId, Guid pinId, string key, byte[] data);
 
         public void UpdatePin(Guid pinspaceId, Pin pin);
 

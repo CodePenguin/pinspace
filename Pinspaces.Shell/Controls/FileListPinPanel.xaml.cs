@@ -48,7 +48,7 @@ namespace Pinspaces.Shell.Controls
             // Do nothing
         }
 
-        public void LoadPin(Pin pin)
+        public void LoadPin(Guid pinspaceId, Pin pin)
         {
             fileListPin = pin as FileListPin;
             foreach (var file in fileListPin.Files)

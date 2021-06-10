@@ -24,13 +24,13 @@ namespace Pinspaces.Extensions
             timer?.Stop();
             timer = null;
 
+            isPending = true;
             timer = new DispatcherTimer(TimeSpan.FromMilliseconds(intervalMilliseconds), DispatcherPriority.ApplicationIdle, (s, e) =>
             {
-                if (timer == null)
+                if (timer == null || !isPending)
                 {
                     return;
                 }
-                isPending = true;
                 timer?.Stop();
                 timer = null;
                 action.Invoke();

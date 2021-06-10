@@ -67,7 +67,7 @@ namespace Pinspaces.Controls
             pinControl.AddContextMenuItems(contextMenu);
         }
 
-        public void LoadPin(Pin pin)
+        public void LoadPin(Guid pinspaceId, Pin pin)
         {
             isLoading = true;
             try
@@ -79,7 +79,7 @@ namespace Pinspaces.Controls
                 Title = pin.Title;
                 Canvas.SetTop(this, pin.Top);
                 Width = pin.Width > 0 ? pin.Width : Width;
-                pinControl.LoadPin(pin);
+                pinControl.LoadPin(pinspaceId, pin);
             }
             finally
             {

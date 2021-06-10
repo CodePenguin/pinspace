@@ -18,6 +18,7 @@ namespace Pinspaces.Extensions
             var pinControlTypes = new RegisteredPinControlTypes()
             {
                 typeof(FileListPinPanel),
+                typeof(RichTextBoxPinPanel),
                 typeof(TextBoxPinPanel)
             };
             services.AddSingleton<IRegisteredPinControlTypes>((p) => pinControlTypes);

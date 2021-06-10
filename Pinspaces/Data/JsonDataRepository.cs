@@ -1,7 +1,6 @@
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Extensions;
 using Pinspaces.Core.Interfaces;
-using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
 using System.Collections.Concurrent;
@@ -37,6 +36,11 @@ namespace Pinspaces.Data
             if (File.Exists(pinDataFileName))
             {
                 File.Delete(pinDataFileName);
+            }
+            var pinDataPath = GetPinDataPath(pinspaceId, pin.Id);
+            if (Directory.Exists(pinDataPath))
+            {
+                Directory.Delete(pinDataPath, true);
             }
         }
 
@@ -87,6 +91,25 @@ namespace Pinspaces.Data
         public IList<PinWindow> GetPinWindows()
         {
             return data.Windows.Clone();
+        }
+
+        public bool RetrievePinData(Guid pinspaceId, Guid pinId, string key, out byte[] data)
+        {
+            var filename = GetPinDataKeyFilePath(pinspaceId, pinId, key);
+            if (File.Exists(filename))
+            {
+                data = File.ReadAllBytes(filename);
+                return true;
+            }
+            data = null;
+            return false;
+        }
+
+        public void StorePinData(Guid pinspaceId, Guid pinId, string key, byte[] data)
+        {
+            var filename = GetPinDataKeyFilePath(pinspaceId, pinId, key);
+            Directory.CreateDirectory(Path.GetDirectoryName(filename));
+            File.WriteAllBytes(filename, data);
         }
 
         public void UpdatePin(Guid pinspaceId, Pin pin)
@@ -151,6 +174,16 @@ namespace Pinspaces.Data
         private static string GetPinDataFileName(Guid pinspaceId, Guid pinId)
         {
             return Path.Combine(GetPinspacePath(pinspaceId), $"pin_{pinId}.json");
+        }
+
+        private static string GetPinDataKeyFilePath(Guid pinspaceId, Guid pinId, string key)
+        {
+            return Path.Combine(GetPinDataPath(pinspaceId, pinId), key);
+        }
+
+        private static string GetPinDataPath(Guid pinspaceId, Guid pinId)
+        {
+            return Path.Combine(GetPinspacePath(pinspaceId), $"pin_{pinId}");
         }
 
         private static string GetPinspacePath(Guid pinspaceId)

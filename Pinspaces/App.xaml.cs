@@ -22,6 +22,7 @@ namespace Pinspaces
         public static void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IDataRepository, JsonDataRepository>();
+            services.AddTransient<IPinDataRepository, PinDataRepository>();
             services.AddTransient<IDelayedActionFactory, DelayedActionFactory>();
             services.AddTransient<WindowFactory>();
             services.AddSingleton<IPinFactory, PinFactory>();

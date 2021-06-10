@@ -29,7 +29,7 @@ namespace Pinspaces.Core.Controls
             contextMenu.Items.Add(menuItem);
         }
 
-        public void LoadPin(Pin pin)
+        public void LoadPin(Guid pinspaceId, Pin pin)
         {
             DataContext = pin;
             textBoxPin = pin as TextBoxPin;

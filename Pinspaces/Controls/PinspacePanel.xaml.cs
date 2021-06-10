@@ -119,7 +119,7 @@ namespace Pinspaces.Controls
             var pinControl = pinFactory.NewPinControl(pin.GetType());
             var pinPanel = new PinPanel(pinControl) { ContextMenu = canvas.ContextMenu };
             pinPanel.PropertyChanged += PinPanel_PropertyChanged;
-            pinPanel.LoadPin(pin);
+            pinPanel.LoadPin(pinspace.Id, pin);
             canvas.Children.Add(pinPanel);
         }
 
@@ -262,6 +262,7 @@ namespace Pinspaces.Controls
         private void RemovePin(PinPanel pinPanel)
         {
             canvas.Children.Remove(pinPanel);
+            pendingPinChanges.Remove(pinPanel.Pin.Id);
             dataRepository.DeletePin(pinspace.Id, pinPanel.Pin);
         }
 

@@ -9,8 +9,4 @@
     <ProjectReference Include="..\Pinspaces.Core\Pinspaces.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="TextBoxPinPanel.cs" />
-  </ItemGroup>
-
 </Project>

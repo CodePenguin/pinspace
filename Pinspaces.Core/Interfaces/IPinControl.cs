@@ -1,4 +1,5 @@
 using Pinspaces.Core.Data;
+using System;
 using System.ComponentModel;
 using System.Windows.Controls;
 
@@ -10,6 +11,6 @@ namespace Pinspaces.Core.Interfaces
 
         public void AddContextMenuItems(ContextMenu contextMenu);
 
-        public void LoadPin(Pin pin);
+        public void LoadPin(Guid pinspaceId, Pin pin);
     }
 }
