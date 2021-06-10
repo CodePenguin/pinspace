@@ -28,13 +28,13 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet build --no-restore --framework net5.0-windows
+      run: dotnet build --no-restore --framework net5.0-windows --configuration Release
 
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
     - name: Publish
-      run: dotnet publish --framework net5.0-windows --configuration Release
+      run: dotnet publish --no-restore --framework net5.0-windows --configuration Release
 
     - name: Upload binaries
       uses: actions/upload-artifact@v2
