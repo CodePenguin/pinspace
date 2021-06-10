@@ -9,6 +9,7 @@ using System.Windows;
 using System.ComponentModel;
 using System.Linq;
 using System.Collections.Generic;
+using Pinspaces.Core.Interfaces;
 
 namespace Pinspaces.Controls
 {
@@ -17,25 +18,25 @@ namespace Pinspaces.Controls
         private readonly int baseContextMenuItemCount;
         private readonly IDataRepository dataRepository;
         private readonly Color defaultPinColor = Color.FromArgb(255, 51, 122, 183);
+        private readonly IDelayedAction delayedProcessPendingPinChangesMethod;
+        private readonly IDelayedAction delayedUpdateCanvasSizeAction;
         private readonly Dictionary<Guid, Pin> pendingPinChanges = new();
         private readonly IPinFactory pinFactory;
-        private readonly DebounceMethodExecutor processPendingPinChangesMethodExecutor;
-        private readonly DebounceMethodExecutor updateCanvasSizeMethodExecutor;
         private FrameworkElement contextElement;
         private bool disposedValue;
         private bool isLoading;
         private Pinspace pinspace;
         private Point targetPoint;
 
-        public PinspacePanel(IDataRepository dataRepository, IPinFactory pinFactory)
+        public PinspacePanel(IDataRepository dataRepository, IPinFactory pinFactory, IDelayedActionFactory delayedActionFactory)
         {
             InitializeComponent();
             DataContext = this;
 
             this.dataRepository = dataRepository;
             this.pinFactory = pinFactory;
-            processPendingPinChangesMethodExecutor = new(ProcessPendingPinChanges, 5000, Dispatcher);
-            updateCanvasSizeMethodExecutor = new(UpdateCanvasSize, 100, Dispatcher);
+            delayedProcessPendingPinChangesMethod = delayedActionFactory.Debounce(ProcessPendingPinChanges, 5000);
+            delayedUpdateCanvasSizeAction = delayedActionFactory.Debounce(UpdateCanvasSize, 100);
 
             baseContextMenuItemCount = canvas.ContextMenu.Items.Count;
             GenerateNewPinControlsMenu();
@@ -87,8 +88,8 @@ namespace Pinspaces.Controls
             {
                 if (disposing)
                 {
-                    processPendingPinChangesMethodExecutor.Dispose();
-                    updateCanvasSizeMethodExecutor.Dispose();
+                    delayedProcessPendingPinChangesMethod.Stop();
+                    delayedUpdateCanvasSizeAction.Stop();
                 }
                 disposedValue = true;
             }
@@ -206,7 +207,7 @@ namespace Pinspaces.Controls
         {
             if (e.PropertyName == nameof(Pin.Left) || e.PropertyName == nameof(Pin.Top) || e.PropertyName == nameof(Pin.Height) || e.PropertyName == nameof(Pin.Width))
             {
-                updateCanvasSizeMethodExecutor.Execute();
+                delayedUpdateCanvasSizeAction.Execute();
             }
             if (isLoading)
             {
@@ -214,7 +215,7 @@ namespace Pinspaces.Controls
             }
             var pinPanel = sender as PinPanel;
             pendingPinChanges.TryAdd(pinPanel.Pin.Id, pinPanel.Pin);
-            processPendingPinChangesMethodExecutor.Execute();
+            delayedProcessPendingPinChangesMethod.Execute();
         }
 
         private void PinspaceContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
@@ -319,7 +320,7 @@ namespace Pinspaces.Controls
 
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            updateCanvasSizeMethodExecutor.Execute();
+            delayedUpdateCanvasSizeAction.Execute();
         }
     }
 }

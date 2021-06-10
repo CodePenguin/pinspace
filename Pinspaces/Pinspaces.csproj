@@ -13,9 +13,4 @@
     <ProjectReference Include="..\Pinspaces.Core\Pinspaces.Core.csproj" />
     <ProjectReference Include="..\Pinspaces.Shell\Pinspaces.Shell.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Extensions\DebounceMethodExecutor.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
 </Project>

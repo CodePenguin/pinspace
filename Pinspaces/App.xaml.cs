@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Pinspaces.Controls;
+using Pinspaces.Core.Interfaces;
 using Pinspaces.Data;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
@@ -21,6 +22,7 @@ namespace Pinspaces
         public static void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IDataRepository, JsonDataRepository>();
+            services.AddTransient<IDelayedActionFactory, DelayedActionFactory>();
             services.AddTransient<WindowFactory>();
             services.AddSingleton<IPinFactory, PinFactory>();
             services.AddTransient<PinJsonConverter>();

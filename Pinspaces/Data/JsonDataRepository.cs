@@ -1,5 +1,6 @@
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Extensions;
+using Pinspaces.Core.Interfaces;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
@@ -15,17 +16,17 @@ namespace Pinspaces.Data
     public class JsonDataRepository : IDataRepository, IDisposable
     {
         private readonly JsonData data;
+        private readonly IDelayedAction delayedSaveDataFileAction;
+        private readonly IDelayedAction delayedSavePinChangesAction;
         private readonly ConcurrentQueue<(Guid pinspaceId, Pin pin)> pendingPinChanges = new();
         private readonly PinJsonConverter pinJsonConverter;
-        private readonly DebounceMethodExecutor saveDataFileMethodExecutor;
-        private readonly DebounceMethodExecutor savePinChangesMethodExecutor;
         private bool disposedValue;
 
-        public JsonDataRepository(PinJsonConverter pinJsonConverter)
+        public JsonDataRepository(PinJsonConverter pinJsonConverter, IDelayedActionFactory delayedActionFactory)
         {
             this.pinJsonConverter = pinJsonConverter;
-            saveDataFileMethodExecutor = new(() => SaveDataChanges(), 5000);
-            savePinChangesMethodExecutor = new(() => SavePinChanges(), 5000);
+            delayedSaveDataFileAction = delayedActionFactory.Debounce(SaveDataChanges, 5000);
+            delayedSavePinChangesAction = delayedActionFactory.Debounce(SavePinChanges, 5000);
 
             data = LoadDataFile();
         }
@@ -91,7 +92,7 @@ namespace Pinspaces.Data
         public void UpdatePin(Guid pinspaceId, Pin pin)
         {
             pendingPinChanges.Enqueue((pinspaceId, pin.Clone()));
-            savePinChangesMethodExecutor.Execute();
+            delayedSavePinChangesAction.Execute();
         }
 
         public void UpdatePinspace(Pinspace pinspace)
@@ -105,7 +106,7 @@ namespace Pinspaces.Data
             storedPin.Assign(pinspace, out var wasChanged);
             if (wasChanged)
             {
-                saveDataFileMethodExecutor.Execute();
+                delayedSaveDataFileAction.Execute();
             }
         }
 
@@ -120,7 +121,7 @@ namespace Pinspaces.Data
             storedPinWindow.Assign(pinWindow, out var wasChanged);
             if (wasChanged)
             {
-                saveDataFileMethodExecutor.Execute();
+                delayedSaveDataFileAction.Execute();
             }
         }
 
@@ -130,8 +131,8 @@ namespace Pinspaces.Data
             {
                 if (disposing)
                 {
-                    saveDataFileMethodExecutor.Dispose();
-                    savePinChangesMethodExecutor.Dispose();
+                    delayedSaveDataFileAction.Stop();
+                    delayedSavePinChangesAction.Stop();
                 }
                 disposedValue = true;
             }

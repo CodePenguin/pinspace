@@ -1,4 +1,5 @@
 using Pinspaces.Core.Data;
+using Pinspaces.Core.Interfaces;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
@@ -14,16 +15,16 @@ namespace Pinspaces.Controls
     public partial class PinWindowForm : Window
     {
         private readonly IDataRepository dataRepository;
-        private readonly DebounceMethodExecutor updateFormLocationAndSizeMethodExecutor;
+        private readonly IDelayedAction delayedUpdateFormLocationAndSizeAction;
         private int basePinspaceButtonContextMenuItemCount;
         private bool isLoading = false;
         private PinWindow pinWindow;
         private bool reloadPinspaceButtonContextMenu = true;
 
-        public PinWindowForm(IDataRepository dataRepository, PinspacePanel pinspacePanel)
+        public PinWindowForm(IDataRepository dataRepository, PinspacePanel pinspacePanel, IDelayedActionFactory delayedActionFactory)
         {
             this.dataRepository = dataRepository;
-            updateFormLocationAndSizeMethodExecutor = new(UpdateFormLocationAndSize, 1000);
+            delayedUpdateFormLocationAndSizeAction = delayedActionFactory.Debounce(UpdateFormLocationAndSize, 1000);
 
             // Initialize Pin Window
             InitializeComponent();
@@ -75,7 +76,7 @@ namespace Pinspaces.Controls
 
         protected override void OnClosed(EventArgs e)
         {
-            updateFormLocationAndSizeMethodExecutor.Dispose();
+            delayedUpdateFormLocationAndSizeAction.Stop();
             base.OnClosed(e);
         }
 
@@ -85,7 +86,7 @@ namespace Pinspaces.Controls
             {
                 return;
             }
-            updateFormLocationAndSizeMethodExecutor.Execute();
+            delayedUpdateFormLocationAndSizeAction.Execute();
         }
 
         private void NewPinspaceMenuItem_Click(object sender, EventArgs e)
