@@ -5,14 +5,21 @@ using System.IO;
 
 namespace Pinspaces.Shell.Controls
 {
-    public class FileListItem : INotifyPropertyChanged
+    public class ShellListItem : INotifyPropertyChanged
     {
         private ShellItem shellItem;
 
-        public FileListItem(string uri)
+        public ShellListItem(string uri)
         {
             Uri = uri;
             Refresh();
+        }
+
+        public ShellListItem(FileSystemInfo info)
+        {
+            Uri = info.FullName;
+            shellItem = new ShellItem(Uri);
+            Refresh(info);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -30,21 +37,18 @@ namespace Pinspaces.Shell.Controls
         {
             try
             {
-                shellItem = new ShellItem(Uri);
-                var fileInfo = new FileInfo(shellItem.FileSystemPath);
-                DisplayName = shellItem.DisplayName;
-                FileTypeDescription = shellItem.FileTypeDescription;
-                LastModifiedDateTime = fileInfo.LastWriteTime;
-
-                if (!shellItem.IsFolder || fileInfo.Extension.Equals(".zip", StringComparison.CurrentCultureIgnoreCase))
+                if (shellItem == null)
                 {
-                    Size = (int)Math.Ceiling(fileInfo.Length / 1024d);
+                    shellItem = new ShellItem(Uri);
+                }
+                if (shellItem.IsFolder)
+                {
+                    Refresh(new DirectoryInfo(shellItem.FileSystemPath));
                 }
                 else
                 {
-                    Size = 0;
+                    Refresh(new FileInfo(shellItem.FileSystemPath));
                 }
-                Error = false;
             }
             catch (Exception)
             {
@@ -54,7 +58,25 @@ namespace Pinspaces.Shell.Controls
                 LastModifiedDateTime = DateTime.MinValue;
                 Size = 0;
                 Error = true;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
             }
+        }
+
+        private void Refresh(FileSystemInfo fileSystemInfo)
+        {
+            DisplayName = shellItem.DisplayName;
+            FileTypeDescription = shellItem.FileTypeDescription;
+            LastModifiedDateTime = fileSystemInfo.LastWriteTime;
+
+            if (fileSystemInfo is DirectoryInfo)
+            {
+                Size = 0;
+            }
+            else if (fileSystemInfo is FileInfo fileInfo)
+            {
+                Size = (int)Math.Ceiling(fileInfo.Length / 1024d);
+            }
+            Error = false;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
     }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,21 +18,19 @@ using System.Windows.Media;
 
 namespace Pinspaces.Shell.Controls
 {
-    [PinType(DisplayName = "File List", PinType = typeof(FileListPin))]
-    public partial class FileListPinPanel : UserControl, IPinControl, IDropSource
+    [PinType(DisplayName = "Folder View", PinType = typeof(FolderViewPin))]
+    public partial class FolderViewPinPanel : UserControl, IPinControl, IDropSource
     {
         private readonly List<ShellListItem> selectedItems = new();
-        private FileListPin fileListPin;
         private bool isDragging = false;
+        private FolderViewPin pin;
         private Point? startingOffset = null;
 
-        public FileListPinPanel()
+        public FolderViewPinPanel()
         {
             InitializeComponent();
             DataContext = this;
 
-            listView.DragEnter += ListView_DragEnter;
-            listView.Drop += ListView_Drop;
             listView.PreviewMouseDown += ListView_PreviewMouseDown;
             listView.MouseMove += ListView_MouseMove;
             listView.MouseUp += ListView_MouseUpEvent;
@@ -45,16 +44,15 @@ namespace Pinspaces.Shell.Controls
 
         public void AddContextMenuItems(ContextMenu contextMenu)
         {
-            // Do nothing
+            var menuItem = new MenuItem { Header = "Select folder..." };
+            menuItem.Click += SelectFolderContextMenuItem_Click;
+            contextMenu.Items.Add(menuItem);
         }
 
         public void LoadPin(Guid pinspaceId, Pin pin)
         {
-            fileListPin = pin as FileListPin;
-            foreach (var file in fileListPin.Files)
-            {
-                AddFile(file, Items.Count);
-            }
+            this.pin = pin as FolderViewPin;
+            RefreshItems();
         }
 
         HResult IDropSource.GiveFeedback(int dwEffect)
@@ -86,53 +84,6 @@ namespace Pinspaces.Shell.Controls
                 RefreshItems();
                 e.Handled = true;
             }
-        }
-
-        private void AddFile(string fileName, int index)
-        {
-            var item = new ShellListItem(fileName);
-            Items.Insert(index, item);
-        }
-
-        private void ListView_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effects = DragDropEffects.Copy;
-            }
-        }
-
-        private void ListView_Drop(object sender, DragEventArgs e)
-        {
-            var target = ((DependencyObject)e.OriginalSource).FindParent<ListViewItem>();
-            var targetItem = target?.DataContext as ShellListItem;
-            var targetItemIndex = Items.IndexOf(targetItem);
-            int insertIndex;
-
-            // Move the selected items to the new position
-            if (isDragging)
-            {
-                foreach (var item in selectedItems)
-                {
-                    Items.Remove(item);
-                    insertIndex = targetItem != null ? targetItemIndex : Items.Count;
-                    Items.Insert(insertIndex, item);
-                    targetItem = item;
-                    insertIndex = Items.IndexOf(item);
-                }
-                selectedItems.Clear();
-                return;
-            }
-
-            // Add new items to the view
-            insertIndex = targetItem != null ? targetItemIndex : Items.Count;
-            var droppedFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
-            foreach (var fileName in droppedFiles)
-            {
-                AddFile(fileName, insertIndex);
-            }
-
-            UpdatePin();
         }
 
         private void ListView_MouseMove(object sender, MouseEventArgs e)
@@ -181,9 +132,11 @@ namespace Pinspaces.Shell.Controls
 
         private void RefreshItems()
         {
-            foreach (var item in Items)
+            Items.Clear();
+            var directoryInfo = new DirectoryInfo(pin.FolderPath);
+            foreach (var info in directoryInfo.EnumerateFileSystemInfos())
             {
-                item.Refresh();
+                Items.Add(new ShellListItem(info));
             }
         }
 
@@ -199,6 +152,19 @@ namespace Pinspaces.Shell.Controls
                 items.Add(new ShellItem(item.Uri));
             }
             return items.ToArray();
+        }
+
+        private void SelectFolderContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    pin.FolderPath = dialog.SelectedPath;
+                    RefreshItems();
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(pin.FolderPath)));
+                }
+            }
         }
 
         private void StartItemDragOperation()
@@ -231,16 +197,6 @@ namespace Pinspaces.Shell.Controls
             {
                 isDragging = false;
             }
-        }
-
-        private void UpdatePin()
-        {
-            fileListPin.Files.Clear();
-            foreach (var item in Items)
-            {
-                fileListPin.Files.Add(item.Uri);
-            }
-            PropertyChanged?.Invoke(fileListPin, new PropertyChangedEventArgs(nameof(fileListPin.Files)));
         }
     }
 }

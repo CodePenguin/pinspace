@@ -18,6 +18,7 @@ namespace Pinspaces.Extensions
             var pinControlTypes = new RegisteredPinControlTypes()
             {
                 typeof(FileListPinPanel),
+                typeof(FolderViewPinPanel),
                 typeof(RichTextBoxPinPanel),
                 typeof(TextBoxPinPanel)
             };
