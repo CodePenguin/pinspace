@@ -7,8 +7,6 @@ namespace Pinspaces.Shell.Controls
 {
     public class ShellListItem : INotifyPropertyChanged
     {
-        private ShellItem shellItem;
-
         public ShellListItem(string uri)
         {
             Uri = uri;
@@ -18,7 +16,7 @@ namespace Pinspaces.Shell.Controls
         public ShellListItem(FileSystemInfo info)
         {
             Uri = info.FullName;
-            shellItem = new ShellItem(Uri);
+            ShellItem = new ShellItem(Uri);
             Refresh(info);
         }
 
@@ -28,31 +26,31 @@ namespace Pinspaces.Shell.Controls
         public bool Error { get; private set; }
         public string FileTypeDescription { get; private set; }
         public DateTime LastModifiedDateTime { get; private set; }
+        public ShellItem ShellItem { get; private set; }
         public int Size { get; private set; }
         public string Uri { get; private set; }
-
-        public IntPtr Pidl => shellItem != null ? shellItem.Pidl : IntPtr.Zero;
+        public IntPtr Pidl => ShellItem != null ? ShellItem.Pidl : IntPtr.Zero;
 
         public void Refresh()
         {
             try
             {
-                if (shellItem == null)
+                if (ShellItem == null)
                 {
-                    shellItem = new ShellItem(Uri);
+                    ShellItem = new ShellItem(Uri);
                 }
-                if (shellItem.IsFolder)
+                if (ShellItem.IsFolder)
                 {
-                    Refresh(new DirectoryInfo(shellItem.FileSystemPath));
+                    Refresh(new DirectoryInfo(ShellItem.FileSystemPath));
                 }
                 else
                 {
-                    Refresh(new FileInfo(shellItem.FileSystemPath));
+                    Refresh(new FileInfo(ShellItem.FileSystemPath));
                 }
             }
             catch (Exception)
             {
-                shellItem = null;
+                ShellItem = null;
                 DisplayName = Path.GetFileName(Uri);
                 FileTypeDescription = string.Empty;
                 LastModifiedDateTime = DateTime.MinValue;
@@ -64,8 +62,8 @@ namespace Pinspaces.Shell.Controls
 
         private void Refresh(FileSystemInfo fileSystemInfo)
         {
-            DisplayName = shellItem.DisplayName;
-            FileTypeDescription = shellItem.FileTypeDescription;
+            DisplayName = ShellItem.DisplayName;
+            FileTypeDescription = ShellItem.FileTypeDescription;
             LastModifiedDateTime = fileSystemInfo.LastWriteTime;
 
             if (fileSystemInfo is DirectoryInfo)
