@@ -32,13 +32,6 @@ namespace Pinspaces.Shell.Controls
         {
             InitializeComponent();
             DataContext = this;
-
-            DragEnter += ListView_DragEnter;
-            Drop += ListView_Drop;
-            MouseDoubleClick += ListView_MouseDoubleClick;
-            MouseMove += ListView_MouseMove;
-            MouseUp += ListView_MouseUpEvent;
-            PreviewMouseDown += ListView_PreviewMouseDown;
         }
 
         public event EventHandler<DroppedFilesEventArgs> DroppedFiles;
@@ -47,7 +40,7 @@ namespace Pinspaces.Shell.Controls
 
         public bool AllowDragReorder { get; set; } = false;
 
-        public ObservableCollection<ShellListItem> Items { get; private set; } = new();
+        public new ObservableCollection<ShellListItem> Items { get; private set; } = new();
 
         public static void OpenItem(ShellListItem item)
         {
@@ -99,26 +92,18 @@ namespace Pinspaces.Shell.Controls
             }
         }
 
-        protected override void OnKeyUp(KeyEventArgs e)
+        protected override void OnDragEnter(DragEventArgs e)
         {
-            base.OnKeyUp(e);
-            if (e.Key == Key.F5)
-            {
-                RefreshItems?.Invoke(this, new EventArgs());
-                e.Handled = true;
-            }
-        }
-
-        private void ListView_DragEnter(object sender, DragEventArgs e)
-        {
+            base.OnDragEnter(e);
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 e.Effects = DragDropEffects.Copy;
             }
         }
 
-        private void ListView_Drop(object sender, DragEventArgs e)
+        protected override void OnDrop(DragEventArgs e)
         {
+            base.OnDrop(e);
             var target = ((DependencyObject)e.OriginalSource).FindParent<ListViewItem>();
             var targetItem = target?.DataContext as ShellListItem;
             var targetItemIndex = targetItem != null ? Items.IndexOf(targetItem) : Items.Count;
@@ -148,8 +133,9 @@ namespace Pinspaces.Shell.Controls
             });
         }
 
-        private void ListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
         {
+            base.OnMouseDoubleClick(e);
             var item = ((FrameworkElement)e.OriginalSource).DataContext;
             if (item is ShellListItem shellListItem)
             {
@@ -157,8 +143,9 @@ namespace Pinspaces.Shell.Controls
             }
         }
 
-        private void ListView_MouseMove(object sender, MouseEventArgs e)
+        protected override void OnMouseMove(MouseEventArgs e)
         {
+            base.OnMouseMove(e);
             if (startingOffset == null)
             {
                 return;
@@ -166,12 +153,17 @@ namespace Pinspaces.Shell.Controls
             var offset = e.GetPosition(this) - startingOffset.Value;
             if ((e.RightButton == MouseButtonState.Pressed || e.LeftButton == MouseButtonState.Pressed) && (Math.Abs(offset.X) > SystemParameters.MinimumHorizontalDragDistance || Math.Abs(offset.Y) > SystemParameters.MinimumVerticalDragDistance))
             {
-                StartItemDragOperation();
+                var mouseItem = VisualTreeHelper.HitTest(this, e.GetPosition(this))?.VisualHit.FindParent<ListViewItem>();
+                if (mouseItem != null)
+                {
+                    StartItemDragOperation();
+                }
             }
         }
 
-        private void ListView_MouseUpEvent(object sender, MouseButtonEventArgs e)
+        protected override void OnMouseUp(MouseButtonEventArgs e)
         {
+            base.OnMouseUp(e);
             startingOffset = null;
             if (e.ChangedButton == MouseButton.Right && e.RightButton == MouseButtonState.Released)
             {
@@ -186,14 +178,25 @@ namespace Pinspaces.Shell.Controls
             }
         }
 
-        private void ListView_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        protected override void OnPreviewKeyUp(KeyEventArgs e)
         {
+            base.OnPreviewKeyUp(e);
+            if (e.Key == Key.F5)
+            {
+                RefreshItems?.Invoke(this, new EventArgs());
+                e.Handled = true;
+            }
+        }
+
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnPreviewMouseDown(e);
             startingOffset = e.GetPosition(this);
             selectedItems.Clear();
             selectedItems.AddRange(SelectedItems.Cast<ShellListItem>());
             if (selectedItems.Count == 0)
             {
-                var mouseItem = VisualTreeHelper.HitTest(this, e.GetPosition(this)).VisualHit.FindParent<ListViewItem>();
+                var mouseItem = VisualTreeHelper.HitTest(this, e.GetPosition(this))?.VisualHit.FindParent<ListViewItem>();
                 if (mouseItem != null)
                 {
                     selectedItems.Add(mouseItem.DataContext as ShellListItem);
