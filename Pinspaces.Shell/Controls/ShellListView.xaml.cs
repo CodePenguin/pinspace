@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -34,9 +35,10 @@ namespace Pinspaces.Shell.Controls
 
             listView.DragEnter += ListView_DragEnter;
             listView.Drop += ListView_Drop;
-            listView.PreviewMouseDown += ListView_PreviewMouseDown;
+            listView.MouseDoubleClick += ListView_MouseDoubleClick;
             listView.MouseMove += ListView_MouseMove;
             listView.MouseUp += ListView_MouseUpEvent;
+            listView.PreviewMouseDown += ListView_PreviewMouseDown;
         }
 
         public event EventHandler<DroppedFilesEventArgs> DroppedFiles;
@@ -44,7 +46,21 @@ namespace Pinspaces.Shell.Controls
         public event EventHandler<EventArgs> RefreshItems;
 
         public bool AllowDragReorder { get; set; } = false;
+
         public ObservableCollection<ShellListItem> Items { get; private set; } = new();
+
+        public static void OpenItem(ShellListItem item)
+        {
+            if (!item.Error)
+            {
+                var process = new ProcessStartInfo
+                {
+                    FileName = item.ShellItem.FileSystemPath,
+                    UseShellExecute = true
+                };
+                Process.Start(process);
+            }
+        }
 
         public void AddFile(string filename, int index)
         {
@@ -125,6 +141,15 @@ namespace Pinspaces.Shell.Controls
                 TargetItem = targetItem,
                 TargetItemIndex = targetItemIndex
             });
+        }
+
+        private void ListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var item = ((FrameworkElement)e.OriginalSource).DataContext;
+            if (item is ShellListItem shellListItem)
+            {
+                OpenItem(shellListItem);
+            }
         }
 
         private void ListView_MouseMove(object sender, MouseEventArgs e)
