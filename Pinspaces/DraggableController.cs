@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,6 +11,7 @@ namespace Pinspaces
         private const int edgeThreshold = 6;
         private const double minimumSize = edgeThreshold * 2;
         private readonly ContentControl baseControl;
+        private List<UIElement> dragElements = new();
         private bool isDragging;
         private bool isResizing;
         private Cursor mouseCursor;
@@ -38,6 +40,7 @@ namespace Pinspaces
 
         public void AttachMouseEvents(UIElement el)
         {
+            dragElements.Add(el);
             el.MouseDown += MouseDownHandler;
             el.MouseMove += MouseMoveHandler;
             el.MouseUp += MouseUpHandler;
@@ -45,7 +48,7 @@ namespace Pinspaces
 
         private void MouseDownHandler(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton != MouseButtonState.Pressed)
+            if (e.LeftButton != MouseButtonState.Pressed || !dragElements.Contains(e.OriginalSource as UIElement))
             {
                 return;
             }
