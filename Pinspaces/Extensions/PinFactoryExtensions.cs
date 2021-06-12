@@ -19,6 +19,7 @@ namespace Pinspaces.Extensions
             {
                 typeof(FileListPinPanel),
                 typeof(FolderViewPinPanel),
+                typeof(GitFolderViewPinPanel),
                 typeof(RichTextBoxPinPanel),
                 typeof(TextBoxPinPanel)
             };

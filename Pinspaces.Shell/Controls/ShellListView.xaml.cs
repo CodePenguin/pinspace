@@ -22,7 +22,7 @@ namespace Pinspaces.Shell.Controls
         public int TargetItemIndex { get; set; }
     }
 
-    public partial class ShellListView : UserControl, IDropSource
+    public partial class ShellListView : ListView, IDropSource
     {
         protected bool isDragging = false;
         private readonly List<ShellListItem> selectedItems = new();
@@ -33,12 +33,12 @@ namespace Pinspaces.Shell.Controls
             InitializeComponent();
             DataContext = this;
 
-            listView.DragEnter += ListView_DragEnter;
-            listView.Drop += ListView_Drop;
-            listView.MouseDoubleClick += ListView_MouseDoubleClick;
-            listView.MouseMove += ListView_MouseMove;
-            listView.MouseUp += ListView_MouseUpEvent;
-            listView.PreviewMouseDown += ListView_PreviewMouseDown;
+            DragEnter += ListView_DragEnter;
+            Drop += ListView_Drop;
+            MouseDoubleClick += ListView_MouseDoubleClick;
+            MouseMove += ListView_MouseMove;
+            MouseUp += ListView_MouseUpEvent;
+            PreviewMouseDown += ListView_PreviewMouseDown;
         }
 
         public event EventHandler<DroppedFilesEventArgs> DroppedFiles;
@@ -71,6 +71,11 @@ namespace Pinspaces.Shell.Controls
         public void AddFile(string fileName)
         {
             AddFile(fileName, Items.Count);
+        }
+
+        public void AddItem(ShellListItem item)
+        {
+            Items.Add(item);
         }
 
         HResult IDropSource.GiveFeedback(int dwEffect)
@@ -158,7 +163,7 @@ namespace Pinspaces.Shell.Controls
             {
                 return;
             }
-            var offset = e.GetPosition(listView) - startingOffset.Value;
+            var offset = e.GetPosition(this) - startingOffset.Value;
             if ((e.RightButton == MouseButtonState.Pressed || e.LeftButton == MouseButtonState.Pressed) && (Math.Abs(offset.X) > SystemParameters.MinimumHorizontalDragDistance || Math.Abs(offset.Y) > SystemParameters.MinimumVerticalDragDistance))
             {
                 StartItemDragOperation();
@@ -176,19 +181,19 @@ namespace Pinspaces.Shell.Controls
                     return;
                 }
                 var contextMenu = new ShellContextMenu(selectedItems);
-                var mousePos = PointToScreen(e.GetPosition(listView));
+                var mousePos = PointToScreen(e.GetPosition(this));
                 contextMenu.ShowContextMenu(new System.Drawing.Point(Convert.ToInt32(mousePos.X), Convert.ToInt32(mousePos.Y)));
             }
         }
 
         private void ListView_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            startingOffset = e.GetPosition(listView);
+            startingOffset = e.GetPosition(this);
             selectedItems.Clear();
-            selectedItems.AddRange(listView.SelectedItems.Cast<ShellListItem>());
+            selectedItems.AddRange(SelectedItems.Cast<ShellListItem>());
             if (selectedItems.Count == 0)
             {
-                var mouseItem = VisualTreeHelper.HitTest(listView, e.GetPosition(listView)).VisualHit.FindParent<ListViewItem>();
+                var mouseItem = VisualTreeHelper.HitTest(this, e.GetPosition(this)).VisualHit.FindParent<ListViewItem>();
                 if (mouseItem != null)
                 {
                     selectedItems.Add(mouseItem.DataContext as ShellListItem);
