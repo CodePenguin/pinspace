@@ -75,9 +75,9 @@ namespace Pinspaces.Controls
                 Pin = pin;
                 Height = pin.Height > 0 ? pin.Height : Height;
                 PinColor = pin.Color;
-                Canvas.SetLeft(this, pin.Left);
+                Canvas.SetLeft(this, Math.Max(0, pin.Left));
                 Title = pin.Title;
-                Canvas.SetTop(this, pin.Top);
+                Canvas.SetTop(this, Math.Max(0, pin.Top));
                 Width = pin.Width > 0 ? pin.Width : Width;
                 pinControl.LoadPin(pinspaceId, pin);
             }
