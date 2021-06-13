@@ -1,6 +1,6 @@
 using System;
-using System.Windows.Media;
 using System.Text.RegularExpressions;
+using System.Windows.Media;
 
 namespace Pinspaces.Extensions
 {

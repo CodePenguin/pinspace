@@ -54,14 +54,12 @@ namespace Pinspaces.Shell.Controls
 
         private void SelectFolderContextMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            using var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    pin.FolderPath = dialog.SelectedPath;
-                    RefreshItems();
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(pin.FolderPath)));
-                }
+                pin.FolderPath = dialog.SelectedPath;
+                RefreshItems();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(pin.FolderPath)));
             }
         }
 

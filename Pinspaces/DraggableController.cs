@@ -11,7 +11,7 @@ namespace Pinspaces
         private const int edgeThreshold = 6;
         private const double minimumSize = edgeThreshold * 2;
         private readonly ContentControl baseControl;
-        private List<UIElement> dragElements = new();
+        private readonly List<UIElement> dragElements = new();
         private bool isDragging;
         private bool isResizing;
         private Cursor mouseCursor;

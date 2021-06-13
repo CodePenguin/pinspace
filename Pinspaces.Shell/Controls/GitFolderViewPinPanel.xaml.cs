@@ -59,20 +59,18 @@ namespace Pinspaces.Shell.Controls
 
         private void SelectFolderContextMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            using var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                var git = new GitInterop(dialog.SelectedPath);
+                if (!git.IsGitRepository)
                 {
-                    var git = new GitInterop(dialog.SelectedPath);
-                    if (!git.IsGitRepository)
-                    {
-                        MessageBox.Show("The selected folder is not a Git repository.", "Pinspaces", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    pin.RepositoryPath = dialog.SelectedPath;
-                    RefreshItems();
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(pin.RepositoryPath)));
+                    MessageBox.Show("The selected folder is not a Git repository.", "Pinspaces", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
+                pin.RepositoryPath = dialog.SelectedPath;
+                RefreshItems();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(pin.RepositoryPath)));
             }
         }
 

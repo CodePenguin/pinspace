@@ -1,6 +1,5 @@
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Interfaces;
-using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
 using System.Collections.ObjectModel;
@@ -14,10 +13,10 @@ namespace Pinspaces.Controls
 {
     public partial class PinWindowForm : Window
     {
+        private readonly int basePinspaceButtonContextMenuItemCount;
         private readonly IDataRepository dataRepository;
         private readonly IDelayedAction delayedUpdateFormLocationAndSizeAction;
-        private int basePinspaceButtonContextMenuItemCount;
-        private bool isLoading = false;
+        private bool isLoading;
         private PinWindow pinWindow;
         private bool reloadPinspaceButtonContextMenu = true;
 
