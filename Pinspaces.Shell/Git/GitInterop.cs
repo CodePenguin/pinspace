@@ -62,7 +62,7 @@ namespace Pinspaces.Shell.Git
 
         private static bool IsOutputFatal(string output)
         {
-            return output.StartsWith("fatal");
+            return output.StartsWith("fatal:");
         }
 
         private string Execute(string commandLine)
@@ -72,13 +72,17 @@ namespace Pinspaces.Shell.Git
                 Arguments = commandLine,
                 CreateNoWindow = true,
                 FileName = "git.exe",
+                RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
                 WorkingDirectory = repositoryPath
             });
-            var output = process.StandardOutput.ReadToEnd().Trim();
             process.WaitForExit();
-            return output;
+            return process.ExitCode switch
+            {
+                0 => process.StandardOutput.ReadToEnd().Trim(),
+                _ => process.StandardError.ReadToEnd().Trim()
+            };
         }
     }
 }
