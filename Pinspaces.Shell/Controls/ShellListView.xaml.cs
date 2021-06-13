@@ -165,6 +165,16 @@ namespace Pinspaces.Shell.Controls
         {
             base.OnMouseUp(e);
             startingOffset = null;
+
+            // If clicking on the ListView and not a ListViewItem, clear the selection and focus the ListView
+            var mouseItem = VisualTreeHelper.HitTest(this, e.GetPosition(this))?.VisualHit.FindParent<ListViewItem>();
+            if (mouseItem == null)
+            {
+                SelectedItems.Clear();
+                _ = Focus();
+                e.Handled = true;
+            }
+
             if (e.ChangedButton == MouseButton.Right && e.RightButton == MouseButtonState.Released)
             {
                 var selectedItems = SelectedShellItems();
@@ -175,6 +185,7 @@ namespace Pinspaces.Shell.Controls
                 var contextMenu = new ShellContextMenu(selectedItems);
                 var mousePos = PointToScreen(e.GetPosition(this));
                 contextMenu.ShowContextMenu(new System.Drawing.Point(Convert.ToInt32(mousePos.X), Convert.ToInt32(mousePos.Y)));
+                e.Handled = true;
             }
         }
 
