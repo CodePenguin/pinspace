@@ -24,8 +24,8 @@ namespace Pinspaces.Shell.Controls
 
     public partial class ShellListView : ListView, IDropSource
     {
-        protected bool isDragging = false;
         private readonly List<ShellListItem> selectedItems = new();
+        private bool isDragging;
         private Point? startingOffset = null;
 
         public ShellListView()
@@ -51,7 +51,7 @@ namespace Pinspaces.Shell.Controls
                     FileName = item.ShellItem.FileSystemPath,
                     UseShellExecute = true
                 };
-                Process.Start(process);
+                _ = Process.Start(process);
             }
         }
 

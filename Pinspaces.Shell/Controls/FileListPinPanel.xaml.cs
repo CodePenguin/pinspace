@@ -4,6 +4,7 @@ using Pinspaces.Core.Interfaces;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Controls;
 
 namespace Pinspaces.Shell.Controls
@@ -54,9 +55,13 @@ namespace Pinspaces.Shell.Controls
         private void ShellListView_DroppedFiles(object sender, DroppedFilesEventArgs e)
         {
             // Add new items to the view
-            foreach (var fileName in e.Filenames)
+            foreach (var filename in e.Filenames)
             {
-                shellListView.AddFile(fileName, e.TargetItemIndex);
+                if (shellListView.Items.Any(i => i.Uri == filename))
+                {
+                    continue;
+                }
+                shellListView.AddFile(filename, e.TargetItemIndex);
             }
 
             UpdatePin();
