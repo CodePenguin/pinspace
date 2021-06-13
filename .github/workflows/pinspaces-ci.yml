@@ -36,8 +36,18 @@ jobs:
     - name: Publish
       run: dotnet publish --no-restore --framework net5.0-windows --configuration Release -maxcpucount:1
 
+    - name: Installer
+      run: iscc .\build\PinspacesSetup.iss
+
     - name: Upload binaries
       uses: actions/upload-artifact@v2
       with:
-        name: Binaries
+        name: PinspacesBinaries
         path: Pinspaces\bin\Release\net5.0-windows\publish\
+
+    - name: Upload binaries
+      uses: actions/upload-artifact@v2
+      with:
+        name: Pinspaces
+        files: |
+          bin/PinspacesSetup.exe
