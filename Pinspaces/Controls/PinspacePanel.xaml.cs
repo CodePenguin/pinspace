@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Extensions;
@@ -17,9 +18,9 @@ namespace Pinspaces.Controls
     {
         private readonly int baseContextMenuItemCount;
         private readonly IDataRepository dataRepository;
-        private readonly Color defaultPinColor = Color.FromArgb(255, 51, 122, 183);
         private readonly IDelayedAction delayedProcessPendingPinChangesMethod;
         private readonly IDelayedAction delayedUpdateCanvasSizeAction;
+        private readonly IOptions<Settings> options;
         private readonly Dictionary<Guid, Pin> pendingPinChanges = new();
         private readonly IPinFactory pinFactory;
         private FrameworkElement contextElement;
@@ -28,13 +29,14 @@ namespace Pinspaces.Controls
         private Pinspace pinspace;
         private Point targetPoint;
 
-        public PinspacePanel(IDataRepository dataRepository, IPinFactory pinFactory, IDelayedActionFactory delayedActionFactory)
+        public PinspacePanel(IDataRepository dataRepository, IPinFactory pinFactory, IDelayedActionFactory delayedActionFactory, IOptions<Settings> options)
         {
             InitializeComponent();
             DataContext = this;
 
             this.dataRepository = dataRepository;
             this.pinFactory = pinFactory;
+            this.options = options;
             delayedProcessPendingPinChangesMethod = delayedActionFactory.Debounce(ProcessPendingPinChanges, 5000);
             delayedUpdateCanvasSizeAction = delayedActionFactory.Debounce(UpdateCanvasSize, 100);
 
@@ -53,6 +55,9 @@ namespace Pinspaces.Controls
                 NotifyPropertyChanged(nameof(BackgroundColor));
             }
         }
+
+        private Color DefaultPinColor => ColorExtensions.FromHtmlString(options.Value.DefaultPinColor, Color.FromArgb(255, 51, 122, 183));
+        private Color DefaultPinspaceColor => ColorExtensions.FromHtmlString(options.Value.DefaultPinspaceColor, Color.FromArgb(255, 176, 216, 255));
 
         public string Title => pinspace.Title;
 
@@ -142,7 +147,7 @@ namespace Pinspaces.Controls
 
         private void ChangePinColor(PinPanel pinPanel)
         {
-            var color = ColorExtensions.FromHtmlString(pinPanel.PinColor, defaultPinColor);
+            var color = ColorExtensions.FromHtmlString(pinPanel.PinColor, DefaultPinColor);
             if (ColorDialog.ShowDialog(ref color))
             {
                 pinPanel.PinColor = color.ToHtmlString();
@@ -151,7 +156,7 @@ namespace Pinspaces.Controls
 
         private void ChangePinspaceColor()
         {
-            var color = ColorExtensions.FromHtmlString(BackgroundColor, defaultPinColor);
+            var color = ColorExtensions.FromHtmlString(BackgroundColor, DefaultPinspaceColor);
             if (ColorDialog.ShowDialog(ref color))
             {
                 BackgroundColor = color.ToHtmlString();
@@ -183,7 +188,7 @@ namespace Pinspaces.Controls
         private void NewPin(Type pinControlType, Point position)
         {
             var pin = pinFactory.NewPin(pinControlType);
-            pin.Color = defaultPinColor.ToHtmlString();
+            pin.Color = DefaultPinColor.ToHtmlString();
             pin.Left = position.X;
             pin.Title = "New " + pinFactory.GetDisplayName(pinControlType);
             pin.Top = position.Y;

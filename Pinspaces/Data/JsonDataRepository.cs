@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Extensions;
 using Pinspaces.Core.Interfaces;
@@ -8,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using static System.Environment;
 
 namespace Pinspaces.Data
 {
@@ -17,13 +17,15 @@ namespace Pinspaces.Data
         private readonly JsonData data;
         private readonly IDelayedAction delayedSaveDataFileAction;
         private readonly IDelayedAction delayedSavePinChangesAction;
+        private readonly IOptions<Settings> options;
         private readonly ConcurrentQueue<(Guid pinspaceId, Pin pin)> pendingPinChanges = new();
         private readonly PinJsonConverter pinJsonConverter;
         private bool disposedValue;
 
-        public JsonDataRepository(PinJsonConverter pinJsonConverter, IDelayedActionFactory delayedActionFactory)
+        public JsonDataRepository(PinJsonConverter pinJsonConverter, IDelayedActionFactory delayedActionFactory, IOptions<Settings> options)
         {
             this.pinJsonConverter = pinJsonConverter;
+            this.options = options;
             delayedSaveDataFileAction = delayedActionFactory.Debounce(SaveDataChanges, 5000);
             delayedSavePinChangesAction = delayedActionFactory.Debounce(SavePinChanges, 5000);
 
@@ -161,32 +163,32 @@ namespace Pinspaces.Data
             }
         }
 
-        private static string GetDataFilename()
+        private string GetDataFilename()
         {
             return Path.Combine(GetDataPath(), "Pinspaces.json");
         }
 
-        private static string GetDataPath()
+        private string GetDataPath()
         {
-            return Path.Combine(GetFolderPath(SpecialFolder.LocalApplicationData, SpecialFolderOption.DoNotVerify), "Pinspaces");
+            return options.Value.LocalApplicationDataFolderPath;
         }
 
-        private static string GetPinDataFileName(Guid pinspaceId, Guid pinId)
+        private string GetPinDataFileName(Guid pinspaceId, Guid pinId)
         {
             return Path.Combine(GetPinspacePath(pinspaceId), $"pin_{pinId}.json");
         }
 
-        private static string GetPinDataKeyFilePath(Guid pinspaceId, Guid pinId, string key)
+        private string GetPinDataKeyFilePath(Guid pinspaceId, Guid pinId, string key)
         {
             return Path.Combine(GetPinDataPath(pinspaceId, pinId), key);
         }
 
-        private static string GetPinDataPath(Guid pinspaceId, Guid pinId)
+        private string GetPinDataPath(Guid pinspaceId, Guid pinId)
         {
             return Path.Combine(GetPinspacePath(pinspaceId), $"pin_{pinId}");
         }
 
-        private static string GetPinspacePath(Guid pinspaceId)
+        private string GetPinspacePath(Guid pinspaceId)
         {
             var pinspacePath = Path.Combine(GetDataPath(), $"pinspace-{pinspaceId}");
             Directory.CreateDirectory(pinspacePath);

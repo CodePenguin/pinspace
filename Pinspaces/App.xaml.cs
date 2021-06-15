@@ -1,48 +1,64 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Pinspaces.Controls;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Data;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
+using System.IO;
 using System.Windows;
 
 namespace Pinspaces
 {
     public partial class App : Application
     {
-        private readonly ServiceProvider serviceProvider;
+        private IHost host;
 
-        public App()
+        public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            var services = new ServiceCollection();
-            ConfigureServices(services);
-            serviceProvider = services.BuildServiceProvider();
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, configurationBuilder) =>
+                {
+                    configurationBuilder.SetBasePath(context.HostingEnvironment.ContentRootPath);
+                    configurationBuilder.AddJsonFile("appsettings.json", optional: true);
+                    configurationBuilder.AddJsonFile(Path.Combine(EnvironmentExtensions.GetLocalApplicationDataFolderPath, "Pinspaces.Settings.json"), optional: true);
+                })
+                .ConfigureServices((context, services) =>
+                {
+                    services.Configure<Settings>(context.Configuration);
+
+                    services.AddSingleton<IDataRepository, JsonDataRepository>();
+                    services.AddTransient<IPinDataRepository, PinDataRepository>();
+                    services.AddTransient<IDelayedActionFactory, DelayedActionFactory>();
+                    services.AddTransient<WindowFactory>();
+                    services.AddSingleton<IPinFactory, PinFactory>();
+                    services.AddTransient<PinJsonConverter>();
+                    services.AddTransient<PinspacePanel>();
+                    services.AddSingleton<WindowApplicationContext>();
+                    services.AddSingleton<PinWindowForm>();
+                    services.AddPinControls();
+                });
         }
 
-        public static void ConfigureServices(IServiceCollection services)
+        protected async override void OnExit(ExitEventArgs e)
         {
-            services.AddSingleton<IDataRepository, JsonDataRepository>();
-            services.AddTransient<IPinDataRepository, PinDataRepository>();
-            services.AddTransient<IDelayedActionFactory, DelayedActionFactory>();
-            services.AddTransient<WindowFactory>();
-            services.AddSingleton<IPinFactory, PinFactory>();
-            services.AddTransient<PinJsonConverter>();
-            services.AddTransient<PinspacePanel>();
-            services.AddSingleton<WindowApplicationContext>();
-            services.AddSingleton<PinWindowForm>();
-            services.AddPinControls();
-        }
+            await host.StopAsync();
+            host.Dispose();
+            host = null;
 
-        protected override void OnExit(ExitEventArgs e)
-        {
-            serviceProvider.Dispose();
             base.OnExit(e);
         }
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected async override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            var appContext = serviceProvider.GetService<WindowApplicationContext>();
+
+            host = CreateHostBuilder(e.Args).Build();
+
+            await host.StartAsync();
+
+            var appContext = host.Services.GetService<WindowApplicationContext>();
             appContext.Run();
         }
     }
