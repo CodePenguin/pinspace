@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Pinspaces.Shell.Git
 {
@@ -11,8 +12,6 @@ namespace Pinspaces.Shell.Git
         {
             this.repositoryPath = repositoryPath;
         }
-
-        public bool IsGitRepository => !IsOutputFatal(Execute("rev-parse"));
 
         public static GitStatusCode CharToStatusCode(char value)
         {
@@ -29,10 +28,15 @@ namespace Pinspaces.Shell.Git
             };
         }
 
-        public IList<GitStatusEntry> Status()
+        public async Task<bool> IsGitRepositoryAsync()
+        {
+            return !IsOutputFatal(await Execute("rev-parse"));
+        }
+
+        public async Task<IList<GitStatusEntry>> StatusAsync()
         {
             var list = new List<GitStatusEntry>();
-            var output = Execute("status -z");
+            var output = await Execute("status -z");
             if (IsOutputFatal(output))
             {
                 return list;
@@ -65,7 +69,7 @@ namespace Pinspaces.Shell.Git
             return output.StartsWith("fatal:");
         }
 
-        private string Execute(string commandLine)
+        private async Task<string> Execute(string commandLine)
         {
             var process = Process.Start(new ProcessStartInfo
             {
@@ -78,10 +82,11 @@ namespace Pinspaces.Shell.Git
                 WorkingDirectory = repositoryPath
             });
             process.WaitForExit();
+
             return process.ExitCode switch
             {
-                0 => process.StandardOutput.ReadToEnd().Trim(),
-                _ => process.StandardError.ReadToEnd().Trim()
+                0 => await process.StandardOutput.ReadToEndAsync(),
+                _ => await process.StandardError.ReadToEndAsync()
             };
         }
     }

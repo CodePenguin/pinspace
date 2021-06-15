@@ -3,9 +3,11 @@ using Pinspaces.Core.Data;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Shell.Git;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -40,43 +42,55 @@ namespace Pinspaces.Shell.Controls
         public void LoadPin(Guid pinspaceId, Pin pin)
         {
             this.pin = pin as GitFolderViewPin;
-            RefreshItems();
+            _ = Task.Run(RefreshItems);
         }
 
-        private void RefreshItems()
+        private async Task RefreshItems()
         {
-            Items.Clear();
-            var git = new Git.GitInterop(pin.RepositoryPath);
-            var entries = git.Status();
+            var gitStatusItems = await Task.Run(RetrieveGitStatusItems);
+            shellListView.Items.Clear();
+            foreach (var entry in gitStatusItems)
+            {
+                shellListView.AddItem(entry);
+            }
+        }
+
+        private async Task<IEnumerable<GitShellListItem>> RetrieveGitStatusItems()
+        {
+            var list = new List<GitShellListItem>();
+            var git = new GitInterop(pin.RepositoryPath);
+            var entries = await git.StatusAsync();
             foreach (var entry in entries)
             {
                 var filePath = Path.Join(pin.RepositoryPath, entry.ToPath.Replace('/', '\\'));
 
                 var item = new GitShellListItem(filePath, entry);
-                shellListView.AddItem(item);
+                list.Add(item);
             }
+            return list;
         }
 
-        private void SelectFolderContextMenuItem_Click(object sender, RoutedEventArgs e)
+        private async void SelectFolderContextMenuItem_Click(object sender, RoutedEventArgs e)
         {
             using var dialog = new System.Windows.Forms.FolderBrowserDialog();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 var git = new GitInterop(dialog.SelectedPath);
-                if (!git.IsGitRepository)
+                var isGitRepository = await git.IsGitRepositoryAsync();
+                if (!isGitRepository)
                 {
-                    MessageBox.Show("The selected folder is not a Git repository.", "Pinspaces", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _ = MessageBox.Show("The selected folder is not a Git repository.", "Pinspaces", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 pin.RepositoryPath = dialog.SelectedPath;
-                RefreshItems();
+                await RefreshItems();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(pin.RepositoryPath)));
             }
         }
 
-        private void ShellListView_RefreshItems(object sender, EventArgs e)
+        private async void ShellListView_RefreshItems(object sender, EventArgs e)
         {
-            RefreshItems();
+            await RefreshItems();
         }
     }
 }
