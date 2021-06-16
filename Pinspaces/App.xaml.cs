@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pinspaces.Configuration;
 using Pinspaces.Controls;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Data;

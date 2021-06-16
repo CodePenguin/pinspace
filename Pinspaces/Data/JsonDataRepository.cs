@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using Pinspaces.Configuration;
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Extensions;
 using Pinspaces.Core.Interfaces;
