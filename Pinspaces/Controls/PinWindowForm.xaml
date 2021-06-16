@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Pinspaces.Controls"
         mc:Ignorable="d"
         Title="Pinspaces" Height="450" Width="800">
     <DockPanel>
@@ -24,4 +25,8 @@
         </StatusBar>
         <ContentControl Content="{Binding PinspacePanel}"></ContentControl>
     </DockPanel>
+    <Window.CommandBindings>
+        <CommandBinding Command="local:CustomCommands.NextPinspace" Executed="Window_Command_NextPinspace" />
+        <CommandBinding Command="local:CustomCommands.PreviousPinspace" Executed="Window_Command_PreviousPinspace" />
+    </Window.CommandBindings>
 </Window>

@@ -1,13 +1,17 @@
+using Microsoft.Extensions.Options;
+using Pinspaces.Configuration;
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Pinspaces.Controls
 {
@@ -79,6 +83,11 @@ namespace Pinspaces.Controls
             base.OnClosed(e);
         }
 
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+        }
+
         private void Form_LocationOrPositionChanged(object sender, EventArgs e)
         {
             if (isLoading)
@@ -146,7 +155,7 @@ namespace Pinspaces.Controls
 
         private void SwitchActivePinspace(Guid pinspaceId)
         {
-            var pinspace = Pinspaces.Where(p => p.Id.Equals(pinspaceId)).FirstOrDefault();
+            var pinspace = Pinspaces.FirstOrDefault(p => p.Id.Equals(pinspaceId));
             if (pinspace == null)
             {
                 return;
@@ -174,6 +183,25 @@ namespace Pinspaces.Controls
                 return;
             }
             dataRepository.UpdatePinWindow(pinWindow);
+        }
+
+        private void Window_Command_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void Window_Command_NextPinspace(object sender, ExecutedRoutedEventArgs e)
+        {
+            var activePinspace = Pinspaces.FirstOrDefault(p => p.Id == pinWindow.ActivePinspaceId);
+            var nextIndex = Pinspaces.IndexOf(activePinspace) + 1;
+            SwitchActivePinspace(Pinspaces[nextIndex < Pinspaces.Count ? nextIndex : 0].Id);
+        }
+
+        private void Window_Command_PreviousPinspace(object sender, ExecutedRoutedEventArgs e)
+        {
+            var activePinspace = Pinspaces.FirstOrDefault(p => p.Id == pinWindow.ActivePinspaceId);
+            var nextIndex = Pinspaces.IndexOf(activePinspace) - 1;
+            SwitchActivePinspace(Pinspaces[nextIndex >= 0 ? nextIndex : Pinspaces.Count - 1].Id);
         }
     }
 }

@@ -6,6 +6,7 @@ using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 
@@ -15,7 +16,7 @@ namespace Pinspaces
     {
         private readonly AppHotKeys appHotKeys;
         private readonly IDataRepository dataRepository;
-        private readonly IOptions<Settings> options;
+        private readonly Settings settings;
         private readonly WindowFactory windowFactory;
         private readonly List<PinWindowForm> windows = new();
         private bool disposedValue;
@@ -24,10 +25,10 @@ namespace Pinspaces
         {
             this.windowFactory = windowFactory;
             this.dataRepository = dataRepository;
-            this.options = options;
+            settings = options.Value;
             appHotKeys = new AppHotKeys();
 
-            RegisterApplicationCommands();
+            RegisterActions();
         }
 
         public void Dispose()
@@ -104,13 +105,38 @@ namespace Pinspaces
             }
         }
 
-        private void RegisterApplicationCommands()
+        private void RegisterActions()
         {
-            foreach (var command in options.Value.Actions)
+            var availableApplicationCommands = new Dictionary<string, Action>
             {
-                if (command.Command == "activate" && command.TryConvertKeys(out var key, out var modifierKeys))
+                { "activate", Hotkey_ActivateApplication }
+            };
+
+            foreach (var action in settings.Actions)
+            {
+                if (!action.TryConvertKeys(out var key, out var modifierKeys))
                 {
-                    appHotKeys.RegisterHotkey(key, modifierKeys, Hotkey_ActivateApplication);
+                    return;
+                }
+                // Global Application Shortcuts
+                if (availableApplicationCommands.TryGetValue(action.Command, out var actionHandler))
+                {
+                    appHotKeys.RegisterHotkey(key, modifierKeys, actionHandler);
+                    continue;
+                }
+
+                // Internal Command Shortcuts
+                foreach (var field in typeof(CustomCommands).GetFields())
+                {
+                    if (!field.FieldType.Equals(typeof(RoutedUICommand)))
+                    {
+                        return;
+                    }
+                    var routedUICommand = field.GetValue(null) as RoutedUICommand;
+                    if (routedUICommand.Name == action.Command)
+                    {
+                        routedUICommand.InputGestures.Add(new KeyGesture(key, modifierKeys));
+                    }
                 }
             }
         }
