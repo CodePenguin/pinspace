@@ -1,8 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CodeAnalysisRuleSet>..\stylecop.ruleset</CodeAnalysisRuleSet>
+    <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>..\Assets\Pinspaces.ico</ApplicationIcon>
   </PropertyGroup>
@@ -11,8 +13,6 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pinspaces.Core.Controls\Pinspaces.Core.Controls.csproj" />
     <ProjectReference Include="..\Pinspaces.Core\Pinspaces.Core.csproj" />
-    <ProjectReference Include="..\Pinspaces.Shell\Pinspaces.Shell.csproj" />
   </ItemGroup>
 </Project>

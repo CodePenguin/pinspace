@@ -3,7 +3,7 @@ using Pinspaces.Controls;
 using Pinspaces.Core.Controls;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Interfaces;
-using Pinspaces.Shell.Controls;
+using Pinspaces.Plugins;
 using System;
 using System.Reflection;
 
@@ -13,16 +13,10 @@ namespace Pinspaces.Extensions
     {
         public static IServiceCollection AddPinControls(this IServiceCollection services)
         {
-            // TODO: Load plugin assemblies and automatically register compatible types
+            var pinControlTypes = new RegisteredPinControlTypes();
+            var pluginManager = new PluginManager();
+            pinControlTypes.AddRange(pluginManager.PinControlTypes);
 
-            var pinControlTypes = new RegisteredPinControlTypes()
-            {
-                typeof(FileListPinPanel),
-                typeof(FolderViewPinPanel),
-                typeof(GitFolderViewPinPanel),
-                typeof(RichTextBoxPinPanel),
-                typeof(TextBoxPinPanel)
-            };
             services.AddSingleton<IRegisteredPinControlTypes>((p) => pinControlTypes);
 
             foreach (var pinControlType in pinControlTypes)

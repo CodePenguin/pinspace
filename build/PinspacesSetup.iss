@@ -30,8 +30,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\Pinspaces\bin\Release\net5.0-windows\publish\Pinspaces.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Pinspaces\bin\Release\net5.0-windows\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\Pinspaces\bin\Release\publish\Pinspaces.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Pinspaces\bin\Release\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#ApplicationName}"; Filename: "{app}\{#ApplicationExeName}"

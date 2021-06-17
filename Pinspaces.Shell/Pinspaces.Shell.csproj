@@ -1,12 +1,25 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CodeAnalysisRuleSet>..\stylecop.ruleset</CodeAnalysisRuleSet>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\Pinspaces\bin\Debug\plugins\Pinspaces.Shell</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\Pinspaces\bin\Release\plugins\Pinspaces.Shell</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\Pinspaces.Core\Pinspaces.Core.csproj" />
+    <ProjectReference Include="..\Pinspaces.Core\Pinspaces.Core.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
     <ProjectReference Include="..\submodules\gong-shell\Shell\Shell.csproj" />
   </ItemGroup>
 

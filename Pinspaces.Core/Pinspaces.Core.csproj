@@ -1,7 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CodeAnalysisRuleSet>..\stylecop.ruleset</CodeAnalysisRuleSet>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
