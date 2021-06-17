@@ -16,7 +16,10 @@ namespace Pinspaces.Shell.Controls
     [PinType(DisplayName = "Git Folder View", PinType = typeof(GitFolderViewPin))]
     public partial class GitFolderViewPinPanel : UserControl, IPinControl
     {
+        private FileSystemWatcher fileSystemWatcher;
+        private bool pendingRefresh;
         private GitFolderViewPin pin;
+        private Window window;
 
         public GitFolderViewPinPanel()
         {
@@ -24,6 +27,9 @@ namespace Pinspaces.Shell.Controls
             DataContext = this;
 
             shellListView.RefreshItems += ShellListView_RefreshItems;
+
+            Loaded += UserControl_Loaded;
+            Unloaded += UserControl_Unloaded;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -43,6 +49,27 @@ namespace Pinspaces.Shell.Controls
         {
             this.pin = pin as GitFolderViewPin;
             _ = Task.Run(RefreshItems);
+            InitializeFileSystemWatcher();
+        }
+
+        private void DeinitializeFileSystemWatcher()
+        {
+            fileSystemWatcher?.Dispose();
+            fileSystemWatcher = null;
+        }
+
+        private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            pendingRefresh = true;
+        }
+
+        private void InitializeFileSystemWatcher()
+        {
+            DeinitializeFileSystemWatcher();
+            fileSystemWatcher = new FileSystemWatcher(pin.RepositoryPath);
+            fileSystemWatcher.Changed += FileSystemWatcher_Changed;
+            fileSystemWatcher.IncludeSubdirectories = true;
+            fileSystemWatcher.EnableRaisingEvents = true;
         }
 
         private async Task RefreshItems()
@@ -53,6 +80,7 @@ namespace Pinspaces.Shell.Controls
             {
                 shellListView.AddItem(entry);
             }
+            pendingRefresh = false;
         }
 
         private async Task<IEnumerable<GitShellListItem>> RetrieveGitStatusItems()
@@ -91,6 +119,27 @@ namespace Pinspaces.Shell.Controls
         private async void ShellListView_RefreshItems(object sender, EventArgs e)
         {
             await RefreshItems();
+        }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            window = Window.GetWindow(this);
+            window.Activated += Window_Activated;
+        }
+
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            window.Activated -= Window_Activated;
+            DeinitializeFileSystemWatcher();
+        }
+
+        private async void Window_Activated(object sender, EventArgs e)
+        {
+            if (pendingRefresh)
+            {
+                pendingRefresh = false;
+                await RefreshItems();
+            }
         }
     }
 }
