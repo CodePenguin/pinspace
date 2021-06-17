@@ -15,6 +15,7 @@ AppSupportURL={#ApplicationURL}
 AppUpdatesURL={#ApplicationURL}
 DefaultDirName={pf}\{#ApplicationName}
 DefaultGroupName={#ApplicationName}
+SetupIconFile=..\Assets\Pinspaces.ico
 AllowNoIcons=yes
 LicenseFile=..\license.txt
 OutputDir=..\bin
