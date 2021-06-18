@@ -1,20 +1,15 @@
 name: Pinspaces-CI
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - 'README.md'
-      - 'docs/**'
-  pull_request:
-    branches: [ main ]
+  release:
+    types: [published]
 
 jobs:
   build:
     runs-on: windows-latest
 
     env:
-      VERSION: 0.0.0.${{ github.run_number }}
+      VERSION: ${{ github.event.release.tag_name }}.${{ github.run_number }}
 
     steps:
     - name: Checkout
@@ -49,14 +44,14 @@ jobs:
     - name: Installer
       run: iscc .\build\PinspacesSetup.iss
 
-    - name: Upload binaries
-      uses: actions/upload-artifact@v2
-      with:
-        name: Pinspaces
-        path: Pinspaces\bin\Release\publish\
+    - name: Zip Files
+      run: 7z a bin\Pinspaces.zip -tzip .\Pinspaces\bin\Release\publish\*
 
     - name: Upload binaries
-      uses: actions/upload-artifact@v2
+      uses: softprops/action-gh-release@v1
       with:
-        name: PinspacesSetup
-        path: bin/PinspacesSetup.exe
+        files: |
+          bin\Pinspaces.zip
+          bin\PinspacesSetup.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
