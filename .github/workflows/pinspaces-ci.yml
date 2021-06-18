@@ -13,6 +13,9 @@ jobs:
   build:
     runs-on: windows-latest
 
+    env:
+      VERSION: 0.0.0.${GITHUB_RUN_NUMBER}
+
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -34,8 +37,14 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
-    - name: Publish
-      run: dotnet publish --no-restore --framework net5.0-windows --configuration Release -maxcpucount:1
+    - name: Publish Pinspaces
+      run: dotnet publish Pinspaces /p:Version=${{ env.VERSION }} --no-restore --framework net5.0-windows --configuration Release -maxcpucount:1
+
+    - name: Publish Pinspaces.Core.Controls
+      run: dotnet publish Pinspaces.Core.Controls /p:Version=${{ env.VERSION }} --no-restore --framework net5.0-windows --configuration Release -maxcpucount:1 --output Pinspaces\bin\Release\publish\plugins\Pinspaces.Core.Controls\
+
+    - name: Publish Pinspaces.Shell
+      run: dotnet publish Pinspaces.Shell /p:Version=${{ env.VERSION }} --no-restore --framework net5.0-windows --configuration Release -maxcpucount:1 --output Pinspaces\bin\Release\publish\plugins\Pinspaces.Shell\
 
     - name: Installer
       run: iscc .\build\PinspacesSetup.iss
@@ -44,7 +53,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: PinspacesBinaries
-        path: Pinspaces\bin\Release\net5.0-windows\publish\
+        path: Pinspaces\bin\Release\publish\
 
     - name: Upload binaries
       uses: actions/upload-artifact@v2
