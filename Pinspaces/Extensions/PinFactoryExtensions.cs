@@ -23,6 +23,7 @@ namespace Pinspaces.Extensions
             {
                 services.AddPinControl(pinControlType);
             }
+            services.AddPinControl(typeof(ErrorPinPanel));
             return services;
         }
 

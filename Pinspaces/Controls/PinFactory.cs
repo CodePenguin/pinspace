@@ -21,6 +21,7 @@ namespace Pinspaces.Controls
             {
                 RegisterPinControl(pinControlType);
             }
+            RegisterPinControl(typeof(ErrorPinPanel));
         }
 
         public IEnumerable<Type> PinControlTypes => pinControlTypes.Values;

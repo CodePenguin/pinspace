@@ -34,6 +34,7 @@ namespace Pinspaces.Controls
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public Color DefaultPinColor { get; set; }
         public Pin Pin { get; private set; }
 
         public string PinColor
@@ -74,7 +75,7 @@ namespace Pinspaces.Controls
             {
                 Pin = pin;
                 Height = pin.Height > 0 ? pin.Height : Height;
-                PinColor = pin.Color;
+                PinColor = pin.Color ?? DefaultPinColor.ToHtmlString();
                 Canvas.SetLeft(this, Math.Max(0, pin.Left));
                 Title = pin.Title;
                 Canvas.SetTop(this, Math.Max(0, pin.Top));

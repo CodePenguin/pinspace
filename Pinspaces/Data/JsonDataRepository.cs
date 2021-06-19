@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Pinspaces.Configuration;
+using Pinspaces.Controls;
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Extensions;
 using Pinspaces.Core.Interfaces;
@@ -18,13 +20,15 @@ namespace Pinspaces.Data
         private readonly JsonData data;
         private readonly IDelayedAction delayedSaveDataFileAction;
         private readonly IDelayedAction delayedSavePinChangesAction;
+        private readonly ILogger<JsonDataRepository> logger;
         private readonly IOptions<Settings> options;
         private readonly ConcurrentQueue<(Guid pinspaceId, Pin pin)> pendingPinChanges = new();
         private readonly PinJsonConverter pinJsonConverter;
         private bool disposedValue;
 
-        public JsonDataRepository(PinJsonConverter pinJsonConverter, IDelayedActionFactory delayedActionFactory, IOptions<Settings> options)
+        public JsonDataRepository(ILogger<JsonDataRepository> logger, PinJsonConverter pinJsonConverter, IDelayedActionFactory delayedActionFactory, IOptions<Settings> options)
         {
+            this.logger = logger;
             this.pinJsonConverter = pinJsonConverter;
             this.options = options;
             delayedSaveDataFileAction = delayedActionFactory.Debounce(SaveDataChanges, 5000);
@@ -71,19 +75,27 @@ namespace Pinspaces.Data
             var pinFilenames = Directory.GetFiles(pinspacePath, "pin_*.json", options);
             foreach (var pinFilename in pinFilenames)
             {
-                list.Add(LoadJsonFile<Pin>(pinFilename));
+                if (!Guid.TryParse(Path.GetFileNameWithoutExtension(pinFilename).Replace("pin_", ""), out var pinId))
+                {
+                    continue;
+                }
+                try
+                {
+                    list.Add(LoadJsonFile<Pin>(pinFilename));
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error loading data for pin {pinId} in pinspace {pinspaceId}", pinId, pinspaceId);
+                    list.Add(new ErrorPin { Id = pinId, ErrorMessage = $"An exception occurred while loading pin {pinId}: {ex}", Title = "Pin with errors" });
+                }
             }
             return list;
         }
 
         public Pinspace GetPinspace(Guid id)
         {
-            var pinspace = data.Pinspaces.Where(p => p.Id.Equals(id)).FirstOrDefault();
-            if (pinspace != null)
-            {
-                return pinspace.Clone();
-            }
-            return null;
+            var pinspace = data.Pinspaces.FirstOrDefault(p => p.Id.Equals(id));
+            return pinspace?.Clone();
         }
 
         public IList<Pinspace> GetPinspaces()
@@ -123,7 +135,7 @@ namespace Pinspaces.Data
 
         public void UpdatePinspace(Pinspace pinspace)
         {
-            var storedPin = data.Pinspaces.Where(p => p.Id.Equals(pinspace.Id)).FirstOrDefault();
+            var storedPin = data.Pinspaces.FirstOrDefault(p => p.Id.Equals(pinspace.Id));
             if (storedPin == null)
             {
                 storedPin = new Pinspace();
@@ -138,7 +150,7 @@ namespace Pinspaces.Data
 
         public void UpdatePinWindow(PinWindow pinWindow)
         {
-            var storedPinWindow = data.Windows.Where(w => w.Id.Equals(pinWindow.Id)).FirstOrDefault();
+            var storedPinWindow = data.Windows.FirstOrDefault(w => w.Id.Equals(pinWindow.Id));
             if (storedPinWindow == null)
             {
                 storedPinWindow = new PinWindow();
@@ -199,11 +211,7 @@ namespace Pinspaces.Data
         private JsonData LoadDataFile()
         {
             var dataFilename = GetDataFilename();
-            if (!File.Exists(dataFilename))
-            {
-                return new JsonData();
-            }
-            return LoadJsonFile<JsonData>(dataFilename);
+            return !File.Exists(dataFilename) ? new JsonData() : LoadJsonFile<JsonData>(dataFilename);
         }
 
         private T LoadJsonFile<T>(string filename)

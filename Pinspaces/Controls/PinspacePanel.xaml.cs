@@ -21,9 +21,9 @@ namespace Pinspaces.Controls
         private readonly IDataRepository dataRepository;
         private readonly IDelayedAction delayedProcessPendingPinChangesMethod;
         private readonly IDelayedAction delayedUpdateCanvasSizeAction;
-        private readonly IOptions<Settings> options;
         private readonly Dictionary<Guid, Pin> pendingPinChanges = new();
         private readonly IPinFactory pinFactory;
+        private readonly Settings settings;
         private FrameworkElement contextElement;
         private bool disposedValue;
         private bool isLoading;
@@ -37,7 +37,7 @@ namespace Pinspaces.Controls
 
             this.dataRepository = dataRepository;
             this.pinFactory = pinFactory;
-            this.options = options;
+            settings = options.Value;
             delayedProcessPendingPinChangesMethod = delayedActionFactory.Debounce(ProcessPendingPinChanges, 5000);
             delayedUpdateCanvasSizeAction = delayedActionFactory.Debounce(UpdateCanvasSize, 100);
 
@@ -56,9 +56,6 @@ namespace Pinspaces.Controls
                 NotifyPropertyChanged(nameof(BackgroundColor));
             }
         }
-
-        private Color DefaultPinColor => ColorExtensions.FromHtmlString(options.Value.DefaultPinColor, Color.FromArgb(255, 51, 122, 183));
-        private Color DefaultPinspaceColor => ColorExtensions.FromHtmlString(options.Value.DefaultPinspaceColor, Color.FromArgb(255, 176, 216, 255));
 
         public string Title => pinspace.Title;
 
@@ -123,7 +120,11 @@ namespace Pinspaces.Controls
         private void AddPinPanel(Pin pin)
         {
             var pinControl = pinFactory.NewPinControl(pin.GetType());
-            var pinPanel = new PinPanel(pinControl) { ContextMenu = canvas.ContextMenu };
+            var pinPanel = new PinPanel(pinControl)
+            {
+                ContextMenu = canvas.ContextMenu,
+                DefaultPinColor = settings.GetDefaultPinColor()
+            };
             pinPanel.PropertyChanged += PinPanel_PropertyChanged;
             pinPanel.LoadPin(pinspace.Id, pin);
             canvas.Children.Add(pinPanel);
@@ -148,7 +149,7 @@ namespace Pinspaces.Controls
 
         private void ChangePinColor(PinPanel pinPanel)
         {
-            var color = ColorExtensions.FromHtmlString(pinPanel.PinColor, DefaultPinColor);
+            var color = ColorExtensions.FromHtmlString(pinPanel.PinColor, settings.GetDefaultPinColor());
             if (ColorDialog.ShowDialog(ref color))
             {
                 pinPanel.PinColor = color.ToHtmlString();
@@ -157,7 +158,7 @@ namespace Pinspaces.Controls
 
         private void ChangePinspaceColor()
         {
-            var color = ColorExtensions.FromHtmlString(BackgroundColor, DefaultPinspaceColor);
+            var color = ColorExtensions.FromHtmlString(BackgroundColor, settings.GetDefaultPinspaceColor());
             if (ColorDialog.ShowDialog(ref color))
             {
                 BackgroundColor = color.ToHtmlString();
@@ -189,7 +190,7 @@ namespace Pinspaces.Controls
         private void NewPin(Type pinControlType, Point position)
         {
             var pin = pinFactory.NewPin(pinControlType);
-            pin.Color = DefaultPinColor.ToHtmlString();
+            pin.Color = settings.GetDefaultPinColor().ToHtmlString();
             pin.Left = position.X;
             pin.Title = "New " + pinFactory.GetDisplayName(pinControlType);
             pin.Top = position.Y;
@@ -250,6 +251,10 @@ namespace Pinspaces.Controls
         {
             foreach (var pin in pendingPinChanges.Values)
             {
+                if (pin is ErrorPin)
+                {
+                    continue;
+                }
                 dataRepository.UpdatePin(pinspace.Id, pin);
             }
             pendingPinChanges.Clear();
