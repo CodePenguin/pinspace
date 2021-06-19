@@ -7,6 +7,9 @@ using Pinspaces.Core.Interfaces;
 using Pinspaces.Data;
 using Pinspaces.Extensions;
 using Pinspaces.Interfaces;
+using Serilog;
+using Serilog.Formatting.Json;
+using System;
 using System.IO;
 using System.Windows;
 
@@ -39,7 +42,8 @@ namespace Pinspaces
                     services.AddSingleton<WindowApplicationContext>();
                     services.AddSingleton<PinWindowForm>();
                     services.AddPinControls();
-                });
+                })
+                .UseSerilog();
         }
 
         protected async override void OnExit(ExitEventArgs e)
@@ -55,12 +59,29 @@ namespace Pinspaces
         {
             base.OnStartup(e);
 
-            host = CreateHostBuilder(e.Args).Build();
+            var logFilename = Path.Combine(EnvironmentExtensions.GetLocalApplicationDataFolderPath, "Pinspaces.log");
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File(new JsonFormatter(), logFilename, fileSizeLimitBytes: 5000000 /* 5 MB */, buffered: true)
+                .CreateLogger();
 
-            await host.StartAsync();
+            try
+            {
+                host = CreateHostBuilder(e.Args).Build();
 
-            var appContext = host.Services.GetService<WindowApplicationContext>();
-            appContext.Run();
+                await host.StartAsync();
+
+                var appContext = host.Services.GetService<WindowApplicationContext>();
+                appContext.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Unhandled exception");
+                throw;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
     }
 }
