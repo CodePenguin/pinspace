@@ -38,7 +38,7 @@ namespace Pinspaces.Shell.Controls
 
         public event EventHandler<EventArgs> RefreshItems;
 
-        public bool AllowDragReorder { get; set; } = false;
+        public bool AllowDragReorder { get; set; }
 
         public new ObservableCollection<ShellListItem> Items { get; private set; } = new();
 
@@ -69,6 +69,15 @@ namespace Pinspaces.Shell.Controls
         public void AddItem(ShellListItem item)
         {
             Items.Add(item);
+        }
+
+        public void RemoveSelectedItems()
+        {
+            foreach (var item in selectedItems)
+            {
+                Items.Remove(item);
+            }
+            selectedItems.Clear();
         }
 
         HResult IDropSource.GiveFeedback(int dwEffect)

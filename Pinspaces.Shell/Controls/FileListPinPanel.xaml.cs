@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Pinspaces.Shell.Controls
 {
@@ -22,6 +23,7 @@ namespace Pinspaces.Shell.Controls
             shellListView.AllowDragReorder = true;
             shellListView.DroppedFiles += ShellListView_DroppedFiles;
             shellListView.RefreshItems += ShellListView_RefreshItems;
+            shellListView.KeyUp += ShellListView_KeyUp;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -65,6 +67,16 @@ namespace Pinspaces.Shell.Controls
             }
 
             UpdatePin();
+        }
+
+        private void ShellListView_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                shellListView.RemoveSelectedItems();
+                UpdatePin();
+                e.Handled = true;
+            }
         }
 
         private void ShellListView_RefreshItems(object sender, EventArgs e)
