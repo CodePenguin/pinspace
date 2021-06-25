@@ -16,6 +16,6 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pinspaces.Core\Pinspaces.Core.csproj" />
+    <ProjectReference Include="..\Pinspaces.Core.Plugins\Pinspaces.Core.Plugins.csproj" />
   </ItemGroup>
 </Project>

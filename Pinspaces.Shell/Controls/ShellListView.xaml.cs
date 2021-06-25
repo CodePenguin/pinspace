@@ -1,6 +1,6 @@
 using GongSolutions.Shell;
 using GongSolutions.Shell.Interop;
-using Pinspaces.Core.Extensions;
+using Pinspaces.Shell.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

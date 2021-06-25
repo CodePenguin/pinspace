@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace Pinspaces.Core.Extensions
+namespace Pinspaces.Shell.Extensions
 {
     public static class DependencyObjectExtensions
     {

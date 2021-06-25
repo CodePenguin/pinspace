@@ -1,4 +1,3 @@
-using Pinspaces.Core.Controls;
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Interfaces;
@@ -77,7 +76,7 @@ namespace Pinspaces.Controls
             return ServiceProvider.GetService(pinControlType) as IPinControl;
         }
 
-        private PinTypeAttribute GetPinTypeAttribute(Type pinControlType)
+        private static PinTypeAttribute GetPinTypeAttribute(Type pinControlType)
         {
             var attribute = pinControlType.GetCustomAttribute<PinTypeAttribute>();
             if (attribute == null)
@@ -87,7 +86,7 @@ namespace Pinspaces.Controls
             return attribute;
         }
 
-        private string GetPinTypeName(Type type)
+        private static string GetPinTypeName(Type type)
         {
             Type pinType;
             if (type.IsAssignableTo(typeof(IPinControl)))

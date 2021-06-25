@@ -1,4 +1,3 @@
-using Pinspaces.Core.Controls;
 using Pinspaces.Core.Data;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Shell.Git;

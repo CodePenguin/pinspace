@@ -1,6 +1,6 @@
 using System;
 
-namespace Pinspaces.Core.Controls
+namespace Pinspaces.Core.Interfaces
 {
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class PinTypeAttribute : Attribute

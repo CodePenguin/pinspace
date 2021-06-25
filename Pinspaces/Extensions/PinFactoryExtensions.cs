@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Pinspaces.Controls;
-using Pinspaces.Core.Controls;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Interfaces;
 using Pinspaces.Plugins;
