@@ -12,8 +12,9 @@ using System.Windows.Controls;
 namespace Pinspaces.Shell.Controls
 {
     [PinType(DisplayName = "Folder View", PinType = typeof(FolderViewPin))]
-    public partial class FolderViewPinPanel : UserControl, IPinControl
+    public partial class FolderViewPinPanel : UserControl, IPinControl, IDisposable
     {
+        private bool disposedValue;
         private FileSystemWatcher fileSystemWatcher;
         private bool pendingRefresh;
         private FolderViewPin pin;
@@ -43,11 +44,29 @@ namespace Pinspaces.Shell.Controls
             contextMenu.Items.Add(menuItem);
         }
 
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
         public void LoadPin(Guid pinspaceId, Pin pin)
         {
             this.pin = pin as FolderViewPin;
             _ = Task.Run(RefreshItems);
             InitializeFileSystemWatcher();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    DeinitializeFileSystemWatcher();
+                }
+                disposedValue = true;
+            }
         }
 
         private void DeinitializeFileSystemWatcher()
