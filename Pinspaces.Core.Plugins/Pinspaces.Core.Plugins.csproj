@@ -5,9 +5,13 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CodeAnalysisRuleSet>..\stylecop.ruleset</CodeAnalysisRuleSet>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <RepositoryUrl>https://github.com/CodePenguin/pinspaces</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <UseWPF>true</UseWPF>
+    <PackageId>Pinspaces.Core.Plugins</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>David Lambert</Authors>
+    <Company>Pinspaces</Company>
+    <RepositoryUrl>https://github.com/CodePenguin/pinspaces</RepositoryUrl>
   </PropertyGroup>
 
 </Project>
