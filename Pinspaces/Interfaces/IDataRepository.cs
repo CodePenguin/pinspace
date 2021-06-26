@@ -8,6 +8,10 @@ namespace Pinspaces.Interfaces
     {
         void DeletePin(Guid pinspaceId, Pin pin);
 
+        bool DeletePinData(Guid pinspaceId, Guid pinId, string key);
+
+        string[] GetPinDataKeys(Guid pinspaceId, Guid pinId);
+
         public IList<Pin> GetPins(Guid pinspaceId);
 
         public Pinspace GetPinspace(Guid id);

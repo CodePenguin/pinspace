@@ -51,10 +51,35 @@ namespace Pinspaces.Data
             }
         }
 
+        public bool DeletePinData(Guid pinspaceId, Guid pinId, string key)
+        {
+            var filename = GetPinDataKeyFilePath(pinspaceId, pinId, key);
+            if (File.Exists(filename))
+            {
+                File.Delete(filename);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        public string[] GetPinDataKeys(Guid pinspaceId, Guid pinId)
+        {
+            var keys = new List<string>();
+            var directoryInfo = new DirectoryInfo(GetPinDataPath(pinspaceId, pinId));
+            foreach (var info in directoryInfo.EnumerateFiles())
+            {
+                keys.Add(info.Name);
+            }
+            return keys.ToArray();
         }
 
         public IList<Pin> GetPins(Guid pinspaceId)
@@ -193,7 +218,13 @@ namespace Pinspaces.Data
 
         private string GetPinDataKeyFilePath(Guid pinspaceId, Guid pinId, string key)
         {
-            return Path.Combine(GetPinDataPath(pinspaceId, pinId), key);
+            var pinDataPath = GetPinDataPath(pinspaceId, pinId);
+            var filename = Path.Combine(pinDataPath, key);
+            if (Path.GetRelativePath(pinDataPath, filename) != key)
+            {
+                throw new ArgumentException("Invalid pin data key");
+            }
+            return filename;
         }
 
         private string GetPinDataPath(Guid pinspaceId, Guid pinId)
