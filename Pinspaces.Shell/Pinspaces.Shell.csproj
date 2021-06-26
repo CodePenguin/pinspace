@@ -16,11 +16,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pinspaces.Core.Plugins\Pinspaces.Core.Plugins.csproj">
-      <Private>false</Private>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </ProjectReference>
     <ProjectReference Include="..\submodules\gong-shell\Shell\Shell.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pinspaces.Core.Plugins" Version="0.0.1" />
   </ItemGroup>
 
 </Project>

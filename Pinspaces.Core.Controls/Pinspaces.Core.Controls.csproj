@@ -16,10 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pinspaces.Core.Plugins\Pinspaces.Core.Plugins.csproj">
-      <Private>false</Private>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </ProjectReference>
+    <PackageReference Include="Pinspaces.Core.Plugins" Version="0.0.1" />
   </ItemGroup>
 
 </Project>
