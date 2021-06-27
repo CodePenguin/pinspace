@@ -30,14 +30,12 @@ namespace Pinspaces.Core.Controls
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             Pin.Text = textBox.Text;
-            NotifyPinPropertyChanged(nameof(Pin.Text));
         }
 
         private void WordWrapContextMenuItem_Click(object sender, EventArgs e)
         {
             Pin.WordWrap = !Pin.WordWrap;
             textBox.TextWrapping = Pin.WordWrap ? TextWrapping.Wrap : TextWrapping.NoWrap;
-            NotifyPinPropertyChanged(nameof(Pin.WordWrap));
         }
     }
 }

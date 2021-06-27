@@ -13,7 +13,7 @@ namespace Pinspaces.Controls
     {
         private readonly DraggableController dragController;
         private readonly IPinControl pinControl;
-        private bool isLoading = false;
+        private bool isLoading;
 
         public PinPanel(IPinControl pinControl)
         {
@@ -22,7 +22,6 @@ namespace Pinspaces.Controls
 
             this.pinControl = pinControl;
             PinContentControl = pinControl.ContentControl;
-            pinControl.PropertyChanged += PinControl_PropertyChanged;
 
             LayoutUpdated += PinPanel_LayoutUpdated;
             SizeChanged += PinPanel_SizeChanged;
@@ -56,11 +55,7 @@ namespace Pinspaces.Controls
         public string Title
         {
             get => Pin.Title;
-            set
-            {
-                Pin.Title = value;
-                NotifyPropertyChanged(nameof(Title));
-            }
+            set => Pin.Title = value;
         }
 
         public void AddContextMenuItems(ContextMenu contextMenu)
@@ -74,6 +69,8 @@ namespace Pinspaces.Controls
             try
             {
                 Pin = pin;
+                Pin.PropertyChanged += Pin_PropertyChanged;
+
                 Height = pin.Height > 0 ? pin.Height : Height;
                 PinColor = pin.Color ?? DefaultPinColor.ToHtmlString();
                 Canvas.SetLeft(this, Math.Max(0, pin.Left));
@@ -93,7 +90,7 @@ namespace Pinspaces.Controls
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
-        private void PinControl_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void Pin_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             NotifyPropertyChanged(e.PropertyName);
         }
@@ -109,12 +106,10 @@ namespace Pinspaces.Controls
             if (Pin.Left != newLeft)
             {
                 Pin.Left = newLeft;
-                NotifyPropertyChanged(nameof(Pin.Left));
             }
             if (Pin.Top != newTop)
             {
                 Pin.Top = newTop;
-                NotifyPropertyChanged(nameof(Pin.Top));
             }
         }
 
@@ -127,12 +122,10 @@ namespace Pinspaces.Controls
             if (Pin.Height != Height)
             {
                 Pin.Height = Height;
-                NotifyPropertyChanged(nameof(Pin.Height));
             }
             if (Pin.Width != Width)
             {
                 Pin.Width = Width;
-                NotifyPropertyChanged(nameof(Pin.Width));
             }
         }
     }

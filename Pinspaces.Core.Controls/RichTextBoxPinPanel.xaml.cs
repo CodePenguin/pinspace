@@ -71,7 +71,6 @@ namespace Pinspaces.Core.Controls
                 range.Save(stream, DataFormats.Rtf);
                 pinDataRepository.Store(PinspaceId, Pin.Id, contentDataKey, stream.ToArray());
             }
-            NotifyPinPropertyChanged(nameof(Pin.Content));
         }
     }
 }

@@ -4,6 +4,8 @@ namespace Pinspaces.Core.Controls
 {
     public class RichTextBoxPin : Pin
     {
-        public string Content { get; set; }
+        private string content;
+
+        public string Content { get => content; set => SetProperty(ref content, value); }
     }
 }

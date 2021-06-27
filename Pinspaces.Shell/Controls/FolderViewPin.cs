@@ -6,11 +6,8 @@ namespace Pinspaces.Shell.Controls
 {
     public class FolderViewPin : Pin
     {
-        public FolderViewPin()
-        {
-            FolderPath = Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.System));
-        }
+        private string folderPath = Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.System));
 
-        public string FolderPath { get; set; }
+        public string FolderPath { get => folderPath; set => SetProperty(ref folderPath, value); }
     }
 }

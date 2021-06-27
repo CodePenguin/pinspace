@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pinspaces.Core.Plugins" Version="0.0.2" />
+    <PackageReference Include="Pinspaces.Core.Plugins" Version="0.0.3" />
   </ItemGroup>
 
 </Project>

@@ -123,7 +123,6 @@ namespace Pinspaces.Shell.Controls
                 }
                 Pin.RepositoryPath = dialog.SelectedPath;
                 await RefreshItems();
-                NotifyPinPropertyChanged(nameof(Pin.RepositoryPath));
             }
         }
 

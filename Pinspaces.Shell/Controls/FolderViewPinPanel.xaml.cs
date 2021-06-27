@@ -110,7 +110,6 @@ namespace Pinspaces.Shell.Controls
             {
                 Pin.FolderPath = dialog.SelectedPath;
                 await RefreshItems();
-                NotifyPinPropertyChanged(nameof(Pin.FolderPath));
             }
         }
 

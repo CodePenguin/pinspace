@@ -5,11 +5,13 @@ namespace Pinspaces.Shell.Controls
 {
     public class FileListPin : Pin
     {
-        public FileListPin()
-        {
-            Files = new List<string>();
-        }
+        private List<string> files = new();
 
-        public List<string> Files { get; set; }
+        public List<string> Files { get => files; set => SetProperty(ref files, value); }
+
+        public void NotifyFilesChanged()
+        {
+            NotifyPropertyChanged(nameof(Files));
+        }
     }
 }

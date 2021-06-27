@@ -76,7 +76,7 @@ namespace Pinspaces.Shell.Controls
             {
                 Pin.Files.Add(item.Uri);
             }
-            NotifyPinPropertyChanged(nameof(Pin.Files));
+            Pin.NotifyFilesChanged();
         }
     }
 }
