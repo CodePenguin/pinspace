@@ -12,7 +12,7 @@ using System.Windows.Controls;
 namespace Pinspaces.Shell.Controls
 {
     [PinType(DisplayName = "Git Folder View", PinType = typeof(GitFolderViewPin))]
-    public partial class GitFolderViewPinPanel : GitFolderViewPinUserControl, IDisposable
+    public partial class GitFolderViewPinPanel : PinUserControl<GitFolderViewPin>, IDisposable
     {
         private bool disposedValue;
         private FileSystemWatcher fileSystemWatcher;
@@ -153,6 +153,4 @@ namespace Pinspaces.Shell.Controls
             }
         }
     }
-
-    public abstract class GitFolderViewPinUserControl : PinUserControl<GitFolderViewPin> { }
 }

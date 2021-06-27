@@ -8,7 +8,7 @@ using System.Windows.Documents;
 namespace Pinspaces.Core.Controls
 {
     [PinType(DisplayName = "Rich Text Box", PinType = typeof(RichTextBoxPin))]
-    public partial class RichTextBoxPinPanel : RichTextBoxPinUserControl, IDisposable
+    public partial class RichTextBoxPinPanel : PinUserControl<RichTextBoxPin>, IDisposable
     {
         private const string contentDataKey = "content.rtf";
         private readonly IDelayedAction delayedUpdateContentAction;
@@ -74,6 +74,4 @@ namespace Pinspaces.Core.Controls
             NotifyPinPropertyChanged(nameof(Pin.Content));
         }
     }
-
-    public abstract class RichTextBoxPinUserControl : PinUserControl<RichTextBoxPin> { }
 }

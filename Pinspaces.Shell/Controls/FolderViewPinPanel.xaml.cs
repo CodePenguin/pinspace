@@ -11,7 +11,7 @@ using System.Windows.Controls;
 namespace Pinspaces.Shell.Controls
 {
     [PinType(DisplayName = "Folder View", PinType = typeof(FolderViewPin))]
-    public partial class FolderViewPinPanel : FolderViewPinUserControl, IDisposable
+    public partial class FolderViewPinPanel : PinUserControl<FolderViewPin>, IDisposable
     {
         private bool disposedValue;
         private FileSystemWatcher fileSystemWatcher;
@@ -140,6 +140,4 @@ namespace Pinspaces.Shell.Controls
             }
         }
     }
-
-    public abstract class FolderViewPinUserControl : PinUserControl<FolderViewPin> { }
 }

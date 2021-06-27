@@ -1,10 +1,10 @@
-using Pinspaces.Core.Controls;
 using Pinspaces.Core.Interfaces;
+using Pinspaces.Core.Controls;
 
 namespace Pinspaces.Controls
 {
     [PinType(DisplayName = "Error Pin", PinType = typeof(ErrorPin))]
-    public partial class ErrorPinPanel : ErrorPinUserControl
+    public partial class ErrorPinPanel : PinUserControl<ErrorPin>
     {
         public ErrorPinPanel()
         {
@@ -16,6 +16,4 @@ namespace Pinspaces.Controls
             DataContext = Pin;
         }
     }
-
-    public abstract class ErrorPinUserControl : PinUserControl<ErrorPin> { }
 }

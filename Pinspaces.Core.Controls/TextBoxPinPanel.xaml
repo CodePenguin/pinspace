@@ -1,11 +1,12 @@
-<local:TextBoxPinUserControl x:Class="Pinspaces.Core.Controls.TextBoxPinPanel"
+<core:PinUserControl  x:Class="Pinspaces.Core.Controls.TextBoxPinPanel" x:TypeArguments="local:TextBoxPin"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Pinspaces.Core.Controls"
+             xmlns:core="clr-namespace:Pinspaces.Core.Controls;assembly=Pinspaces.Core.Plugins"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <TextBox Name="textBox" AcceptsReturn="true" Text="{Binding Text}" d:Text="Contents" BorderThickness="0" TextChanged="TextBox_TextChanged" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
     </TextBox>
-</local:TextBoxPinUserControl>
+</core:PinUserControl>

@@ -6,7 +6,7 @@ using System.Windows.Controls;
 namespace Pinspaces.Core.Controls
 {
     [PinType(DisplayName = "Text Box", PinType = typeof(TextBoxPin))]
-    public partial class TextBoxPinPanel : TextBoxPinUserControl
+    public partial class TextBoxPinPanel : PinUserControl<TextBoxPin>
     {
         public TextBoxPinPanel()
         {
@@ -40,6 +40,4 @@ namespace Pinspaces.Core.Controls
             NotifyPinPropertyChanged(nameof(Pin.WordWrap));
         }
     }
-
-    public abstract class TextBoxPinUserControl : PinUserControl<TextBoxPin> { }
 }

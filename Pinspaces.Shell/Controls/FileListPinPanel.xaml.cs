@@ -8,7 +8,7 @@ using System.Windows.Input;
 namespace Pinspaces.Shell.Controls
 {
     [PinType(DisplayName = "File List", PinType = typeof(FileListPin))]
-    public partial class FileListPinPanel : FileListPinUserControl
+    public partial class FileListPinPanel : PinUserControl<FileListPin>
     {
         public FileListPinPanel()
         {
@@ -79,6 +79,4 @@ namespace Pinspaces.Shell.Controls
             NotifyPinPropertyChanged(nameof(Pin.Files));
         }
     }
-
-    public abstract class FileListPinUserControl : PinUserControl<FileListPin> { }
 }
