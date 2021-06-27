@@ -8,7 +8,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <UseWPF>true</UseWPF>
     <PackageId>Pinspaces.Core.Plugins</PackageId>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <Authors>David Lambert</Authors>
     <Company>Pinspaces</Company>
     <RepositoryUrl>https://github.com/CodePenguin/pinspaces</RepositoryUrl>

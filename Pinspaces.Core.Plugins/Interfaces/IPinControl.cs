@@ -1,11 +1,10 @@
 using Pinspaces.Core.Data;
 using System;
-using System.ComponentModel;
 using System.Windows.Controls;
 
 namespace Pinspaces.Core.Interfaces
 {
-    public interface IPinControl : INotifyPropertyChanged
+    public interface IPinControl
     {
         public Control ContentControl { get; }
 
