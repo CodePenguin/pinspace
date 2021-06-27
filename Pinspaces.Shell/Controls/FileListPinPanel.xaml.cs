@@ -1,19 +1,15 @@
-using Pinspaces.Core.Data;
+using Pinspaces.Core.Controls;
 using Pinspaces.Core.Interfaces;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace Pinspaces.Shell.Controls
 {
     [PinType(DisplayName = "File List", PinType = typeof(FileListPin))]
-    public partial class FileListPinPanel : UserControl, IPinControl
+    public partial class FileListPinPanel : FileListPinUserControl
     {
-        private FileListPin fileListPin;
-
         public FileListPinPanel()
         {
             InitializeComponent();
@@ -25,21 +21,11 @@ namespace Pinspaces.Shell.Controls
             shellListView.KeyUp += ShellListView_KeyUp;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public Control ContentControl => this;
-
         public ObservableCollection<ShellListItem> Items => shellListView.Items;
 
-        public void AddContextMenuItems(ContextMenu contextMenu)
+        protected override void LoadPin()
         {
-            // Do nothing
-        }
-
-        public void LoadPin(Guid pinspaceId, Pin pin)
-        {
-            fileListPin = pin as FileListPin;
-            foreach (var file in fileListPin.Files)
+            foreach (var file in Pin.Files)
             {
                 shellListView.AddFile(file);
             }
@@ -85,12 +71,14 @@ namespace Pinspaces.Shell.Controls
 
         private void UpdatePin()
         {
-            fileListPin.Files.Clear();
+            Pin.Files.Clear();
             foreach (var item in shellListView.Items)
             {
-                fileListPin.Files.Add(item.Uri);
+                Pin.Files.Add(item.Uri);
             }
-            PropertyChanged?.Invoke(fileListPin, new PropertyChangedEventArgs(nameof(fileListPin.Files)));
+            NotifyPinPropertyChanged(nameof(Pin.Files));
         }
     }
+
+    public abstract class FileListPinUserControl : PinUserControl<FileListPin> { }
 }

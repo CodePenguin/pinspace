@@ -1,9 +1,8 @@
-using Pinspaces.Core.Data;
+using Pinspaces.Core.Controls;
 using Pinspaces.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,12 +11,11 @@ using System.Windows.Controls;
 namespace Pinspaces.Shell.Controls
 {
     [PinType(DisplayName = "Folder View", PinType = typeof(FolderViewPin))]
-    public partial class FolderViewPinPanel : UserControl, IPinControl, IDisposable
+    public partial class FolderViewPinPanel : FolderViewPinUserControl, IDisposable
     {
         private bool disposedValue;
         private FileSystemWatcher fileSystemWatcher;
         private bool pendingRefresh;
-        private FolderViewPin pin;
         private Window window;
 
         public FolderViewPinPanel()
@@ -31,13 +29,9 @@ namespace Pinspaces.Shell.Controls
             Unloaded += UserControl_Unloaded;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public Control ContentControl => this;
-
         public ObservableCollection<ShellListItem> Items => shellListView.Items;
 
-        public void AddContextMenuItems(ContextMenu contextMenu)
+        public override void AddContextMenuItems(ContextMenu contextMenu)
         {
             var menuItem = new MenuItem { Header = "Select folder..." };
             menuItem.Click += SelectFolderContextMenuItem_Click;
@@ -50,13 +44,6 @@ namespace Pinspaces.Shell.Controls
             GC.SuppressFinalize(this);
         }
 
-        public void LoadPin(Guid pinspaceId, Pin pin)
-        {
-            this.pin = pin as FolderViewPin;
-            _ = Task.Run(RefreshItems);
-            InitializeFileSystemWatcher();
-        }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -67,6 +54,12 @@ namespace Pinspaces.Shell.Controls
                 }
                 disposedValue = true;
             }
+        }
+
+        protected override void LoadPin()
+        {
+            _ = Task.Run(RefreshItems);
+            InitializeFileSystemWatcher();
         }
 
         private void DeinitializeFileSystemWatcher()
@@ -83,7 +76,7 @@ namespace Pinspaces.Shell.Controls
         private void InitializeFileSystemWatcher()
         {
             DeinitializeFileSystemWatcher();
-            fileSystemWatcher = new FileSystemWatcher(pin.FolderPath);
+            fileSystemWatcher = new FileSystemWatcher(Pin.FolderPath);
             fileSystemWatcher.Changed += FileSystemWatcher_Changed;
             fileSystemWatcher.IncludeSubdirectories = true;
             fileSystemWatcher.EnableRaisingEvents = true;
@@ -102,7 +95,7 @@ namespace Pinspaces.Shell.Controls
         private Task<IEnumerable<ShellListItem>> RetrieveShellItems()
         {
             var list = new List<ShellListItem>();
-            var directoryInfo = new DirectoryInfo(pin.FolderPath);
+            var directoryInfo = new DirectoryInfo(Pin.FolderPath);
             foreach (var info in directoryInfo.EnumerateFileSystemInfos())
             {
                 list.Add(new ShellListItem(info));
@@ -115,9 +108,9 @@ namespace Pinspaces.Shell.Controls
             using var dialog = new System.Windows.Forms.FolderBrowserDialog();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                pin.FolderPath = dialog.SelectedPath;
+                Pin.FolderPath = dialog.SelectedPath;
                 await RefreshItems();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(pin.FolderPath)));
+                NotifyPinPropertyChanged(nameof(Pin.FolderPath));
             }
         }
 
@@ -147,4 +140,6 @@ namespace Pinspaces.Shell.Controls
             }
         }
     }
+
+    public abstract class FolderViewPinUserControl : PinUserControl<FolderViewPin> { }
 }

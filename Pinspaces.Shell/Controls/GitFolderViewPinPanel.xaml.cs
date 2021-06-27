@@ -1,10 +1,9 @@
-using Pinspaces.Core.Data;
+using Pinspaces.Core.Controls;
 using Pinspaces.Core.Interfaces;
 using Pinspaces.Shell.Git;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,12 +12,11 @@ using System.Windows.Controls;
 namespace Pinspaces.Shell.Controls
 {
     [PinType(DisplayName = "Git Folder View", PinType = typeof(GitFolderViewPin))]
-    public partial class GitFolderViewPinPanel : UserControl, IPinControl, IDisposable
+    public partial class GitFolderViewPinPanel : GitFolderViewPinUserControl, IDisposable
     {
         private bool disposedValue;
         private FileSystemWatcher fileSystemWatcher;
         private bool pendingRefresh;
-        private GitFolderViewPin pin;
         private Window window;
 
         public GitFolderViewPinPanel()
@@ -32,13 +30,9 @@ namespace Pinspaces.Shell.Controls
             Unloaded += UserControl_Unloaded;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public Control ContentControl => this;
-
         public ObservableCollection<ShellListItem> Items => shellListView.Items;
 
-        public void AddContextMenuItems(ContextMenu contextMenu)
+        public override void AddContextMenuItems(ContextMenu contextMenu)
         {
             var menuItem = new MenuItem { Header = "Select folder..." };
             menuItem.Click += SelectFolderContextMenuItem_Click;
@@ -51,13 +45,6 @@ namespace Pinspaces.Shell.Controls
             GC.SuppressFinalize(this);
         }
 
-        public void LoadPin(Guid pinspaceId, Pin pin)
-        {
-            this.pin = pin as GitFolderViewPin;
-            _ = Task.Run(RefreshItems);
-            InitializeFileSystemWatcher();
-        }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -68,6 +55,12 @@ namespace Pinspaces.Shell.Controls
                 }
                 disposedValue = true;
             }
+        }
+
+        protected override void LoadPin()
+        {
+            _ = Task.Run(RefreshItems);
+            InitializeFileSystemWatcher();
         }
 
         private void DeinitializeFileSystemWatcher()
@@ -84,7 +77,7 @@ namespace Pinspaces.Shell.Controls
         private void InitializeFileSystemWatcher()
         {
             DeinitializeFileSystemWatcher();
-            fileSystemWatcher = new FileSystemWatcher(pin.RepositoryPath);
+            fileSystemWatcher = new FileSystemWatcher(Pin.RepositoryPath);
             fileSystemWatcher.Changed += FileSystemWatcher_Changed;
             fileSystemWatcher.IncludeSubdirectories = true;
             fileSystemWatcher.EnableRaisingEvents = true;
@@ -104,11 +97,11 @@ namespace Pinspaces.Shell.Controls
         private async Task<IEnumerable<GitShellListItem>> RetrieveGitStatusItems()
         {
             var list = new List<GitShellListItem>();
-            var git = new GitInterop(pin.RepositoryPath);
+            var git = new GitInterop(Pin.RepositoryPath);
             var entries = await git.StatusAsync();
             foreach (var entry in entries)
             {
-                var filePath = Path.Join(pin.RepositoryPath, entry.ToPath.Replace('/', '\\'));
+                var filePath = Path.Join(Pin.RepositoryPath, entry.ToPath.Replace('/', '\\'));
 
                 var item = new GitShellListItem(filePath, entry);
                 list.Add(item);
@@ -128,9 +121,9 @@ namespace Pinspaces.Shell.Controls
                     _ = MessageBox.Show("The selected folder is not a Git repository.", "Pinspaces", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                pin.RepositoryPath = dialog.SelectedPath;
+                Pin.RepositoryPath = dialog.SelectedPath;
                 await RefreshItems();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(pin.RepositoryPath)));
+                NotifyPinPropertyChanged(nameof(Pin.RepositoryPath));
             }
         }
 
@@ -160,4 +153,6 @@ namespace Pinspaces.Shell.Controls
             }
         }
     }
+
+    public abstract class GitFolderViewPinUserControl : PinUserControl<GitFolderViewPin> { }
 }

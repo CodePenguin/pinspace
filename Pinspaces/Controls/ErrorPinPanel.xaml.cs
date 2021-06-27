@@ -1,35 +1,21 @@
-using Pinspaces.Core.Data;
+using Pinspaces.Core.Controls;
 using Pinspaces.Core.Interfaces;
-using System;
-using System.ComponentModel;
-using System.Windows.Controls;
 
 namespace Pinspaces.Controls
 {
     [PinType(DisplayName = "Error Pin", PinType = typeof(ErrorPin))]
-    public partial class ErrorPinPanel : UserControl, IPinControl
+    public partial class ErrorPinPanel : ErrorPinUserControl
     {
-        private ErrorPin errorPin;
-
         public ErrorPinPanel()
         {
             InitializeComponent();
-            DataContext = errorPin;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public Control ContentControl => this;
-
-        public void AddContextMenuItems(ContextMenu contextMenu)
+        protected override void LoadPin()
         {
-        }
-
-        public void LoadPin(Guid pinspaceId, Pin pin)
-        {
-            DataContext = pin;
-            errorPin = pin as ErrorPin;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+            DataContext = Pin;
         }
     }
+
+    public abstract class ErrorPinUserControl : PinUserControl<ErrorPin> { }
 }
