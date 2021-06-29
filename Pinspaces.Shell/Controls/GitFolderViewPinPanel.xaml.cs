@@ -57,9 +57,9 @@ namespace Pinspaces.Shell.Controls
             }
         }
 
-        protected override void LoadPin()
+        protected async override void LoadPin()
         {
-            _ = Task.Run(RefreshItems);
+            await RefreshItems();
             InitializeFileSystemWatcher();
         }
 
@@ -77,10 +77,17 @@ namespace Pinspaces.Shell.Controls
         private void InitializeFileSystemWatcher()
         {
             DeinitializeFileSystemWatcher();
-            fileSystemWatcher = new FileSystemWatcher(Pin.RepositoryPath);
+            fileSystemWatcher = new FileSystemWatcher(Pin.RepositoryPath)
+            {
+                EnableRaisingEvents = true,
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.CreationTime
+                             | NotifyFilters.DirectoryName
+                             | NotifyFilters.FileName
+                             | NotifyFilters.LastWrite
+                             | NotifyFilters.Size
+            };
             fileSystemWatcher.Changed += FileSystemWatcher_Changed;
-            fileSystemWatcher.IncludeSubdirectories = true;
-            fileSystemWatcher.EnableRaisingEvents = true;
         }
 
         private async Task RefreshItems()
