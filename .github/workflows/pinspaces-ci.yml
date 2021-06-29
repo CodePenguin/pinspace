@@ -47,7 +47,7 @@ jobs:
       run: dotnet publish Pinspaces.Shell /p:Version=${{ env.VERSION }} --no-restore --framework net5.0-windows --configuration Release -maxcpucount:1 --output Pinspaces\bin\Release\publish\plugins\Pinspaces.Shell\
 
     - name: Installer
-      run: iscc .\build\PinspacesSetup.iss
+      run: iscc .\build\PinspacesSetup.iss /DBuildVersion=${{ env.VERSION }}
 
     - name: Upload binaries
       uses: actions/upload-artifact@v2
